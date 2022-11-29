@@ -30,9 +30,9 @@ make -j
 
 While you may work via command line and your prefered text editor it is much more comfortable to use an IDE. I recommend [Visual Studio Code](https://code.visualstudio.com/) which is available on Linux, Mac OS and Windows.   
 
-After installing VS Code use it to open folder containing the  project repository. You should install the  recommended extension. The list is in the `.vscode/extensions.json` file, but you should be prompted to do this after opening the project folder. Also on opening you may by prompted to configure the project. You will have to choose the the kit used for compilation, you will need a C++17 compiler. On Linux and Mac OS I am using clang (10 or higher) but you can also use g++. 
+After installing VS Code use it to open folder containing the  project repository. You should install the  recommended extension. The list is in the `.vscode/extensions.json` file, but you should be prompted to do this after opening the project folder. Also on opening you may by prompted to configure the project. You will have to choose the the kit used for compilation, you will need a C++17 compiler. On Linux and macOS I am using clang (10 or higher) but you can also use g++. 
 
-On windows you will need to install either [Visual Studio Community](https://visualstudio.microsoft.com/pl/vs/community/) edition or [Mingw-gw64](https://www.mingw-w64.org/). If you have VS Community installed then suitable kit should apear in the list of kits. After choosing it the configuration and build should proceed without problems.
+On Windows you will need to install either [Visual Studio Community](https://visualstudio.microsoft.com/pl/vs/community/) edition or [Mingw-gw64](https://www.mingw-w64.org/). If you have VS Community installed then suitable kit should apear in the list of kits. After choosing it the configuration and build should proceed without problems.
 
 ### Using Mingw-gw with Visual Studio Code
 
@@ -84,5 +84,5 @@ git push -u origin main
 Invite me (pbialas7) to your repository and then
 add the url of the repository (the ssh not htpps) to the repositories spredsheat on Teams.
 
-That way I can acess you files for grading and helping you debug. 
+That way I can access you files for grading and helping you debug. 
 

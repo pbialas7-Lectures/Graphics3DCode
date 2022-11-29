@@ -8,6 +8,7 @@
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include "RegisteredObject.h"
 
 namespace xe
 {
@@ -31,7 +32,9 @@ namespace xe
 
         virtual void frame() {}
 
-        virtual void cleanup() {}
+        virtual void cleanup() {
+            RegisteredObject::cleanup();
+        }
 
         virtual void framebuffer_resize_callback(int w, int h) {}
 

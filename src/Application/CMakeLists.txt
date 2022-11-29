@@ -8,4 +8,6 @@ add_library(${PROJECT_NAME}
         utils.h
         shader_source.cpp 
         shader_source.h
+        RegisteredObject.cpp
+        RegisteredObject.h
         )
