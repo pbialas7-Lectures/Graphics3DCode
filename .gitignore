@@ -13,3 +13,5 @@ local-build/
 .idea/workspace.xml
 
 .idea/
+
+cmake-build-release/
