@@ -5,4 +5,7 @@ add_compile_definitions(PROJECT_NAME="${PROJECT_NAME}" PROJECT_DIR="${CMAKE_CURR
 
 add_library(Engine
         Mesh.h Mesh.cpp
-        )
+        Material.h
+        Camera.h Camera.cpp
+        CameraControler.h CameraControler.cpp
+        ColorMaterial.h ColorMaterial.cpp utils.h utils.cpp)

@@ -1,7 +1,9 @@
 # Meshes
 
 Proszę sciągnąć najnowszy kod z mojego repozytorium. W katalogu `src/Engine` powinny się pojawić pliki `Mesh.h`
-i `Mesh.cpp` w których zdefiniowana jest klasa `Mesh`. Jeśli
+i `Mesh.cpp` w których zdefiniowana jest klasa `Mesh`. W katalogu `Application` powiny się pojawić pliki `RegisteredObject.h` i `RegisteredObject.cpp` oraz zmienić się plik `CMakeLists.txt`
+
+Jeśli
 wszystko poszło dobrze to pliki w tej kartotece powinny zostać skompilowane do biblioteki `
 Engine`. Bibliotekę można podłączyć w pliku `CMakeLists.txt` poleceniem `
 target_link_libraries`. Jeśli stworzyli Państwo nowy katalog `
@@ -11,6 +13,9 @@ CMakeLists.txt` w tym katalogu należy dodać po poleceniu `add_executable` pole
 ```cmake
 target_link_libraries(${PROJECT_NAME} PUBLIC Engine)
 ```
+
+W g
+
 
 Zanim jeszcze przejdziemy dalej, to umieścimy pliki zawierające obsługę kamery i kontrolera kamery też w kartotece `Engine`
 . Tym sam nie bedziemy ich kopiować za każdym razem na nowo. Jeśli Państwo stworzyli kartotekę `Mesh` poprzez
