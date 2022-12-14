@@ -15,9 +15,11 @@ public:
     static void cleanup();
 
     RegisteredObject() {
-        std::cout << "Registering " << this << std::endl;
         RegisteredObject::add(this);
     }
+
+    virtual ~RegisteredObject() {}
+
 
 private:
     static std::list<RegisteredObject *> registry_;
