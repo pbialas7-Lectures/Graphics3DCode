@@ -1,0 +1,11 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl BlueMarble
+Ns 500
+Ka 0.8 0.8 0.8
+Kd 1.0 1.0 1.0
+Ks 0.8 0.8 0.8
+map_Kd world.topo.200412.3x5400x2700.jpg
+d 1
+illum 0
