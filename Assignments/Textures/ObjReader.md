@@ -5,6 +5,7 @@ formacie [Wavefront OBJ](http://paulbourke.net/dataformats/obj/) i stowarzyszony
 plików [Wavefront Material Template Library (MTL)](http://paulbourke.net/dataformats/mtl/). Dlatego proszę niczego nie
 kopiować, tylko pracować dalej na ćwiczeniu Textures.
 
+
 Proszę zacząć od zaktualizowania swoich repozytoriów do mojego. Powinny się po tym u Państwa pojawić kartoteki:
 
 ```text
@@ -19,7 +20,9 @@ powinny się pojawić pliki
 
 Wszystko powinno się teraz skompilować i działać jak poprzednio.
 
-Koljnym krokiem jest modyfikacja klasy  `Mesh` tak, aby współdziałała z funkcją
+Zanim Państwo zaczną proszę się upewnić, czy współrzędne tekstury mają w szaderze fragemntów przypisany (layout = 1). Jeśli nie, to trzeba to zmienić. 
+
+Kolejnym krokiem jest modyfikacja klasy  `Mesh` tak, aby współdziałała z funkcją
 
 ```c++
 Mesh* load_mesh_from_obj(std::string path, std::string mtl_dir);

@@ -60,7 +60,7 @@ tylko współrzędne 5 wierzchołków. Dodanie dodatkowego atrybutu, czyli wspó
 jak
 w ćwiczeniu `Colors`, tyle że współrzędne tekstury mają tylko dwie składowe. Wartości tych współrzędnych można odczytać
 z uv mapy w pliku `uv.png`. Widać, że sam wierzchołek piramidy musi zostać powtórzony czterokrotnie z różnymi
-wartościami współrzędnych tekstury.
+wartościami współrzędnych tekstury. Najlepiej w tym momencie usunąć informcję o kolorach wierzchołków z bufora, oraz shaderów. W szaderze wierzchołków najlepiej przypisać współrzędnym textury numer (layout=1).
 Koniec końców powinni mieć Państwo w buforze wierzchołków 8 wierzchołków.
 
 Koniec końców powinniśmy mieć w szaderze fragmentów zmienną
@@ -99,7 +99,13 @@ if (!img) {
 
 Jeśli obrazek załaduje się, to w zmiennych `height`, `width` i `channels` zostaną zapisane odpowiednie wartości.
 Zmienna `channels` będzie zawierać liczbę kanałów w obrazku. Teraz trzeba stworzyć teksturę poleceniem  `glGenTeksture`,
-zbindować ją, załadować do niej obrazek poleceniem `glTexImage2D` i ustawić odpowiednie parametry. Jak to się uda, to
+zbindować ją, załadować do niej obrazek poleceniem `glTexImage2D` i ustawić odpowiednie parametry. 
+Ważne jest, aby ustawić metody interpolacji nie używające mipmaps np.
+```c++
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+```
+Jak to się uda, to
 możemy tą teksturę przekazać do obiektu `ColorMaterial`.
 
 I na konieć zmodyfikujemy szader fragmentów. Dodamy do niego zmienna
