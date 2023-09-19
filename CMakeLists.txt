@@ -93,7 +93,7 @@ add_subdirectory(src/Application)
 
 if (EXISTS ${SOURCE_DIR}/ObjectReader)
     add_subdirectory(src/ObjectReader)
-else()
+else ()
     message("Warning: directory ObjectReader does not exists.")
 endif ()
 
@@ -102,7 +102,6 @@ if (EXISTS ${SOURCE_DIR}/Engine)
 else ()
     message("Warning: directory Engine does not exists.")
 endif ()
-
 
 
 #Assignments
@@ -114,7 +113,5 @@ link_libraries(application)
 foreach (assignment ${ASSIGNMENTS})
     if (EXISTS ${ASSIGNMENTS_DIR}/${assignment})
         add_subdirectory(${ASSIGNMENTS_DIR}/${assignment})
-    else ()
-        message("Warning: directory ${ASSIGNMENTS_DIR}/${assignment} does not exists.")
     endif ()
 endforeach ()
