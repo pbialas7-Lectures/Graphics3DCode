@@ -8,18 +8,18 @@
 
 # House
 
-Termin oddania: 15.10.23 23:59 2pkt.
+#### 2 points
 
 1. Please copy the `src/Assignments/Triangle`  directory to  `src/Assignments/House`. You can do this either by provided
    script (use it at your own risk!):
     ```{python}
-    python3 ./scripts/copy_assignment.py Triangle House
+    python3 ./scripts/copy_assignment.py 00_Triangle 01_House
     ```
-   or "by hand". For this purpose
+   or "by hand." For this purpose
 
     1. In the folder  `src/Assignments`  copy folders using
        ```
-       cp -r Triangle House
+       cp -r 00_Triangle 01_House
        ```
     2. Next switch to this newly created folder and in file  `CMakeLists.txt`  change the name of the project
        to  `House`.
@@ -38,13 +38,18 @@ Termin oddania: 15.10.23 23:59 2pkt.
     ```
    We should again see the red triangle. We are now ready to play with the code.
 
+4. Find the place where the background color is set.
+   Change it to something else.
+   Change it back to light-gray, for
+   better debugging do not use black or white.
 
-4. Start by finding the place in `app.cpp` file where positions of vertices are stored. Change the location of the
+4. Find the place in `app.cpp` file where positions of vertices are stored. Change the location of the
    vertices. What happens when one of the coordinates _x,y_ is outside the range [-1,1]? What if  _z_ coordinate is
    outside this range?
-5. Add one more triangle. Rember to edit draw command in the `frame` function.
+5. Add one more triangle. Remember to edit draw command in the `frame` function.
 6. Draw a house
-   by adding beneath original triangle a rectangle of width 1.0 and height 0.5. This should be your final version that
-   you should submit to repository.
-   
+   by adding beneath the original triangle a rectangle of width 1.0 and height 0.5. This should be your final version
+   that
+   you should submit to repository. It should look like this:
+
 <img alt="House" src="house.png" class="center">
