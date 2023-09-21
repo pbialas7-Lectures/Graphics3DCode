@@ -7,20 +7,18 @@
 #include <iomanip>
 
 #define GLFW_INCLUDE_NONE
+
 #include <GLFW/glfw3.h>
 #include "RegisteredObject.h"
 
-namespace xe
-{
-    class Application
-    {
+namespace xe {
+    class Application {
     public:
-        Application(int width, int height, std::string title, bool debug );
+        Application(int width, int height, std::string title, bool debug);
 
         void run(int verbose = 0);
 
-        auto frame_buffer_size() const
-        {
+        auto frame_buffer_size() const {
             int w, h;
             glfwGetFramebufferSize(window_, &w, &h);
             return std::make_pair(w, h);
@@ -28,7 +26,7 @@ namespace xe
 
         void save_frame_buffer();
 
-        virtual void init(){};
+        virtual void init() {};
 
         virtual void frame() {}
 
@@ -46,9 +44,8 @@ namespace xe
 
         virtual void key_callback(int key, int scancode, int action, int mods);
 
-        virtual void window_refresh_callback();
+        virtual void window_refresh_callback() {};
 
-       
 
     protected:
         GLFWwindow *window_;

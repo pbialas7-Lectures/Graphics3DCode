@@ -2,12 +2,12 @@
 // Created by pbialas on 05.08.2020.
 //
 #include "utils.h"
-#include <vector>
+
 #include <iostream>
 #include <sstream>
-#include <fstream>
 #include <unordered_map>
-#include <cstring>
+
+#include "spdlog/spdlog.h"
 
 #include "glad/gl.h"
 
@@ -15,6 +15,27 @@
 
 namespace xe {
     namespace utils {
+
+        std::string get_gl_version(void) {
+            auto version = glGetString(GL_VERSION);
+            return std::string((const char *) version);
+        }
+
+        std::string get_gl_vendor(void) {
+            auto vendor = glGetString(GL_VENDOR);
+            return std::string((const char *) vendor);
+        }
+
+        std::string get_gl_renderer(void) {
+            auto renderer = glGetString(GL_RENDERER);
+            return std::string((const char *) renderer);
+        }
+
+        std::string get_glsl_version(void) {
+            auto glsl_version = glGetString(GL_SHADING_LANGUAGE_VERSION);
+            return std::string((const char *) glsl_version);
+        }
+
         std::string get_gl_description(void) {
             std::stringstream ss;
             auto vendor = glGetString(GL_VENDOR);
@@ -41,18 +62,18 @@ namespace xe {
                 case GL_FRAGMENT_SHADER:
                     return "Fragment";
 #if (MAJOR >= 3) && (MINOR >= 2)
-                    case GL_GEOMETRY_SHADER:
-                        return "Geometry";
+                case GL_GEOMETRY_SHADER:
+                    return "Geometry";
 #endif
 #if (MAJOR >= 4) && (MINOR >= 3)
-                    case GL_COMPUTE_SHADER:
-                        return "Compute";
+                case GL_COMPUTE_SHADER:
+                    return "Compute";
 #endif
 #if (MAJOR >= 4) && (MINOR >= 3)
-                    case GL_TESS_CONTROL_SHADER:
-                        return "Tesselation Control";
-                    case GL_TESS_EVALUATION_SHADER:
-                        return "Tesselation Evaluation";
+                case GL_TESS_CONTROL_SHADER:
+                    return "Tesselation Control";
+                case GL_TESS_EVALUATION_SHADER:
+                    return "Tesselation Evaluation";
 
 #endif
             }
@@ -68,10 +89,10 @@ namespace xe {
                 case GL_INVALID_OPERATION:
                     return "INVALID OPERATION";
 #if MINOR > 2
-                    case GL_STACK_OVERFLOW:
-                        return "STACK OVERFLOW";
-                    case GL_STACK_UNDERFLOW:
-                        return "STACK UNDERFLOW";
+                case GL_STACK_OVERFLOW:
+                    return "STACK OVERFLOW";
+                case GL_STACK_UNDERFLOW:
+                    return "STACK UNDERFLOW";
 #endif
                 case GL_OUT_OF_MEMORY:
                     return "OUT OF MEMORY";
@@ -85,21 +106,21 @@ namespace xe {
         GLenum get_and_report_error(const std::string function_call, std::string file_name, int line_number) {
             auto error = glGetError();
             auto error_name = error_msg(error);
-
+            std::stringstream ss;
             if (error != GL_NO_ERROR) {
-                std::cerr << "OpenGL error: " << error_name;
+                ss << "OpenGL error: " << error_name;
                 if (!function_call.empty()) {
-                    std::cerr << "  " << function_call;
+                    ss << "  " << function_call;
                 }
                 if (!file_name.empty()) {
-                    std::cerr << " " << file_name;
+                    ss << " " << file_name;
                 }
 
                 if (line_number >= 0) {
-                    std::cerr << ":" << line_number;
+                    ss << ":" << line_number;
                 }
 
-                std::cerr << std::endl;
+                spdlog::error(ss.str());
             }
             return 0;
         }
@@ -109,9 +130,16 @@ namespace xe {
             GLint link_status;
             glGetProgramiv(program, GL_LINK_STATUS, &link_status);
             if (!link_status) {
-                std::cerr << "Error linking program\n";
+                spdlog::error("Error linking program\n");
                 GLint max_log_length = 0;
                 glGetProgramiv(program, GL_INFO_LOG_LENGTH, &max_log_length);
+                GLchar *info_log = new GLchar[max_log_length];
+                glGetProgramInfoLog(program, max_log_length, &max_log_length, info_log);
+                std::istringstream iss(info_log);
+                std::string line;
+                while (std::getline(iss, line)) {
+                    spdlog::error(line);
+                }
                 return 0;
             }
 
@@ -139,8 +167,7 @@ namespace xe {
 
             GLuint program = glCreateProgram();
             if (program == 0) {
-                std::cerr << "Error creating program"
-                          << "\n";
+                spdlog::error("Error creating program");
                 delete_shaders(shaders);
                 return 0;
             }
@@ -148,13 +175,14 @@ namespace xe {
                 glAttachShader(program, shader);
                 auto status = glGetError();
                 if (status != GL_NO_ERROR) {
+                    spdlog::error("Error attaching {} shader: {}", utils::shader_type(shader_type), error_msg(status));
                     glDeleteProgram(program);
                     delete_shaders(shaders);
                     return 0;
                 }
             }
             if (link_program(program) == 0) {
-                std::cerr << "Cannot link program" << std::endl;
+                spdlog::error("Cannot link program");
                 glDeleteProgram(program);
                 delete_shaders(shaders);
                 return 0;
@@ -174,8 +202,7 @@ namespace xe {
 
             auto shader = glCreateShader(type);
             if (shader == 0) {
-                std::cerr << "Error creating " << shader_type(type) << " shader"
-                          << "\n";
+                spdlog::error("Error creating {} shader", utils::shader_type(type));
                 return 0;
             }
 
@@ -192,10 +219,19 @@ namespace xe {
                 glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &max_log_length);
                 std::string error_log;
                 error_log.resize(max_log_length);
-                glGetShaderInfoLog(shader, max_log_length, &max_log_length, &error_log[0]);
+                int length = 0;
+                glGetShaderInfoLog(shader, max_log_length, &length, error_log.data());
                 glDeleteShader(shader);
-                std::cerr << utils::shader_type(type) << " shader\n"
-                          << " compilation error: " << error_log << std::endl;
+
+
+
+                spdlog::error("Error compiling {} shader", shader_type(type));
+                std::istringstream iss(error_log.substr(0,length));
+                std::string line;
+                while (std::getline(iss, line)) {
+                    spdlog::error(line);
+                }
+
                 return 0;
             }
             return shader;

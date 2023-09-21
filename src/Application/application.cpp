@@ -17,12 +17,12 @@
 
 #include <iostream>
 #include <sstream>
-#include <tuple>
 
+#include "spdlog/spdlog.h"
 #include "glad/gl.h"
-#include "utils.h"
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#include "utils.h"
 
 #include "stb/stb_image_write.h"
 
@@ -35,8 +35,7 @@
  * This unnamed namespace contains two predefined postcall callbacks making them local to this file.  
  * 
  */
-namespace
-{
+namespace {
     /**
      * @brief 
      * 
@@ -46,22 +45,20 @@ namespace
      * @param len_args 
      * @param ... 
      */
-
     void _pre_call_callback(const char *name, GLADapiproc apiproc, int len_args, ...) {
-        //std::cerr<<"Calling "<<name<<"\n";
     };
-    void _post_call_callback_default(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...)
-    {
+
+    void _post_call_callback_default(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...) {
         GLenum error_code;
         error_code = glad_glGetError();
 
-        if (error_code != GL_NO_ERROR)
-        {
-            std::cerr << "ERROR " << error_code << " " << xe::utils::error_msg(error_code) << " in " << name << std::endl;
+        if (error_code != GL_NO_ERROR) {
+            spdlog::error("ERROR {} {} in {}", error_code, xe::utils::error_msg(error_code), name);
         }
+
     }
-    void _post_call_callback_no_debug(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...)
-    {
+
+    void _post_call_callback_no_debug(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...) {
     }
 
 }
@@ -75,11 +72,9 @@ namespace
  * @param debug specify if the debug information should be generated after each OpenGL function call
  *              has efect only if compiled with debug version of glad.     
  */
-xe::Application::Application(int width, int height, std::string title, bool debug) : screenshot_n_(0)
-{
-
-    if (glfwInit())
-    {
+xe::Application::Application(int width, int height, std::string title, bool debug) : screenshot_n_(0) {
+    SPDLOG_INFO("Application::Application({}, {}, {}, {})", width, height, title, debug);
+    if (glfwInit()) {
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MAJOR);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MINOR);
@@ -88,11 +83,10 @@ xe::Application::Application(int width, int height, std::string title, bool debu
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
         window_ = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-        if (!window_)
-        {
+        if (!window_) {
             const char *error_desc;
             auto err_code = glfwGetError(&error_desc);
-            std::cerr << "Cannot create window: " << error_desc << "\n";
+            SPDLOG_CRITICAL("Cannot create window: {} {}", err_code, error_desc);
             glfwTerminate();
             exit(-1);
         }
@@ -122,9 +116,8 @@ xe::Application::Application(int width, int height, std::string title, bool debu
         }
 #endif
 
-        if (!gladLoadGL(glfwGetProcAddress))
-        {
-            std::cout << "Failed to initialize OpenGL context " << MAJOR << "." << MINOR << std::endl;
+        if (!gladLoadGL(glfwGetProcAddress)) {
+            SPDLOG_CRITICAL("Failed to initialize OpenGL {}.{} context", MAJOR, MINOR);
             exit(-1);
         }
 
@@ -139,23 +132,24 @@ xe::Application::Application(int width, int height, std::string title, bool debu
  * 
  * @param verbose unused parameter. 
  */
-void xe::Application::run(int verbose)
-{
+void xe::Application::run(int verbose) {
 
-    if (verbose > 0)
-    {
-        std::cout << utils::get_gl_description() << "\n";
+    if (verbose > 0) {
+        SPDLOG_INFO("{} {}", utils::get_gl_vendor(), utils::get_gl_renderer());
+        SPDLOG_INFO("OpenGL {} GLSL {}", utils::get_gl_version(), utils::get_glsl_version());
     }
     init();
 
+#ifdef __APPLE__
     auto macMoved = false;
-    while (!glfwWindowShouldClose(window_))
-    {
+#endif
+
+    while (!glfwWindowShouldClose(window_)) {
 
         //Clear the framebuufer by filling it with color set using the glClearColor function. 
         //Also clears the depth buffer. 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //This method should be overidden by you and will contain the rendering code.
+        //This method should be overridden by you and will contain the rendering code.
         frame();
         /* Swap front and back buffers 
            The rendering is done into the BACK buffer, swapping it with front buffer displays it on the screen.  
@@ -184,91 +178,72 @@ void xe::Application::run(int verbose)
     glfwTerminate();
 }
 
-void xe::Application::glfw_framebuffer_size_callback(GLFWwindow *window_ptr, int w, int h)
-{
+void xe::Application::glfw_framebuffer_size_callback(GLFWwindow *window_ptr, int w, int h) {
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window_ptr));
-    if (app_ptr)
-    {
+    if (app_ptr) {
         app_ptr->framebuffer_resize_callback(w, h);
     }
 }
 
-void xe::Application::glfw_scroll_callback(GLFWwindow *window_ptr, double xoffset, double yoffset)
-{
+void xe::Application::glfw_scroll_callback(GLFWwindow *window_ptr, double xoffset, double yoffset) {
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window_ptr));
-    if (app_ptr)
-    {
+    if (app_ptr) {
         app_ptr->scroll_callback(xoffset, yoffset);
     }
 }
 
-void xe::Application::glfw_cursor_position_callback(GLFWwindow *window, double x, double y)
-{
+void xe::Application::glfw_cursor_position_callback(GLFWwindow *window, double x, double y) {
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
-    if (app_ptr)
-    {
+    if (app_ptr) {
         app_ptr->cursor_position_callback(x, y);
     }
 }
 
-void xe::Application::glfw_mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
-{
+void xe::Application::glfw_mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
 
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
-    if (app_ptr)
-    {
+    if (app_ptr) {
         app_ptr->mouse_button_callback(button, action, mods);
     }
 }
 
-void xe::Application::glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS)
-    {
+void xe::Application::glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, 1);
     }
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
-    if (app_ptr)
-    {
+    if (app_ptr) {
         app_ptr->key_callback(key, scancode, action, mods);
     }
 }
 
-void xe::Application::key_callback(int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_S && action == GLFW_PRESS)
-    {
+void xe::Application::key_callback(int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
         save_frame_buffer();
     }
 }
 
-void xe::Application::save_frame_buffer()
-{
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadBuffer(GL_FRONT);
-    if (glGetError() == GL_INVALID_OPERATION) 
-        std::cerr << "Saving Frame buffer error: Front buffer does not exist."<<std::endl;
-
-    auto[w,h] = frame_buffer_size();
-    auto data = (GLubyte *)malloc(w * h * 3);
-    OGL_CALL(glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, data));
-    
-    stbi_flip_vertically_on_write(1);
-    std::stringstream ss;
-    ss << "screenshot_" << std::setw(3) << std::setfill('0') << screenshot_n_ << ".png";
-    stbi_write_png(ss.str().c_str(), w, h, 3, data, w * 3);
-    ++screenshot_n_;
-    std::cerr<<ss.str()<<"\n"; 
-}
-
-void xe::Application::glfw_window_refresh_callback(GLFWwindow *window)
-{
+void xe::Application::glfw_window_refresh_callback(GLFWwindow *window) {
 
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
-    if (app_ptr)
-    {
+    if (app_ptr) {
         app_ptr->window_refresh_callback();
     }
 }
 
-void xe::Application::window_refresh_callback() {}
+void xe::Application::save_frame_buffer() {
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadBuffer(GL_FRONT);
+    if (glGetError() == GL_INVALID_OPERATION)
+        SPDLOG_WARN("Saving Frame buffer error: Front buffer does not exist.");
+
+    auto [w, h] = frame_buffer_size();
+    auto data = (GLubyte *) malloc(w * h * 3);
+    OGL_CALL(glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, data));
+
+    stbi_flip_vertically_on_write(1);
+    std::stringstream ss;
+    spdlog::info("Saving screenshot to {}", ss.str());
+    stbi_write_png(ss.str().c_str(), w, h, 3, data, w * 3);
+    ++screenshot_n_;
+}

@@ -3,20 +3,27 @@
 //
 
 #pragma once
+
 #include <iostream>
 #include <string>
 #include <unordered_map>
 
 #include "glad/gl.h"
 
-namespace xe
-{
-    namespace utils
-    {
+namespace xe {
+    namespace utils {
 
         using shader_source_map_t = std::unordered_map<GLenum, std::string>;
         using shader_map_t = std::unordered_map<GLenum, GLuint>;
         using shader_map_element_t = std::pair<GLenum, std::string>;
+
+        std::string get_gl_version(void);
+
+        std::string get_gl_vendor(void);
+
+        std::string get_gl_renderer(void);
+
+        std::string get_glsl_version(void);
 
         std::string get_gl_description(void);
 
@@ -26,7 +33,8 @@ namespace xe
 
         std::string error_msg(GLenum status);
 
-        GLenum get_and_report_error(const std::string function_call = "", std::string file_name = "", int line_number = -1);
+        GLenum
+        get_and_report_error(const std::string function_call = "", std::string file_name = "", int line_number = -1);
 
         // Program creation utils
 
@@ -43,8 +51,12 @@ namespace xe
     }
 }
 
+#ifndef NDEBUG
 #define OGL_CALL(call)                                              \
     {                                                               \
         call;                                                       \
         xe::utils::get_and_report_error(#call, __FILE__, __LINE__); \
     }
+#else
+#define OGL_CALL(call) call
+#endif

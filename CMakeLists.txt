@@ -22,7 +22,7 @@ add_compile_definitions(XE_DEBUG)
 # GLAD
 set(MAJOR 4)
 set(MINOR 6)
-set(GLAD_DEBUG OFF)
+set(GLAD_DEBUG OFF CACHE BOOL "" FORCE)
 
 if (APPLE) #Apple has deprecated OpenGL :( 
     set(MAJOR 4)
@@ -39,7 +39,7 @@ endif ()
 
 include_directories(${GLAD_DIR}/glad/include)
 file(GLOB_RECURSE glad_SOURCES "${GLAD_DIR}/glad/src/*.c")
-add_library(glad OBJECT ${glad_SOURCES} src/3rdParty/stb/stb_image.h)
+add_library(glad OBJECT ${glad_SOURCES})
 
 # GLFW
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -69,20 +69,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(spdlog)
 
-
-if (__VS_CODE__)
-
-    # GLSLang
-
-    FetchContent_Declare(
-            glslang
-            GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-
-    )
-    FetchContent_MakeAvailable(glslang)
-
-
-endif ()
 
 find_package(OpenGL REQUIRED)
 

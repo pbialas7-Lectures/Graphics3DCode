@@ -10,4 +10,7 @@ add_library(${PROJECT_NAME}
         shader_source.h
         RegisteredObject.cpp
         RegisteredObject.h
-        )
+        stb.cpp
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
