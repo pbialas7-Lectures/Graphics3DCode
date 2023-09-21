@@ -15,7 +15,6 @@ args = parser.parse_args()
 
 ASSIGNMENTS_PATH = Path("src/Assignments")
 
-
 if not ASSIGNMENTS_PATH.exists():
     print("You are not in top directory")
     sys.exit(0)
@@ -23,7 +22,7 @@ if not ASSIGNMENTS_PATH.exists():
 source_path = ASSIGNMENTS_PATH.joinpath(args.source)
 
 if not source_path.exists() or not source_path.is_dir():
-    print(f"Source {source_path.name():s} is not a subdirectory of {ASSIGNMENTS_DIR}")
+    print(f"Source {source_path.name():s} is not a subdirectory of {ASSIGNMENTS_PATH}")
     sys.exit(0)
 
 dest_path = ASSIGNMENTS_PATH.joinpath(args.dest)
@@ -39,7 +38,6 @@ if dest_path.exists():
         print("Destination ", dest_path.name, " exists. Use --force flag to overwite")
         exit(0)
 
-
 try:
     shutil.copytree(source_path.as_posix(), dest_path.as_posix())
 except FileExistsError as err:
@@ -49,8 +47,10 @@ except FileExistsError as err:
 with open(dest_path.joinpath("CMakeLists.txt").as_posix()) as f:
     cmake_lists_txt = f.read()
 
+leading_number_re = re.compile("^\d+_")
+project_name = leading_number_re.sub("", args.dest)
 project_re = re.compile("project\(\s*(\w+)\s*\)", re.I or re.M)
-cmake_lists_txt = project_re.sub("project(" + args.dest + ")", cmake_lists_txt)
+cmake_lists_txt = project_re.sub("project(" + project_name + ")", cmake_lists_txt)
 
 with open(dest_path.joinpath("CMakeLists.txt").as_posix(), "w") as f:
     f.write(cmake_lists_txt)
