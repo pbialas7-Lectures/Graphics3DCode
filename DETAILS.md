@@ -1,6 +1,6 @@
-## GLAD
-
 ## GLFW
+
+## GLAD
 
 ## GLM
 

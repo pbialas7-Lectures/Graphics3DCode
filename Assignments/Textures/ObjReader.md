@@ -2,8 +2,7 @@
 
 To zasadniczo nie jest nowe ćwiczenie, ale uzupełnienie ćwiczenia Textures umożliwiające wczytywanie plików w
 formacie [Wavefront OBJ](http://paulbourke.net/dataformats/obj/) i stowarzyszonych
-plików [Wavefront Material Template Library (MTL)](http://paulbourke.net/dataformats/mtl/). Dlatego proszę niczego nie
-kopiować, tylko pracować dalej na ćwiczeniu Textures.
+plików [Wavefront Material Template Library (MTL)](http://paulbourke.net/dataformats/mtl/). 
 
 
 Proszę zacząć od zaktualizowania swoich repozytoriów do mojego. Powinny się po tym u Państwa pojawić kartoteki:
