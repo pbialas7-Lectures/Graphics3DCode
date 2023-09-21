@@ -6,15 +6,15 @@
 
 #include <vector>
 
-#include "Application/application.h"
-#include "Application/utils.h"
-
 #include "glad/gl.h"
 
-class SimpleShapeApplication : public xe::Application
-{
+#include "Application/application.h"
+
+
+class SimpleShapeApplication : public xe::Application {
 public:
-    SimpleShapeApplication(int width, int height, std::string title, bool debug) : Application(width, height, title, debug) {}
+    SimpleShapeApplication(int width, int height, std::string title, bool debug) : Application(width, height, title,
+                                                                                               debug) {}
 
     void init() override;
 

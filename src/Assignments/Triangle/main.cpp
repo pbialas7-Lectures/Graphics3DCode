@@ -1,8 +1,6 @@
 #include "app.h"
 
-int main()
-{
-
+int main() {
     SimpleShapeApplication app(650, 480, PROJECT_NAME, true);
     app.run(1);
 
