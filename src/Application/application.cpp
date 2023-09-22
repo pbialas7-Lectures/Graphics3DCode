@@ -243,6 +243,7 @@ void xe::Application::save_frame_buffer() {
 
     stbi_flip_vertically_on_write(1);
     std::stringstream ss;
+    ss << "screenshot_" << screenshot_n_ << ".png";
     spdlog::info("Saving screenshot to {}", ss.str());
     stbi_write_png(ss.str().c_str(), w, h, 3, data, w * 3);
     ++screenshot_n_;
