@@ -91,7 +91,7 @@ endif ()
 
 
 #Assignments
-set(ASSIGNMENTS 00_Triangle 01_House 02_Colors 03_Indices 04_Uniforms 05_PVM Pyramid Resizing Zoom CameraMovement)
+set(ASSIGNMENTS 00_Triangle 01_House 02_Colors 03_Indices 04_Uniforms 05_PVM 06_Pyramid 07_Resize Zoom CameraMovement)
 
 set(ASSIGNMENTS_DIR ${SOURCE_DIR}/Assignments)
 link_libraries(application)
