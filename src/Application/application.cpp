@@ -123,6 +123,7 @@ xe::Application::Application(int width, int height, std::string title, bool debu
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         glfwSwapInterval(1);
     }
 }
@@ -146,7 +147,7 @@ void xe::Application::run(int verbose) {
 
     while (!glfwWindowShouldClose(window_)) {
 
-        //Clear the framebuufer by filling it with color set using the glClearColor function. 
+        //Clear the framebuffer by filling it with color set using the glClearColor function.
         //Also clears the depth buffer. 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //This method should be overridden by you and will contain the rendering code.

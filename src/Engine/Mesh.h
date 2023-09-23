@@ -11,14 +11,6 @@
 
 namespace xe {
 
-    struct SubMesh {
-        SubMesh(GLuint start, GLuint end) : start(start), end(end) {}
-
-        GLuint start;
-        GLuint end;
-
-        GLuint count() const { return end - start; }
-    };
 
     class Mesh : public RegisteredObject {
     public:
@@ -28,7 +20,7 @@ namespace xe {
 
         void allocate_vertex_buffer(size_t size, GLenum hint);
 
-        void allocate_index_buffer(size_t size, GLenum hint);
+        void allocate_index_buffer(size_t size, GLenum index_type, GLenum hint);
 
         void load_vertices(size_t offset, size_t size, void *data);
 
@@ -43,11 +35,22 @@ namespace xe {
 
         void draw() const;
 
+        struct SubMesh {
+            SubMesh(GLuint start, GLuint end) : start(start), end(end) {}
+
+            GLuint start;
+            GLuint end;
+
+            GLuint count() const { return end - start; }
+        };
+
+
     private:
 
         GLuint vao_;
         GLuint v_buffer_;
         GLuint i_buffer_;
+        GLenum index_type_;
 
         std::vector<SubMesh> submeshes_;
 

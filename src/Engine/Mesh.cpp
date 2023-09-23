@@ -5,24 +5,17 @@
 #include <iostream>
 
 #include "Mesh.h"
+#include "Application/utils.h"
 
 void xe::Mesh::draw() const {
     glBindVertexArray(vao_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_);
     for (auto i = 0; i < submeshes_.size(); i++) {
-        glDrawElements(GL_TRIANGLES, submeshes_[i].count(), GL_UNSIGNED_SHORT,
-                       reinterpret_cast<void *>(sizeof(GLushort) * submeshes_[i].start));
+        OGL_CALL(glDrawElements(GL_TRIANGLES, submeshes_[i].count(), index_type_,
+                                reinterpret_cast<void *>(sizeof(GLushort) * submeshes_[i].start))
+        );
     }
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
-    glBindVertexArray(0u);
-}
-
-void xe::Mesh::vertex_attrib_pointer(GLuint index, GLuint size, GLenum type, GLsizei stride, GLsizei offset) {
-    glBindVertexArray(vao_);
-    glBindBuffer(GL_ARRAY_BUFFER, v_buffer_);
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, size, type, GL_FALSE, stride, reinterpret_cast<void *>(offset));
-    glBindBuffer(GL_ARRAY_BUFFER, 0u);
     glBindVertexArray(0u);
 }
 
@@ -44,7 +37,8 @@ xe::Mesh::~Mesh() {
 }
 
 
-void xe::Mesh::allocate_index_buffer(size_t size, GLenum hint) {
+void xe::Mesh::allocate_index_buffer(size_t size, GLenum index_type, GLenum hint) {
+    index_type_ = index_type;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
@@ -70,3 +64,11 @@ void xe::Mesh::load_vertices(size_t offset, size_t size, void *data) {
     glBindBuffer(GL_ARRAY_BUFFER, 0u);
 }
 
+void xe::Mesh::vertex_attrib_pointer(GLuint index, GLuint size, GLenum type, GLsizei stride, GLsizei offset) {
+    glBindVertexArray(vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, v_buffer_);
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, size, type, GL_FALSE, stride, reinterpret_cast<void *>(offset));
+    glBindBuffer(GL_ARRAY_BUFFER, 0u);
+    glBindVertexArray(0u);
+}

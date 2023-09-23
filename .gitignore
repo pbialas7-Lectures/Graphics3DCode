@@ -15,3 +15,10 @@ local-build/
 .idea/
 
 cmake-build-release/
+
+
+**/.ipynb_checkpoints/
+
+*.ipynb
+
+Notebooks/zoom.png
