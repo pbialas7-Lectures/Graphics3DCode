@@ -70,7 +70,7 @@ You will also learn how to use the depth buffer and how to cull faces.
    Switch back to the original camera position as described at the beginning of this file.
    The correct result should look like this:
 
-         <img alt="Pyramid" src="pyramid.png" style="display: block;margin: 1em auto; width: 50%">
+   <img alt="Pyramid" src="pyramid.png" style="display: block;margin: 1em auto; width: 50%">
 
 3. Before submitting, check if the base has proper orientation.
    You can do it by changing the z coordinate of the camera
