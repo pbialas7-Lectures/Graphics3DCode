@@ -1,6 +1,6 @@
 # Textures
 
-W tym zadaniu rozszerzymy klasę `ColorMaterial`, tak aby kolor mógł być pobierany z tekstury. W tym celu musimy dodać
+W tym zadaniu rozszerzymy klasę `KdMaterial`, tak aby kolor mógł być pobierany z tekstury. W tym celu musimy dodać
 do niej dodatkowe pola:
 
 ```c++
@@ -11,15 +11,15 @@ GLuint texture_unit_;
 
 Pole statyczne `uniform_map_Kd_location_` będzie zawierać "adres" zmiennej uniform w shaderze fragmentów
 odpowiedzialnej za teksturowanie. Jest to pole `static` bo chcemy, żeby było wspólne dla wszystkich obiektów tej klasy.
-Pola typu `static` wymagają dodatkowej definicji. W pliku `ColorMaterial.cpp`należy więc dodać wewnątrz przestrzeni
+Pola typu `static` wymagają dodatkowej definicji. W pliku `KdMaterial.cpp`należy więc dodać wewnątrz przestrzeni
 nazw `xe`
 linijkę:
 
 ```c++
-GLint  ColorMaterial::uniform_map_Kd_location_ = 0;
+GLint  KdMaterial::uniform_map_Kd_location_ = 0;
 ```
 
-To pole będzie inicjalizowane w funkcji `init` klasy `ColorMaterial`, za pomocą polecenia `glGetUniformLocation`.
+To pole będzie inicjalizowane w funkcji `init` klasy `KdMaterial`, za pomocą polecenia `glGetUniformLocation`.
 
 Pola `texture_` i `texture_unit_` będą zawierać "uchwyt" do tekstury oraz numer jednostki teksturującej. Należy dodać
 odpowiednie "getery" i "setery" czyli metody nadające im i zwracające ich wartość, a w istniejącym konstruktorze klasy
@@ -38,7 +38,7 @@ glActiveTexture(GL_TEXTURE0 + texture_unit_);
 
 Potem podpinamy teksturę z pola `texture_` poleceniem `glBindTexture`.
 
-Ponieważ chcemy, aby klasa `ColorMaterial` obsługiwała zarówno tekstury, jak i stałe kolory, to musimy przesłać do
+Ponieważ chcemy, aby klasa `KdMaterial` obsługiwała zarówno tekstury, jak i stałe kolory, to musimy przesłać do
 shadera informację o tym, czy używamy tekstury czy nie. W tym celu w metodzie `bind` deklarujemy zmienna `use_map_Kd`
 typu `GLuint` i
 nadajemy jej wartość zero, jeśli nie używamy tekstury i jeden, jeśli używamy. Potem musimy wysłać tą zmienną do bufora
@@ -72,7 +72,7 @@ in vec2 vertex_texcoords;
 Zawierającą współrzędne tekstury dla danego piksela. Teraz będziemy mieli tylko jedną podsiatkę ponieważ tekstura
 pokryje wszystkie ścianki.
 
-Klasa `ColorMaterial` odpowiada za podpięcie tektstury, ale nie za jej stworzenie i wczytanie. To dokonamy w
+Klasa `KdMaterial` odpowiada za podpięcie tektstury, ale nie za jej stworzenie i wczytanie. To dokonamy w
 metodzie `init` klasy `SimpleShapeApplication`. Najpierw proszę w głownym katalogu stworzyć pod katalog `Models` i
 przekopiować do niego plik `multicolor.png`. Obrazek tekstury wczytamy za pomocą polecenia `stb_image`. W tym celu w
 pliku `app.cpp` dodajemy
@@ -106,7 +106,7 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 ```
 Jak to się uda, to
-możemy tą teksturę przekazać do obiektu `ColorMaterial`.
+możemy tą teksturę przekazać do obiektu `KdMaterial`.
 
 I na konieć zmodyfikujemy szader fragmentów. Dodamy do niego zmienna
 
@@ -118,10 +118,10 @@ W funkcji `main` sprawdzamy czy zmienna `use_map_Kd` z bloku uniform `Color` ma 
 do `vFragColor` przypisujemy wartość `Kd`. Jeśli nie to przypisujemy
 `Kd*texture(map_Kd, vertex_texcoords)`.
 
-Musimy jeszcze tylko zainicjalizować pole  `uniform_map_Kd_location` klasy `ColorMaterial`. W tym celu należy dodać kod
+Musimy jeszcze tylko zainicjalizować pole  `uniform_map_Kd_location` klasy `KdMaterial`. W tym celu należy dodać kod
 
 ```c++
-uniform_map_Kd_location_ = glGetUniformLocation(shader_, "map_Kd");
+uniform_map_Kd_location_ = glGetUniformLocation(program_, "map_Kd");
 if (uniform_map_Kd_location_ == -1) {
     spdlog::warn("Cannot get uniform {} location", "map_Kd");
 }

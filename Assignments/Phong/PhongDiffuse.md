@@ -15,9 +15,9 @@ przejść dalej, ale wcześniej proszę wyłączyć funkcję pomijania tylnych �
 jest bryłą
 zamkniętą.
 
-Teraz stworzymy nową klasę `PhongMaterial` poprzez stworzenie kopii plików `ColorMaterial.h` i `ColorMaterial.cpp`
+Teraz stworzymy nową klasę `PhongMaterial` poprzez stworzenie kopii plików `KdMaterial.h` i `KdMaterial.cpp`
 nazywając je odpowiednio `PhongMaterial.h` i `PhongMaterial.cpp`. W tych plikach musimy zamienić wszystkie wystąpienia
-nazwy `ColorMaterial` na `PhongMaterial`.
+nazwy `KdMaterial` na `PhongMaterial`.
 
 W pliku `Engine\mesh_loader.cpp` tworzymy nową funkcję `make_phong_material` poprzez "copy and paste" :(
 funkcji `make_color_material` i zmieniając ją tak, aby zwracała `PhongMaterial`. W funkcji `load_mesh_from_obj` w tym

@@ -12,11 +12,22 @@
 
 namespace xe {
 
-    class Material: public  RegisteredObject{
+    class Material : public RegisteredObject {
     public:
-        virtual void bind() = 0;
-        virtual void unbind() {};
+        virtual void bind() const = 0;
+
+        virtual void unbind() const {};
+
     };
+
+
+    class NullMaterial : public Material {
+    public:
+
+        void bind() const override {};
+    };
+
+    extern const NullMaterial *null_material;
 
 }
 

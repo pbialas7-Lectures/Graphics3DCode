@@ -9,7 +9,7 @@
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
 
-#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
+#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one*  source file
 
 #include "3rdParty/tinyobjloader/tiny_obj_loader.h"
 

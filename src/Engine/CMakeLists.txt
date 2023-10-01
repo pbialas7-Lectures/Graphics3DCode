@@ -6,5 +6,7 @@ add_compile_definitions(PROJECT_NAME="${PROJECT_NAME}" PROJECT_DIR="${CMAKE_CURR
 add_library(Engine
         Mesh.h Mesh.cpp
         Material.h
-        ColorMaterial.h ColorMaterial.cpp
-        utils.h utils.cpp)
+        utils.h utils.cpp
+        Material.cpp
+        AbstractMaterial.cpp AbstractMaterial.h KdMaterial.cpp KdMaterial.h)
+target_link_libraries(Engine PUBLIC spdlog::spdlog)

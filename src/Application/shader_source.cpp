@@ -2,6 +2,8 @@
 #include <regex>
 #include <cstring>
 
+#include "spdlog/spdlog.h"
+
 namespace {
     char *copy_string_to_char(std::string str, const std::string &suffix = "") {
         auto line = new char[str.size() + suffix.size() + 1];
@@ -38,7 +40,7 @@ namespace xe {
                     }
                     file.close();
                 } else {
-                    std::cerr << "Cannot load shader source from`" << path << "'\n";
+                    spdlog::error("Cannot load shader source from `{}'", path);
                 }
 
             } else {

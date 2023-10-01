@@ -18,7 +18,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "ObjectReader/obj_reader.h"
-#include "Engine/ColorMaterial.h"
+#include "Engine/KdMaterial.h"
 #include "Engine/PhongMaterial.h"
 #include "Engine/Mesh.h"
 #include "Engine/texture.h"

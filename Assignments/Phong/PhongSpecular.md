@@ -31,7 +31,7 @@ Jeśli odblaski nam działają, to teraz rozszerzymy `PhongMaterial`, tak aby uw
 jak kolor ambient `Ka`, kolor odblasku `Ks` i siłę odblasku `Ns`.
 
 Zaczniemy od prostej zmiany nazw. Jak na razie
-w `PhongMaterial` zdefiniowana jest tylko zmienna `color_` i odpowiadająca mu tekstura. Nazwy tych zmiennych proszę
+w `PhongMaterial` zdefiniowana jest tylko zmienna `Kd_` i odpowiadająca mu tekstura. Nazwy tych zmiennych proszę
 zmienić
 odpowiednio na `Kd` i `map_Kd` i przenieść te definicje do części `public` klasy. Odpowiednio poprawiamy istniejące już
 setery i getery, nie zmieniając ich nazwy. To

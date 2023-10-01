@@ -18,7 +18,7 @@ public:
         RegisteredObject::add(this);
     }
 
-    virtual ~RegisteredObject() {}
+    virtual ~RegisteredObject() = default;
 
 
 private:

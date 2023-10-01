@@ -82,6 +82,7 @@ This should change nothing in the display. Please remove the old code.
    needed for calculating the aspect ratio use the `frame_buffer_size` function. It is already used at the end of
    the `init` function. Just move it to where you need it. When calculating the aspect ratio you will need to cast the
    width and height to float. In other case the integer division will be performed and the result will be wrong.
+
 5. Now multiply the matrices in the correct order to obtain the `PVM` matrix and load it into the uniform buffer.
    Finally, translate the house by (-1,1,0) using the model matrix. This should move the house to the left and up. Use
    the `glm::translate` function to create this matrix.
