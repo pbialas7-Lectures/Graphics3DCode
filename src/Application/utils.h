@@ -58,12 +58,12 @@ namespace xe {
 #define CRITICAL__  true
 #endif
 
-#ifndef NDEBUG
+#ifndef NO_OGL_CALL
 #define OGL_CALL(call)                                              \
     {                                                               \
         call;                                                       \
         xe::utils::get_and_report_error(#call, __FILE__, __LINE__, CRITICAL__); \
     }
 #else
-#define OGL_CALL(call) {call
+#define OGL_CALL(call) {call;}
 #endif

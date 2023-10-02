@@ -36,15 +36,7 @@
  * 
  */
 namespace {
-    /**
-     * @brief 
-     * 
-     * @param ret 
-     * @param name 
-     * @param apiproc 
-     * @param len_args 
-     * @param ... 
-     */
+
     void _pre_call_callback(const char *name, GLADapiproc apiproc, int len_args, ...) {
     };
 
