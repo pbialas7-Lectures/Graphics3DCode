@@ -7,6 +7,7 @@
 
 #include "mesh_loader.h"
 
+
 #include <memory>
 
 
@@ -19,18 +20,16 @@
 
 #include "ObjectReader/obj_reader.h"
 #include "Engine/KdMaterial.h"
-#include "Engine/PhongMaterial.h"
+
 #include "Engine/Mesh.h"
-#include "Engine/texture.h"
 
 
-namespace {
-    xe::Material *make_color_material(const xe::mtl_material_t &mat, std::string mtl_dir);
-
-    xe::Material *make_phong_material(const xe::mtl_material_t &mat, std::string mtl_dir);
-}
 
 namespace xe {
+
+    int a = 1;
+    std::unordered_map<std::string, mat_function_t> mat_functions={};
+
     using uint = unsigned int;
 
     Mesh *load_mesh_from_obj(std::string path, std::string mtl_dir) {
@@ -40,11 +39,6 @@ namespace xe {
             return nullptr;
 
 
-        auto mesh = new Mesh;
-        auto n_vertices = smesh.vertex_coords.size();
-        auto n_indices = 3 * smesh.faces.size();
-
-
         uint n_floats_per_vertex = 3;
         for (auto &&t: smesh.has_texcoords) {
             if (t)
@@ -52,18 +46,24 @@ namespace xe {
         }
         if (smesh.has_normals)
             n_floats_per_vertex += 3;
-        if (smesh.has_normals)
+        if (smesh.has_tangents)
             n_floats_per_vertex += 4;
 
 
         size_t stride = n_floats_per_vertex * sizeof(GLfloat);
 
+        auto n_vertices = smesh.vertex_coords.size();
+        auto n_indices = 3 * smesh.faces.size();
 
-        mesh->allocate_index_buffer(n_indices * sizeof(uint16_t), GL_STATIC_DRAW);
+        size_t vertex_buffer_size = smesh.vertex_coords.size() * stride;
+        size_t index_buffer_size = smesh.faces.size() * 3 * sizeof(uint16_t);
+
+        auto mesh = new Mesh(stride, vertex_buffer_size, GL_STATIC_DRAW, index_buffer_size, GL_UNSIGNED_SHORT,
+                             GL_STATIC_DRAW);
+
+
         mesh->load_indices(0, n_indices * sizeof(uint16_t), smesh.faces.data());
-
-        mesh->allocate_vertex_buffer(n_vertices * n_floats_per_vertex * sizeof(float), GL_STATIC_DRAW);
-        mesh->vertex_attrib_pointer(0, 3, GL_FLOAT, n_floats_per_vertex * sizeof(GLfloat), 0);
+        mesh->add_attribute(xe::AttributeType::POSITION, 3, GL_FLOAT, 0);
 
 
         auto v_ptr = reinterpret_cast<uint8_t *>(mesh->map_vertex_buffer());
@@ -82,7 +82,8 @@ namespace xe {
 
         for (int it = 0; it < xe::sMesh::MAX_TEXCOORDS; it++) {
             if (smesh.has_texcoords[it]) {
-                mesh->vertex_attrib_pointer(1 + it, 2, GL_FLOAT, stride, offset);
+                mesh->add_attribute(static_cast<xe::AttributeType>(xe::AttributeType::TEXCOORD_0 + it), 2, GL_FLOAT,
+                                    offset);
 
                 auto v_offset = offset;
                 for (auto i = 0; i < smesh.vertex_texcoords[it].size(); i++, v_offset += stride) {
@@ -94,7 +95,7 @@ namespace xe {
         }
         if (smesh.has_normals) {
 
-            mesh->vertex_attrib_pointer(xe::sMesh::MAX_TEXCOORDS + 1, 3, GL_FLOAT, stride, offset);
+            mesh->add_attribute(xe::AttributeType::NORMAL, 3, GL_FLOAT, offset);
 
             auto v_offset = offset;
             for (auto i = 0; i < smesh.vertex_normals.size(); i++, v_offset += stride) {
@@ -106,7 +107,7 @@ namespace xe {
         }
 
         if (smesh.has_tangents) {
-            mesh->vertex_attrib_pointer(xe::sMesh::MAX_TEXCOORDS + 2, 4, GL_FLOAT, stride, offset);
+            mesh->add_attribute(xe::AttributeType::TANGENT, 4, GL_FLOAT, stride);
             offset += 4 * sizeof(GLfloat);
         }
 
@@ -116,26 +117,32 @@ namespace xe {
         for (int i = 0; i < smesh.submeshes.size(); i++) {
             auto sm = smesh.submeshes[i];
             SPDLOG_DEBUG("Adding submesh {:4d} {:4d} {:4d}", i, sm.start, sm.end);
-            Material *material = new xe::ColorMaterial(glm::vec4{1.0, 1.0, 1.0, 1.0});
+            Material *material = new xe::KdMaterial(glm::vec4{1.0, 1.0, 1.0, 1.0});
             if (sm.mat_idx >= 0) {
                 auto mat = smesh.materials[sm.mat_idx];
                 switch (mat.illum) {
                     case 0:
-                        material = make_color_material(mat, mtl_dir);
+                        material = mat_functions["KdMaterial"](mat, mtl_dir);
                         break;
                     case 1:
-                        material = make_phong_material(mat, mtl_dir);
+                        material = mat_functions["PhongMaterial"](mat, mtl_dir);
                         break;
                 }
-                mesh->add_submesh(3 * sm.start, 3 * sm.end, material);
+                mesh->add_primitive(3 * sm.start, 3 * sm.end, material);
             }
 
         }
 
         return mesh;
     }
+
+    mat_function_t add_mat_function(std::string name, mat_function_t func) {
+        mat_functions[name] = func;
+        return func;
+    }
 }
 
+#if 0
 namespace {
 
     xe::Material *make_color_material(const xe::mtl_material_t &mat, std::string mtl_dir) {
@@ -145,7 +152,7 @@ namespace {
             color[i] = mat.diffuse[i];
         color[3] = 1.0;
         SPDLOG_DEBUG("Adding ColorMaterial {}", glm::to_string(color));
-        auto material = new xe::ColorMaterial(color);
+        auto material = new xe::KdMaterial(color);
         if (!mat.diffuse_texname.empty()) {
             auto texture = xe::create_texture(mtl_dir + "/" + mat.diffuse_texname);
             SPDLOG_DEBUG("Adding Texture {} {:1d}", mat.diffuse_texname, texture);
@@ -165,23 +172,5 @@ namespace {
         return color;
     }
 
-    xe::Material *make_phong_material(const xe::mtl_material_t &mat, std::string mtl_dir) {
-        auto material = new xe::PhongMaterial;
-        material->Kd = get_color(mat.diffuse);
-        SPDLOG_DEBUG("Adding ColorMaterial {}", glm::to_string(material->Kd));
-        material->map_Kd = 0;
-        if (!mat.diffuse_texname.empty()) {
-            auto texture = xe::create_texture(mtl_dir + "/" + mat.diffuse_texname);
-            SPDLOG_DEBUG("Adding Texture {} {:1d}", mat.diffuse_texname, texture);
-            if (texture > 0) {
-                material->map_Kd = texture;
-            }
-        }
-
-        material->Ka = get_color(mat.ambient);
-        material->Ks = get_color(mat.specular);
-        material->Ns = mat.shininess;
-        return material;
-    }
-
 }
+#endif

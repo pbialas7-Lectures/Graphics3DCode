@@ -93,7 +93,7 @@ endif ()
 #Assignments
 set(ASSIGNMENTS
         00_Triangle 01_House 02_Colors 03_Indices 04_Uniforms 05_PVM 06_Pyramid 07_Resize 08_Zoom
-        09_CameraMovement 10_Mesh 11_KdMaterial 12_Textures
+        09_CameraMovement 10_Mesh 11_KdMaterial 12_Textures 13_OBJReader
 )
 
 set(ASSIGNMENTS_DIR ${SOURCE_DIR}/Assignments)

@@ -12,7 +12,7 @@
 
 namespace xe {
 
-    enum class AttributeType {
+    enum  AttributeType {
         POSITION = 0,
         NORMAL = 1,
         TANGENT = 2,
@@ -38,6 +38,11 @@ namespace xe {
         void load_vertices(size_t offset, size_t size, void *data);
 
         void load_indices(size_t offset, size_t size, void *data);
+
+        void *map_vertex_buffer();
+        void unmap_vertex_buffer();
+        void *map_index_buffer();
+        void unmap_index_buffer();
 
         void add_attribute(AttributeType attr_type, GLuint size, GLenum type, GLsizei offset) const;
 

@@ -6,9 +6,18 @@
 
 #include <string>
 #include <memory>
+#include <unordered_map>
+#include "ObjectReader/sMesh.h"
+
+#include "Engine/Material.h"
+#include "Engine/Mesh.h"
 
 namespace xe {
-    class Mesh;
 
-    Mesh* load_mesh_from_obj(std::string path, std::string mtl_dir);
+    using mat_function_t = std::add_pointer<xe::Material *(const xe::mtl_material_t &mat, std::string mtl_dir)>::type;
+
+    Mesh *load_mesh_from_obj(std::string path, std::string mtl_dir);
+
+    extern std::unordered_map<std::string, mat_function_t> mat_functions;
+    mat_function_t add_mat_function(std::string name, mat_function_t func);
 }

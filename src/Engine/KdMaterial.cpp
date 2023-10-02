@@ -7,6 +7,7 @@
 #include "glad/gl.h"
 
 #include "Application/utils.h"
+#include "Engine/mesh_loader.h"
 
 namespace xe {
     void KdMaterial::init() {
@@ -42,4 +43,13 @@ namespace xe {
             OGL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         }
     }
+
+    Material *KdMaterial::make_color_material(const mtl_material_t &mat, std::string mtl_dir) {
+        return nullptr;
+    }
+
+    static auto KdMaterial = xe::add_mat_function("KdMaterial", KdMaterial::make_color_material);
+
+
+
 } // xe

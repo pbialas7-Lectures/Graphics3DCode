@@ -21,7 +21,7 @@ namespace xe {
 
 
     struct sMesh {
-        static const uint32_t MAX_TEXCOORDS = 4u;
+        static const uint32_t MAX_TEXCOORDS = 2u;
 
         sMesh() : has_normals(false), has_tangents(false), has_colors(false) {
             for (auto &&t: has_texcoords)
