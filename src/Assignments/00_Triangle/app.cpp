@@ -2,6 +2,7 @@
 // Created by pbialas on 25.09.2020.
 //
 
+
 #include "app.h"
 
 #include <vector>
@@ -40,7 +41,7 @@ void SimpleShapeApplication::init() {
 
     /*
      * All the calls to the OpenGL API are "encapsulated" in the OGL_CALL macro for debugging purposes as explained in
-     * Assignments/ERRORS.md. The macro is defined in src/Application/utils.h. If the call to the OpenGL API returns an
+     * Assignments/DEBUGGING.md. The macro is defined in src/Application/utils.h. If the call to the OpenGL API returns an
      * error code, the macro will print the name of the function that failed, the file and line number where the error
      * occurred.
      */

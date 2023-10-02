@@ -103,7 +103,8 @@ namespace xe {
             }
         }
 
-        GLenum get_and_report_error(const std::string function_call, std::string file_name, int line_number) {
+        GLenum
+        get_and_report_error(const std::string function_call, std::string file_name, int line_number, bool critical) {
             auto error = glGetError();
             auto error_name = error_msg(error);
             std::stringstream ss;
@@ -119,10 +120,14 @@ namespace xe {
                 if (line_number >= 0) {
                     ss << ":" << line_number;
                 }
-
-                spdlog::error(ss.str());
+                if (critical) {
+                    spdlog::critical(ss.str());
+                    exit(-1);
+                } else {
+                    spdlog::error(ss.str());
+                }
             }
-            return 0;
+            return error;
         }
 
         GLuint link_program(GLuint program) {
@@ -224,9 +229,8 @@ namespace xe {
                 glDeleteShader(shader);
 
 
-
                 spdlog::error("Error compiling {} shader", shader_type(type));
-                std::istringstream iss(error_log.substr(0,length));
+                std::istringstream iss(error_log.substr(0, length));
                 std::string line;
                 while (std::getline(iss, line)) {
                     spdlog::error(line);

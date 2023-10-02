@@ -1,3 +1,0 @@
-# Handling OpenGL errors
-
-

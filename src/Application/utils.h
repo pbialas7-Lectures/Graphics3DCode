@@ -34,7 +34,8 @@ namespace xe {
         std::string error_msg(GLenum status);
 
         GLenum
-        get_and_report_error(const std::string function_call = "", std::string file_name = "", int line_number = -1);
+        get_and_report_error(const std::string function_call = "", std::string file_name = "", int line_number = -1,
+                             bool critical = false);
 
         // Program creation utils
 
@@ -51,12 +52,18 @@ namespace xe {
     }
 }
 
+#ifdef DEBUG_NO_ABORT
+#define CRITICAL__  false
+#else
+#define CRITICAL__  true
+#endif
+
 #ifndef NDEBUG
 #define OGL_CALL(call)                                              \
     {                                                               \
         call;                                                       \
-        xe::utils::get_and_report_error(#call, __FILE__, __LINE__); \
+        xe::utils::get_and_report_error(#call, __FILE__, __LINE__, CRITICAL__); \
     }
 #else
-#define OGL_CALL(call) call
+#define OGL_CALL(call) {call
 #endif

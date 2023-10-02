@@ -68,7 +68,7 @@ the code in one repository. There is space in the sheet to enter two people for 
 
 ## Preparing the assignments
 
-Before starting each assignment you should copy the directory containing previous assignment. Specifically you should
+Before starting each assignment, you should copy the directory containing previous assignment. Specifically you should
 not modify anything in `src/Assignments/Triangle` folder, but copy it to `src/Assignments/House`  folder. You can do it
 using `cp` command (on linux/unix).
 
