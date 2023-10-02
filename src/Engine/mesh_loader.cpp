@@ -19,15 +19,13 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "ObjectReader/obj_reader.h"
-#include "Engine/KdMaterial.h"
-
+#include "Engine/Material.h"
 #include "Engine/Mesh.h"
 
 
 
 namespace xe {
 
-    int a = 1;
     std::unordered_map<std::string, mat_function_t> mat_functions={};
 
     using uint = unsigned int;
@@ -117,7 +115,7 @@ namespace xe {
         for (int i = 0; i < smesh.submeshes.size(); i++) {
             auto sm = smesh.submeshes[i];
             SPDLOG_DEBUG("Adding submesh {:4d} {:4d} {:4d}", i, sm.start, sm.end);
-            Material *material = new xe::KdMaterial(glm::vec4{1.0, 1.0, 1.0, 1.0});
+            Material *material = (Material*)(xe::null_material);
             if (sm.mat_idx >= 0) {
                 auto mat = smesh.materials[sm.mat_idx];
                 switch (mat.illum) {
@@ -130,7 +128,6 @@ namespace xe {
                 }
                 mesh->add_primitive(3 * sm.start, 3 * sm.end, material);
             }
-
         }
 
         return mesh;
