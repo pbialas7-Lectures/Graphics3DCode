@@ -39,7 +39,7 @@ mkdir build
 cd build
 cmake ..
 make -j 
-./src/Assignments/00_Triangle/00_Triangle
+./src/Assignments/00_Triangle/Triangle
 ```
 
 ### VS Code
@@ -55,8 +55,8 @@ g++.
 
 On Windows if you do not have some version of Visual Studio installed, you will need to install
 either [Visual Studio Community](https://visualstudio.microsoft.com/pl/vs/community/) edition
-or [Mingw-gw64](https://www.mingw-w64.org/). If you have VS Community installed then suitable kit should appear in the
-list of kits. After choosing it the configuration and build should proceed without problems.
+or [Mingw-gw64](https://www.mingw-w64.org/). If you have VS Community installed, then a suitable kit should appear in the
+list of kits. After choosing it, the configuration and build should proceed without problems.
 
 ### Using Mingw-gw with Visual Studio Code
 
