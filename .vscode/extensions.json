@@ -2,7 +2,6 @@
     "recommendations": [
         "twxs.cmake",
         "ms-vscode.cmake-tools",
-        "mrjjot.vscode-glsl-linter",
         "ms-vscode.cpptools"
     ]
 }
