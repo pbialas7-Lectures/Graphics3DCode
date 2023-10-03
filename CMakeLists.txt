@@ -72,7 +72,7 @@ FetchContent_MakeAvailable(spdlog)
 
 find_package(OpenGL REQUIRED)
 
-# My part 
+# My part vs
 
 link_libraries(OpenGL::GL glfw glm glad)
 add_subdirectory(src/Application)

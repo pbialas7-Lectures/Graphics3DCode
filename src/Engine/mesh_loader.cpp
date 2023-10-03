@@ -23,10 +23,9 @@
 #include "Engine/Mesh.h"
 
 
-
 namespace xe {
 
-    std::unordered_map<std::string, mat_function_t> mat_functions={};
+    static std::unordered_map<std::string, mat_function_t> mat_functions = {{}};
 
     using uint = unsigned int;
 
@@ -115,7 +114,7 @@ namespace xe {
         for (int i = 0; i < smesh.submeshes.size(); i++) {
             auto sm = smesh.submeshes[i];
             SPDLOG_DEBUG("Adding submesh {:4d} {:4d} {:4d}", i, sm.start, sm.end);
-            Material *material = (Material*)(xe::null_material);
+            Material *material = (Material *) (xe::null_material);
             if (sm.mat_idx >= 0) {
                 auto mat = smesh.materials[sm.mat_idx];
                 switch (mat.illum) {
@@ -135,9 +134,10 @@ namespace xe {
 
     mat_function_t add_mat_function(std::string name, mat_function_t func) {
         mat_functions[name] = func;
+        SPDLOG_INFO(mat_functions.empty());
         return func;
     }
-}
+    }
 
 #if 0
 namespace {
