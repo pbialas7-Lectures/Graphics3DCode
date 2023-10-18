@@ -20,4 +20,5 @@ namespace xe {
 
 
     mat_function_t add_mat_function(std::string name, mat_function_t func);
+    mat_function_t get_mat_function(std::string name);
 }

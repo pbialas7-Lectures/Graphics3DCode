@@ -44,7 +44,7 @@ add_library(glad OBJECT ${glad_SOURCES})
 # GLFW
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_Assignments OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 
 FetchContent_Declare(
@@ -93,7 +93,7 @@ endif ()
 #Assignments
 set(ASSIGNMENTS
         00_Triangle 01_House 02_Colors 03_Indices 04_Uniforms 05_PVM 06_Pyramid 07_Resize 08_Zoom
-        09_CameraMovement 10_Mesh 11_KdMaterial 12_Textures 13_OBJReader
+        09_CameraMovement 10_Mesh 11_KdMaterial 12_Textures 13_OBJReader 14_Diffuse 15_Specular
 )
 
 set(ASSIGNMENTS_DIR ${SOURCE_DIR}/Assignments)
