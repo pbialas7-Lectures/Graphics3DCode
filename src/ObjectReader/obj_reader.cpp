@@ -4,12 +4,13 @@
 
 #include "obj_reader.h"
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
 
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one*  source file
+#define TINYOBJLOADER_USE_MAPBOX_EARCUT
 
 #include "3rdParty/tinyobjloader/tiny_obj_loader.h"
 
@@ -98,7 +99,7 @@ namespace {
                     mesh.vertex_coords.push_back(triangle.position[v]);
                     if (!triangle.has_texcoord[v]) {
                         if (mesh.has_texcoords[0]) {
-                            spdlog::warn("Some vertices have texcoord and some do not in OBJ file.");
+                            spdlog::warn("Some vertices have texture coordinates and some do not in OBJ file.");
                             mesh.has_texcoords[0]=false;
                         }
                     } else {
@@ -152,7 +153,7 @@ namespace {
 
 namespace xe {
     xe::sMesh load_smesh_from_obj(std::string name, std::string mtl_base_dir) {
-        SPDLOG_DEBUG("Loading obj file `{}'", name);
+        SPDLOG_DEBUG("Loading OBJ file `{}'", name);
         xe::sMesh s_mesh;
 
         tinyobj::attrib_t attrib;
@@ -160,12 +161,12 @@ namespace xe {
 
         auto ret = read_obj(name, mtl_base_dir, &attrib, &shapes, &s_mesh.materials);
         if (!ret) {
-            spdlog::error("Error reading obj file {} {}", name, mtl_base_dir);
+            spdlog::error("Error reading OBJ file {} {}", name, mtl_base_dir);
             return s_mesh;
         }
 
         if (attrib.vertices.empty()) {
-            spdlog::error("No vertices in obj file {}", name);
+            spdlog::error("No vertices in OBJ file {}", name);
             return s_mesh;
         }
 

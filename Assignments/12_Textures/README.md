@@ -104,9 +104,35 @@ uniform sampler2D makp_Kd;
    If `texture_` is equal to zero then just load zero into `use_map_Kd` field of the material uniform buffer.
 
 8. In the `init` method of the `SimpelShapeApplication` add a single primitive encompassing all the indices and add a
-   material with texture. Set the `Kd` to white. 
+   material with texture. Set the `Kd` to white.
    ```c++
    pyramid->add_primitive(0, 18, new xe::KdMaterial({1.f, 1.f, 1.0f, 1.0f}, false, tex_handle));
    ```
-   
-__Good luck!__
+
+## Gamma correction
+
+The texture that we have loaded is (probably) in the sRGB color space. This means that the color values are not linear.
+At this moment, this is not a problem because we are not doing any calculations on the color. We are just sending it to
+the screen where they are expected to be in SRGB color space.
+
+1. But if we want to do any calculations on the color, we have to convert it to the linear color space. This can be done
+   automatically by OpenGL, by changing the internal format in the `glTexImage2D` call to `GL_SRGB`. Please do it and
+   notice that the colors have changed. This is because we are sending the linear values to the screen without any gamma
+   correction.
+
+2. We will add gamma correction directly in the shader. In fragment shader please add the function definition
+   ```glsl
+   vec3 srgb_gamma_correction(vec3 color) {
+      color = clamp(color, 0.0, 1.0);
+      color = mix(color * 12.92, (1.055 * pow(color, vec3(1.0 / 2.4))) - 0.055, step(0.0031308, color));
+      return color;
+   }
+   ```
+   and then modify the code that calculates the color of the fragment to
+   ```glsl
+   vFragColor.a = color.a;
+   vFragColor.rgb = srgb_inverse_gamma_correction(color.rgb);
+   ```   
+   with `color` being the final color calculated in the shader. The colors should  change back to the original ones.
+
+
