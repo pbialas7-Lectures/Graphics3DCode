@@ -23,8 +23,6 @@ namespace xe {
 
         static GLuint material_uniform_buffer() { return material_uniform_buffer_; }
 
-        static const GLuint material_uniform_buffer_binding_point = 0;
-
         static void create_material_uniform_buffer(GLsizei size);
 
         static void create_program(const utils::shader_source_map_t &shader_sources);
