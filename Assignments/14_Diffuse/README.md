@@ -35,7 +35,12 @@ In this assignment we will only use the first two terms of the equation, the amb
 
 3. Add `Ka_` field of `glm::vec4` in `BlinnPhongMaterial` class.
 4. In the `create_from_mtl` method of this class assign `mat.ambient` to this field.
-5. In the `Material` interface block in the `BlinnPhong` fragment shader add a `vec4 Ka` field at the beginning of the
+5. In the `init` method of this class register this factory method:
+   ```c++
+   xe::add_mat_function("BlinnPhongMaterial", BlinnPhongMaterial::create_from_mtl);
+   ```
+   
+6. In the `Material` interface block in the `BlinnPhong` fragment shader add a `vec4 Ka` field at the beginning of the
    block.
    Modify the block size and loading accordingly.
 

@@ -47,6 +47,11 @@ associated [Wavefront Material Template Library (MTL)](http://paulbourke.net/dat
    }
    ```
    This function assumes that the textures are in sRGB space. 
+   In the `KdMaterial::init` function add the following code:
+   ```c++
+   xe::add_mat_function("KdMaterial", KdMaterial::create_from_mtl);
+   ```
+   that will register this function as a factory method for the `KdMaterial` class.
 
 3. Replace all the code creating pyramid mesh and material by
    ```c++
