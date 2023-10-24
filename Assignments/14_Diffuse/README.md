@@ -35,7 +35,12 @@ In this assignment we will only use the first two terms of the equation, the amb
 
 3. Add `Ka_` field of `glm::vec4` in `BlinnPhongMaterial` class.
 4. In the `create_from_mtl` method of this class assign `mat.ambient` to this field.
-5. In the `Material` interface block in the `BlinnPhong` fragment shader add a `vec4 Ka` field at the beginning of the
+5. In the `init` method of this class register this factory method:
+   ```c++
+   xe::add_mat_function("BlinnPhongMaterial", BlinnPhongMaterial::create_from_mtl);
+   ```
+   
+6. In the `Material` interface block in the `BlinnPhong` fragment shader add a `vec4 Ka` field at the beginning of the
    block.
    Modify the block size and loading accordingly.
 
@@ -245,4 +250,19 @@ qualifiers make sure that this class conforms to `std140` and can be directly co
    float attenuation = 1.0 / (r * r);
    ```
    where `light_distance` is the distance from the light to the fragment.
+
+## Back faces
+
+When turning the camera, you will notice that the back face of the square is also lit. This is because the normal vector
+is the same as for the front face. We can fix this by using the `gl_FrontFacing` variable that is set to `true` if the
+fragment belongs to the front face and `false` otherwise. We can use this variable to flip the normal vector if the
+fragment belongs to the back face. In the fragment shader, please add the following code:
+
+```glsl
+if (!gl_FrontFacing) {
+  normal = -normal;
+}
+```
+
+Now you the backface should be dark.
    
