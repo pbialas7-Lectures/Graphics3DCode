@@ -55,14 +55,14 @@ To use it please include the `stb/stb_image.h` header file. The image can then b
    ```
    If everything is correct, you should see the info message.
 
-3. Create the texture using the `glGenTexture` function and load the image using `glTexImage2D` function. Set the
+3. Create the texture using the `glGenTexture` function, then bind it using `glBindTexture`  and load the image using `glTexImage2D` function. Set the
    interpolation (filtering) methods that do not use mipmapping using the `glTexParameteri` function.
 
 Now we have to modify the fragment shader to enable it to read the shader from texture. That requires a _sampler_ which
 is defined as a uniform variable
 
 ```glsl
-uniform sampler2D makp_Kd; 
+uniform sampler2D map_Kd; 
 ```
 
 1. Please add this line to the fragment shader. This is a uniform variable, not interface block. To assign a value to
@@ -70,7 +70,7 @@ uniform sampler2D makp_Kd;
    we must fist get its location using the `glGetUniformLocation` function. Add a static field `map_Kd_location_` of  
    type `GLint` to the `KdMaterial` class and set its' value in the `KdMaterial::init` function
    ```c++
-   map_Kd_location = glGetUniformLocation(program(),"map_K");
+   map_Kd_location = glGetUniformLocation(program(),"map_Kd");
    if (map_Kd_location_ == -1) {
             SPDLOG_WARN("Cannot find map_Kd uniform");
         }
@@ -86,7 +86,7 @@ uniform sampler2D makp_Kd;
 3. In the fragment shader add code that depending on the value of the `use_map_Kd` variable multiply the color
    calculated so far using `Kd`, and vertex colors if present, by the value obtained from the sampler:
    ```glsl
-   vec4 texture_color = sample(map_Kd, vertex_texcoord_0); 
+   vec4 texture_color = texture(map_Kd, vertex_texcoord_0); 
    ```
    In this example `vertex_texcoord_0` are the vertex texture coordinates.
    Because the value of the `use_map_Kd` variable is set to zero (`false`), you should not see any difference.
@@ -99,7 +99,7 @@ uniform sampler2D makp_Kd;
 
 7. In the `bind` method add the code that checks if the `texture_` field is greater than zero. If so please load the one
    into the `use_map_Kd` field of the material uniform buffer. The set the active texture unit to zero using
-   the `glActiveTexture` function and bind  `texture_` using the `glBindTextureMethod`. In the `unbind` method check if
+   the `glActiveTexture` function and bind  `texture_` using the `glBindTexture` function. In the `unbind` method check if
    the value of the `texture_` field is greater than zero and if so unbind the texture.
    If `texture_` is equal to zero then just load zero into `use_map_Kd` field of the material uniform buffer.
 
@@ -131,7 +131,7 @@ the screen where they are expected to be in SRGB color space.
    and then modify the code that calculates the color of the fragment to
    ```glsl
    vFragColor.a = color.a;
-   vFragColor.rgb = srgb_inverse_gamma_correction(color.rgb);
+   vFragColor.rgb = srgb_gamma_correction(color.rgb);
    ```   
    with `color` being the final color calculated in the shader. The colors should  change back to the original ones.
 
