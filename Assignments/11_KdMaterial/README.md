@@ -87,7 +87,8 @@ This field has also to be initialized in the `init` method using the `create_pro
 1. In preparation, move the shader source files from the `11_KdMaterial/shaders` directory to `Engine/shaders`, you have
    to create this director first, and
    rename them `Kd_vs.glsl` and `Kd_fs.glsl`. Change the argument of `xe::utils::create_program` method call in
-   the `init` method of the `SimpleShapeApplicationClass` to reflect those changes. Delete the empty `shaders` directory.
+   the `init` method of the `SimpleShapeApplicationClass` to reflect those changes. Delete the empty `shaders`
+   directory.
 
 2. Add the `create_program_in_project` method call to the `KdMaterial::init` method.
 
@@ -98,7 +99,8 @@ This field has also to be initialized in the `init` method using the `create_pro
 
    `KdMaterial::create_program_in_project` is just "syntactic sugar" for the call to the `xe::utils::create_program`. It
    allows specifying only the shader file names, and the method will automatically add the path to the `Engine/shaders`
-   directory.
+   directory. But for this to work the `KdMaterial::init` method has to be defined in the `KdMaterial.cpp` file and not
+   inlined in the `KdMaterial.h` file.
 
 3. Now please define the `bind` method of the `KdMaterial` class that will just load the shader program using
    the `glUseProgram` function. Add the declaration in the `KdMaterial.h` file in the body of `KdMaterial` class:

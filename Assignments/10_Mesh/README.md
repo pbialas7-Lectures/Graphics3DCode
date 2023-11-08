@@ -3,10 +3,9 @@
 So far, we did everything on the most basic level of OpenGL calls, but this would quickly become unwieldy if we would
 like to add more models.
 In this assignment, you will refactor the code by adding some layers of abstraction.
-We will add a `Mesh` class
-that will encapsulate all this low-level calls concerned with vertex and index buffer manipulations.
-This class is
-already provided for you in the `src/Engine/` directory.
+We will add a `Mesh` class that will encapsulate all this low-level calls concerned with vertex and index buffer
+manipulations.
+This class is already provided for you in the `src/Engine/` directory.
 
 But we will start with another refactorisation that will consist of moving the `Camera` and `CameraController` classes
 to the `src/Engine` directory, so
@@ -16,7 +15,7 @@ they can be accessible to all further assignments without a need to copy them:
    to `10_Mesh`.
 2. Then move the files `camera.h` and `camera_controller.h`  from `src/Assignament/10_Mesh` to the
    directory `src/Engine`.
-   Please add them to the `CMakeLists.txt` file in this directory in the `add_library` function.
+
 
 4. Put the `Camera` and `CameraController` classes into the `xe` namespace, by surrounding their code by the namespace
    declaration:
@@ -50,11 +49,10 @@ this pointer is initialized to `null_material` which is a pointer to `NullMateri
 that does nothing. Primitives are added to mesh using the `add_primitive` method.
 
 Mesh class also assumes using a predefined set of vertex attributes that are specified by the `xe::Attribute` enum.
-The values of the enum correspond to the location value  of the corresponding attribute in vertex shader.
-Adding the attribute to the mesh
-is done using the `add_attribute` method.
-This method is similar to the `glVertexAttribPointer` function, but it does not require the `stride` argument as it was
-already provided in the constructor, and uses the `Attribute` enum instead of the attribute index.
+The values of the enum correspond to the location value of the corresponding attribute in vertex shader.
+Adding the attribute to the mesh is done using the `add_attribute` method.
+This method is similar to the `glVertexAttribPointer` function, but it does not require the `stride` argument as it is
+already provided in the constructor (see description below), and uses the `Attribute` enum instead of the attribute index.
 
 1. We will store the meshes in the vector of meshes in the `SimpleShapeApplication` class, so please add the field
    ```c++
@@ -67,7 +65,8 @@ already provided in the constructor, and uses the `Attribute` enum instead of th
        meshes_.push_back(mesh);
    }
    ```
-2. In the vertex shader change the location of the `a_vertex_color` to 5. Change corresponding  parameter in call to `glVertexAttribPointer`.  
+2. In the vertex shader change the location of the `a_vertex_color` to five (5). Change corresponding parameter in call
+   to `glVertexAttribPointer`.
 
 3. Next we have to create the mesh for our pyramid in the `init` method. So start with creating a new `Mesh`
    ```c++
