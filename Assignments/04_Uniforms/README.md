@@ -47,7 +47,7 @@ passed via uniform interface block.
    ```
 
 4. Bind the buffer to inteface block using `glBindBufferBase` function and  
-   load those variables into the buffer using `glBufferSubdata` function. Please respect the `std140` layout rules which
+   load those variables into the buffer using `glBufferSubData` function. Please respect the `std140` layout rules which
    can
    be found on page 138 of
    [OpenGL 4.5 (Core profile) specification](https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf). In

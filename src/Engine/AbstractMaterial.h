@@ -29,6 +29,8 @@ namespace xe {
 
         static void create_program_in_project(const utils::shader_source_map_t &shader_sources);
 
+        static void create_program_in_engine(const utils::shader_source_map_t &shader_sources);
+
     private:
         inline static GLuint program_ = 0u;
         inline static GLuint material_uniform_buffer_ = 0u;
@@ -62,6 +64,16 @@ namespace xe {
                     std::string(PROJECT_DIR) + "/shaders/" + shader_source.second;
         }
         create_program(shader_sources_in_project);
+    }
+
+    template<class D>
+    void xe::AbstractMaterial<D>::create_program_in_engine(const utils::shader_source_map_t &shader_sources) {
+        utils::shader_source_map_t shader_sources_in_engine;
+        for (std::pair<GLenum, std::string> shader_source: shader_sources) {
+            shader_sources_in_engine[shader_source.first] =
+                    std::string(ROOT_DIR) + "/src/Engine/shaders/" + shader_source.second;
+        }
+        create_program(shader_sources_in_engine);
     }
 
 }
