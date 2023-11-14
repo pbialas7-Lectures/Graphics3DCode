@@ -1,7 +1,0 @@
-## GLFW
-
-## GLAD
-
-## GLM
-
-## spdlog

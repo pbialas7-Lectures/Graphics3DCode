@@ -60,7 +60,7 @@ namespace xe {
 
         struct Primitive {
             Primitive(GLuint start, GLuint end) :
-                    start(start), end(end), material(xe::null_material) {}
+                    start(start), end(end), material(xe::NullMaterial::null_material()) {}
 
             Primitive(GLuint start, GLuint end, const Material *material) :
                     start(start), end(end), material(material) {}

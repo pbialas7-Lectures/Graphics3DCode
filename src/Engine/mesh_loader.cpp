@@ -119,7 +119,7 @@ namespace xe {
         for (int i = 0; i < smesh.submeshes.size(); i++) {
             auto sm = smesh.submeshes[i];
 
-            Material *material = (Material *) (xe::null_material);
+            Material *material = (Material *) (xe::NullMaterial::null_material());
             if (sm.mat_idx >= 0) {
                 auto mat = smesh.materials[sm.mat_idx];
                 switch (mat.illum) {
@@ -134,7 +134,7 @@ namespace xe {
                         break;
                 }
                 if (!material)
-                    material = (Material *) (xe::null_material);
+                    material = (Material *) (xe::NullMaterial::null_material());
                 SPDLOG_DEBUG("Adding primitive {:4d} {:4d} {:4d}", i, 3 * sm.start, 3 * sm.end);
                 mesh->add_primitive(3 * sm.start, 3 * sm.end, material);
             }
