@@ -4,11 +4,10 @@
 
 #include "Material.h"
 
-#include "spdlog/spdlog.h"
-#include "glad/gl.h"
-
 #include "Application/utils.h"
-#include "AbstractMaterial.h"
 
-const xe::NullMaterial *xe::null_material = new xe::NullMaterial();
+
+namespace xe {
+    NullMaterial* NullMaterial::null_material_ = nullptr;
+}
 
