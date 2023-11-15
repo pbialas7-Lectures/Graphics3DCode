@@ -60,10 +60,8 @@ namespace xe {
 
 #ifndef NO_OGL_CALL
 #define OGL_CALL(call)                                              \
-    {                                                               \
         call;                                                       \
-        xe::utils::get_and_report_error(#call, __FILE__, __LINE__, CRITICAL__); \
-    }
+        xe::utils::get_and_report_error(#call, __FILE__, __LINE__, CRITICAL__);
 #else
 #define OGL_CALL(call) {call;}
 #endif
