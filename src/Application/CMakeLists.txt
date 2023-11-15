@@ -11,6 +11,8 @@ add_library(${PROJECT_NAME}
         RegisteredObject.cpp
         RegisteredObject.h
         stb.cpp
+        uniforms.h
+        uniforms.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
