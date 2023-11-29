@@ -73,7 +73,7 @@ If the colors are not provided in the vertex buffer, the resulting color will be
    size parameter equal to `sizeof(gm::vec4)`.
 
    ```c++
-   KdMaterial::create_material_uniform_buffer(sizeof(glm::vec4));
+   create_material_uniform_buffer(2*sizeof(glm::vec4));
    ```
    This method will create the uniform buffer and assign its handle to the `material_uniform_buffer_` field of
    the `KdMaterial` class.
@@ -93,7 +93,7 @@ This field has also to be initialized in the `init` method using the `create_pro
 2. Add the `create_program_in_project` method call to the `KdMaterial::init` method.
 
    ```c++
-   create_program_in_project({{GL_VERTEX_SHADER, "Kd_vs.glsl"},
+   create_program_in_engine({{GL_VERTEX_SHADER, "Kd_vs.glsl"},
                               {GL_FRAGMENT_SHADER, "Kd_fs.glsl"}});
    ```
 
@@ -137,14 +137,14 @@ This field has also to be initialized in the `init` method using the `create_pro
 
 7. Delete the code creating the shader program from the `init` method of the `SimpleShapeApplication` class.
 
-At this point, you should have program running and displaying the pyramid as before. But we are not yet actually using
+At this point, you should have program running and displaying the pyramid as before. But we are not yet  using
 the color from the KdMaterial. To do this, we have to modify the fragment shader.
 
 1. In the fragment shader add the uniform interface block.
    This block will contain the `Kd` uniform variable and a boolean variable
    that will indicate if the vertex colors should be used.
    Please note that setting this variable to `true` assumes that the vertex colors are present in the vertex buffer and
-   appropriate attribute is enabled.
+   the appropriate attribute is enabled.
 
    ```glsl
    layout(std140, binding=0) uniform KdMaterial {
@@ -152,6 +152,7 @@ the color from the KdMaterial. To do this, we have to modify the fragment shader
        bool use_vertex_color; 
    };
    ```
+   Make sure that this binding (0) does not conflict with the biding of the PVM uniform block if so please use another binding.
 
 2. To the `bind` method of the `KdMaterial` class add the call that will load the `Kd` material uniform buffer
 
