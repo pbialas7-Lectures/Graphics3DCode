@@ -105,7 +105,7 @@ This field has also to be initialized in the `init` method using the `create_pro
 3. Now please define the `bind` method of the `KdMaterial` class that will just load the shader program using
    the `glUseProgram` function. Add the declaration in the `KdMaterial.h` file in the body of `KdMaterial` class:
    ```c++
-    void bind() override;
+    void bind() const override;
    ``` 
    and definition in  `KdMaterial.cpp` file add the following code:
    ```c++
