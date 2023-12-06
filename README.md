@@ -23,7 +23,7 @@ variable. Using version 4.5 should be fine.
 
 Unfortunately, Apple does not support OpenGL 4.6. The highest version supported by Apple is 4.1.
 CMake will detect this and set the version to 4.1.
-This will cause problems with the assignments. The possible solutions will be given were needed.
+This will cause problems with the assignments. The possible solutions will be given where needed.
 
 ## Building
 
