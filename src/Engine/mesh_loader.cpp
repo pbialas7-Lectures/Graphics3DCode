@@ -132,6 +132,12 @@ namespace xe {
                     case 2:
                         material = mat_functions["BlinnPhongMaterial"](mat, mtl_dir);
                         break;
+                    case 11:
+                        material = mat_functions["PBRMaterial"](mat, mtl_dir);
+                        break;
+                    default:
+                        spdlog::error("Unknown Illumimination model {}", mat.illum);
+                        break;
                 }
                 if (!material)
                     material = (Material *) (xe::NullMaterial::null_material());
