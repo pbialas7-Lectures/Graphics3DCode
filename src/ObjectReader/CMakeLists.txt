@@ -6,4 +6,4 @@ add_library(objreader
         sMesh.h
         sMesh.cpp)
 
-target_link_libraries(objreader PRIVATE spdlog::spdlog)
+target_link_libraries(objreader PRIVATE mikktspace spdlog::spdlog)

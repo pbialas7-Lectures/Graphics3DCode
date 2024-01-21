@@ -6,7 +6,7 @@ add_library(${PROJECT_NAME}
         application.h
         utils.cpp
         utils.h
-        shader_source.cpp 
+        shader_source.cpp
         shader_source.h
         RegisteredObject.cpp
         RegisteredObject.h
@@ -15,4 +15,4 @@ add_library(${PROJECT_NAME}
         uniforms.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog cxxopts)

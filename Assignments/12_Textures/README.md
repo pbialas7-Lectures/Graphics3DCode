@@ -99,9 +99,12 @@ uniform sampler2D map_Kd;
 
 7. In the `bind` method add the code that checks if the `texture_` field is greater than zero. If so please load the one
    into the `use_map_Kd` field of the material uniform buffer. The set the active texture unit to zero using
-   the `glActiveTexture` function and bind  `texture_` using the `glBindTexture` function. In the `unbind` method check if
-   the value of the `texture_` field is greater than zero and if so unbind the texture.
+   the `glActiveTexture` function and bind  `texture_` using the `glBindTexture` function. 
+   
    If `texture_` is equal to zero then just load zero into `use_map_Kd` field of the material uniform buffer.
+
+   In the `unbind` method check if
+   the value of the `texture_` field is greater than zero and if so unbind the texture.
 
 8. In the `init` method of the `SimpelShapeApplication` add a single primitive encompassing all the indices and add a
    material with texture. Set the `Kd` to white.

@@ -2,9 +2,9 @@
 // Created by Piotr Bialas on 2018-12-03.
 //
 
-#include "obj_reader.h"
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#include "obj_reader.h"
 
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
@@ -61,7 +61,7 @@ namespace {
 
     xe::sMesh::SubMesh emit_submesh(xe::sMesh &s_mesh, const xe::sMesh::SubMesh sub_mesh) {
         push_sub_mesh(s_mesh, sub_mesh);
-        return xe::sMesh::SubMesh{sub_mesh.end, 0, sub_mesh.mat_idx};
+        return xe::sMesh::SubMesh{sub_mesh.end, sub_mesh.end, sub_mesh.mat_idx};
     }
 
     int create_smesh(xe::sMesh &mesh, const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes) {
@@ -81,9 +81,11 @@ namespace {
             size_t index_offset = 0;
 
             for (size_t f = 0; f < sh.mesh.num_face_vertices.size(); f++) {
+                std::cout<<sh.mesh.material_ids[f]<<"\n";
                 if (sh.mesh.material_ids[f] != mat_idx) {
                     sub_mesh.end = fce;
                     sub_mesh = emit_submesh(mesh, sub_mesh);
+                    SPDLOG_DEBUG("New material {:4d} {:4d}", fce, sh.mesh.material_ids[f]);
 
                     mat_idx = sh.mesh.material_ids[f];
                     sub_mesh.mat_idx = mat_idx;
@@ -100,7 +102,7 @@ namespace {
                     if (!triangle.has_texcoord[v]) {
                         if (mesh.has_texcoords[0]) {
                             spdlog::warn("Some vertices have texture coordinates and some do not in OBJ file.");
-                            mesh.has_texcoords[0]=false;
+                            mesh.has_texcoords[0] = false;
                         }
                     } else {
                         mesh.vertex_texcoords[0].push_back(triangle.tex_coord[v]);
@@ -109,7 +111,7 @@ namespace {
                     if (!triangle.has_normals[v]) {
                         if (mesh.has_normals) {
                             spdlog::warn("Some vertices have normals and some do not in OBJ file.");
-                            mesh.has_normals=false;
+                            mesh.has_normals = false;
                         }
                     } else {
                         mesh.vertex_normals.push_back(triangle.normal[v]);
@@ -123,32 +125,31 @@ namespace {
             }
             sub_mesh.end = fce;
             sub_mesh = emit_submesh(mesh, sub_mesh);
-
         }
         return 0;
     }
 
-
-    bool read_obj(std::string name, std::string mtl_base_dir, tinyobj::attrib_t *attrib,
-                  std::vector<tinyobj::shape_t> *shapes,
-                  std::vector<tinyobj::material_t> *materials) {
+    tinyobj::ObjReader parse_obj(std::string name, std::string mtl_base_dir) {
         std::string err, warn;
 
-        bool ret;
+        tinyobj::ObjReaderConfig reader_config;
+
         if (mtl_base_dir.empty())
-            ret = tinyobj::LoadObj(attrib, shapes, materials, &warn, &err, name.c_str());
+            reader_config.mtl_search_path = "./";
         else
-            ret = tinyobj::LoadObj(attrib, shapes, materials, &warn, &err, name.c_str(), mtl_base_dir.c_str());
+            reader_config.mtl_search_path = mtl_base_dir;
 
-        if (!warn.empty()) {
-            spdlog::warn(warn);
+        tinyobj::ObjReader reader;
+
+        if (!reader.ParseFromFile(name, reader_config)) {
+            SPDLOG_ERROR("Error parsing OBJ file {} : {}", name, reader.Error());
         }
-        if (!err.empty()) {
-            spdlog::error(err);
+
+        if (!reader.Warning().empty()) {
+            SPDLOG_WARN("Warning parsing OBJ file {} : {}", name, reader.Warning());
         }
-        return ret;
+        return reader;
     }
-
 }
 
 namespace xe {
@@ -156,14 +157,18 @@ namespace xe {
         SPDLOG_DEBUG("Loading OBJ file `{}'", name);
         xe::sMesh s_mesh;
 
-        tinyobj::attrib_t attrib;
-        std::vector<tinyobj::shape_t> shapes;
+        tinyobj::attrib_t attrib_;
+        std::vector<tinyobj::shape_t> shapes_;
 
-        auto ret = read_obj(name, mtl_base_dir, &attrib, &shapes, &s_mesh.materials);
-        if (!ret) {
+        auto reader = parse_obj(name, mtl_base_dir);
+        if (!reader.Valid()) {
             spdlog::error("Error reading OBJ file {} {}", name, mtl_base_dir);
             return s_mesh;
         }
+
+        auto &attrib = reader.GetAttrib();
+        auto &shapes = reader.GetShapes();
+        s_mesh.materials = reader.GetMaterials();
 
         if (attrib.vertices.empty()) {
             spdlog::error("No vertices in OBJ file {}", name);
@@ -175,7 +180,9 @@ namespace xe {
         return s_mesh;
 
     }
+
 }
+
 
 
 

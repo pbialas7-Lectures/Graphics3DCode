@@ -7,7 +7,7 @@ In this assignment we fill start to light up the models :) We will begin with th
 1. It will be easier to debug the lightning if we have a simpler model. Based on the `pyramid.obj` and `pyramid.mtl`
    create two new files `square.obj` and `square.mtl` that will define square with `Kd` coefficient set to _silver sand_
    color
-   (0.7490, 0.7569, 0.7601). Please disable the front face culling, as the square is not a closed object.
+   (0.7490, 0.7569, 0.7601). Please disable the front face culling, as the square is not a closed object. Square should lay in th x-y planne and be centered at the origin and have size 2x2.
 2. Set the camera in position (0, 0, 3) with fov 45 degrees and look down at the origin. Set the up vector to (0, 1, 0).
    You should see something like this:
    <img src="square.png" style="display: block; margin: 1em auto;">
@@ -237,7 +237,7 @@ qualifiers make sure that this class conforms to `std140` and can be directly co
 
 7. In the `frame` method add a loop that will load each light from the `lights_` vector to the lights uniform buffer.
    Before loading the light transform it from world space to the view space using the `transform` function
-   provided in the `light.h` file. Use the `glMapBufferRange` function.
+   provided in the `light.h` file. 
 
 8. In the fragment shader use add the light from each light to the fragment color using the diffuse part of the formula
    presented above. Remember 1/pi factor.

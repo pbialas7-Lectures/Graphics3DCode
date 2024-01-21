@@ -49,6 +49,7 @@ namespace xe {
 
         std::vector <mtl_material_t> materials;
         std::vector <SubMesh> submeshes;
+        std::vector<unsigned int> smoothing_group_ids;
 
         xe::BoundingBox<3> bb;
 

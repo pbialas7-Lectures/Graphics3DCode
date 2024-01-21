@@ -22,3 +22,5 @@ cmake-build-release/
 *.ipynb
 
 Notebooks/zoom.png
+/Notebooks/D_GGX.png
+/Notebooks/D_GGX_small.png

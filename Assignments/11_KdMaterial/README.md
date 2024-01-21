@@ -70,7 +70,7 @@ If the colors are not provided in the vertex buffer, the resulting color will be
 
 2. Add code creating the material uniform buffer to this method. Use the `create_material_uniform_buffer` method
    of `AbstractMaterial` class with
-   size parameter equal to `sizeof(gm::vec4)`.
+   size parameter equal to `2*sizeof(gm::vec4)`.
 
    ```c++
    create_material_uniform_buffer(2*sizeof(glm::vec4));
