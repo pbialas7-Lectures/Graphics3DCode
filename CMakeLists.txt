@@ -70,6 +70,19 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(spdlog)
 
 
+FetchContent_Declare(
+        cxxopt
+        GIT_REPOSITORY https://github.com/jarro2783/cxxopts.git
+)
+FetchContent_MakeAvailable(cxxopt)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.5.1 # or a later release
+)
+FetchContent_MakeAvailable(Catch2)
+
 find_package(OpenGL REQUIRED)
 
 # My part vs
@@ -90,11 +103,24 @@ else ()
 endif ()
 
 
+if (EXISTS ${SOURCE_DIR}/OGL)
+    add_subdirectory(src/OGL)
+endif ()
+
+if (EXISTS ${SOURCE_DIR}/3rdParty/MIKKTSpace)
+    add_subdirectory(src/3rdParty/MIKKTSpace)
+endif ()
+
+if (EXISTS ${SOURCE_DIR}/tests)
+    add_subdirectory(src/tests)
+endif ()
+
 #Assignments
 set(ASSIGNMENTS
         00_Triangle 01_House 02_Colors 03_Indices 04_Uniforms 05_PVM 06_Pyramid 07_Resize 08_Zoom
-        09_CameraMovement 10_Mesh 11_KdMaterial 12_Textures 13_OBJReader 14_Diffuse 15_Specular 16_PBR
-)
+        09_CameraMovement 10_Mesh 11_KdMaterial 12_Textures 13_OBJReader 14_Diffuse
+        15_Specular 15_z_BlinnPhong_textures 15_za_a_BlinnPhong_normal_map 15_za_BlinnPhong_environment
+        16_0_PBR_Light_Exposure 16_1_PBR_Metal 16_2_PBR)
 
 set(ASSIGNMENTS_DIR ${SOURCE_DIR}/Assignments)
 link_libraries(application)

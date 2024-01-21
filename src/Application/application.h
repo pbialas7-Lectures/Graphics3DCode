@@ -17,6 +17,7 @@ namespace xe {
         Application(int width, int height, std::string title, bool debug);
 
         void run(int verbose = 0);
+        void run_cli(int argc, char **argv);
 
         auto frame_buffer_size() const {
             int w, h;
@@ -27,6 +28,7 @@ namespace xe {
         void save_frame_buffer();
 
         virtual void init() {};
+        virtual void init_cli(int argc, char **argv) {}
 
         virtual void frame() {}
 
@@ -51,6 +53,9 @@ namespace xe {
         GLFWwindow *window_;
 
     private:
+
+        void loop(); // main loop
+
         unsigned int screenshot_n_;
 
         static void glfw_framebuffer_size_callback(GLFWwindow *window_ptr, int w, int h);

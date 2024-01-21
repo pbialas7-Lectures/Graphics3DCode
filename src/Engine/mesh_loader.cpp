@@ -3,18 +3,15 @@
 //
 
 
-
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 
 #include "mesh_loader.h"
 
-
 #include <memory>
-
-
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include "spdlog/spdlog.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
@@ -51,17 +48,18 @@ namespace xe {
         size_t stride = n_floats_per_vertex * sizeof(GLfloat);
 
         auto n_vertices = smesh.vertex_coords.size();
-        auto n_indices = 3 * smesh.faces.size();
+        auto n_indices = 3 * smesh.faces.size(); //assumes triangles
 
-        spdlog::debug("Loaded sMesh n_floats_per_vertex: {} n_vertices: {} n_indices: {}", n_floats_per_vertex,
-                      n_vertices, n_indices);
+        SPDLOG_DEBUG("Loaded sMesh n_floats_per_vertex from {} : {} n_vertices: {} n_indices: {}", path,
+                     n_floats_per_vertex,
+                     n_vertices, n_indices);
 
         size_t vertex_buffer_size = smesh.vertex_coords.size() * stride;
         size_t index_buffer_size = smesh.faces.size() * 3 * sizeof(uint16_t);
 
-        spdlog::debug("vertex_buffer_size: {} index_buffer_size: {}", vertex_buffer_size, index_buffer_size);
-        auto mesh = new Mesh(stride, vertex_buffer_size, GL_STATIC_DRAW, index_buffer_size, GL_UNSIGNED_SHORT,
-                             GL_STATIC_DRAW);
+        SPDLOG_DEBUG("vertex_buffer_size: {} index_buffer_size: {}", vertex_buffer_size, index_buffer_size);
+        auto mesh = new Mesh(stride, vertex_buffer_size, GL_STATIC_DRAW,
+                             index_buffer_size, GL_UNSIGNED_SHORT, GL_STATIC_DRAW);
 
 
         mesh->load_indices(0, n_indices * sizeof(uint16_t), smesh.faces.data());
@@ -119,9 +117,10 @@ namespace xe {
         for (int i = 0; i < smesh.submeshes.size(); i++) {
             auto sm = smesh.submeshes[i];
 
-            Material *material = (Material *) (xe::NullMaterial::null_material());
+            Material *material = (Material *) xe::NullMaterial::null_material();
             if (sm.mat_idx >= 0) {
                 auto mat = smesh.materials[sm.mat_idx];
+                SPDLOG_DEBUG("Material illum {}", mat.illum);
                 switch (mat.illum) {
                     case 0:
                         material = mat_functions["KdMaterial"](mat, mtl_dir);
@@ -141,9 +140,11 @@ namespace xe {
                 }
                 if (!material)
                     material = (Material *) (xe::NullMaterial::null_material());
-                SPDLOG_DEBUG("Adding primitive {:4d} {:4d} {:4d}", i, 3 * sm.start, 3 * sm.end);
-                mesh->add_primitive(3 * sm.start, 3 * sm.end, material);
+
             }
+
+            SPDLOG_DEBUG("Adding primitive {:4d} {:4d} {:4d}", i, 3 * sm.start, 3 * sm.end);
+            mesh->add_primitive(3 * sm.start, 3 * sm.end, material);
         }
 
         return mesh;

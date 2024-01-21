@@ -20,7 +20,7 @@
 
 #include "spdlog/spdlog.h"
 #include "glad/gl.h"
-
+#include "cxxopts.hpp"
 
 #include "utils.h"
 
@@ -36,7 +36,6 @@
  * 
  */
 namespace {
-
     void _pre_call_callback(const char *name, GLADapiproc apiproc, int len_args, ...) {
     };
 
@@ -47,12 +46,10 @@ namespace {
         if (error_code != GL_NO_ERROR) {
             spdlog::error("ERROR {} {} in {}", error_code, xe::utils::error_msg(error_code), name);
         }
-
     }
 
     void _post_call_callback_no_debug(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...) {
     }
-
 }
 
 /**
@@ -67,7 +64,6 @@ namespace {
 xe::Application::Application(int width, int height, std::string title, bool debug) : screenshot_n_(0) {
     SPDLOG_INFO("Application::Application({}, {}, {}, {})", width, height, title, debug);
     if (glfwInit()) {
-
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MAJOR);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MINOR);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -127,36 +123,77 @@ xe::Application::Application(int width, int height, std::string title, bool debu
  * @param verbose unused parameter. 
  */
 void xe::Application::run(int verbose) {
-
     if (verbose > 0) {
         SPDLOG_INFO("{} {}", utils::get_gl_vendor(), utils::get_gl_renderer());
         SPDLOG_INFO("OpenGL {} GLSL {}", utils::get_gl_version(), utils::get_glsl_version());
     }
     init();
 
+    loop();
+
+    cleanup();
+    glfwTerminate();
+}
+
+char *convert(const std::string &s) {
+    char *pc = new char[s.size() + 1];
+    std::strcpy(pc, s.c_str());
+    return pc;
+}
+
+void xe::Application::run_cli(int argc, char **argv) {
+    int verbose = 0;
+    cxxopts::Options options("xe::Application", "Simple OpenGL Application");
+    options.add_options()("v,verbose", "Verbose output",
+                          cxxopts::value<int>()->default_value("1"));
+
+    options.allow_unrecognised_options();
+    auto result = options.parse(argc, argv);
+    auto unmatched = result.unmatched();
+    std::vector<char *> vc;
+    vc.push_back(argv[0]);
+    std::transform(unmatched.begin(), unmatched.end(), std::back_inserter(vc), convert);
+
+
+    verbose = result["verbose"].as<int>();
+
+    if (verbose > 0) {
+        SPDLOG_INFO("{} {}", utils::get_gl_vendor(), utils::get_gl_renderer());
+        SPDLOG_INFO("OpenGL {} GLSL {}", utils::get_gl_version(), utils::get_glsl_version());
+    }
+
+    init_cli(vc.size(), vc.data());
+    init();
+
+    loop();
+
+    cleanup();
+    glfwTerminate();
+}
+
+void xe::Application::loop() {
 #ifdef __APPLE__
     auto macMoved = false;
 #endif
 
     while (!glfwWindowShouldClose(window_)) {
-
         //Clear the framebuffer by filling it with color set using the glClearColor function.
-        //Also clears the depth buffer. 
+        //Also clears the depth buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //This method should be overridden by you and will contain the rendering code.
         frame();
-        /* Swap front and back buffers 
-           The rendering is done into the BACK buffer, swapping it with front buffer displays it on the screen.  
-           This is done after n screen updates where n is the number set by the glfwSwapInterwal. 
-           Setting it to one as I did set the swap rate to v-sync rate. 
+        /* Swap front and back buffers
+           The rendering is done into the BACK buffer, swapping it with front buffer displays it on the screen.
+           This is done after n screen updates where n is the number set by the glfwSwapInterwal.
+           Setting it to one as I did set the swap rate to v-sync rate.
         */
         glfwSwapBuffers(window_);
 
         /* Poll for and process events */
         glfwPollEvents();
 #ifdef __APPLE__
-        // A hack to fix bug in apple implementation. 
-        // maybe not needed now. Didn't check :( 
+        // A hack to fix bug in apple implementation.
+        // maybe not needed now. Didn't check :(
         if (!macMoved)
         {
             int x, y;
@@ -167,9 +204,6 @@ void xe::Application::run(int verbose) {
         }
 #endif
     }
-
-    cleanup();
-    glfwTerminate();
 }
 
 void xe::Application::glfw_framebuffer_size_callback(GLFWwindow *window_ptr, int w, int h) {
@@ -194,7 +228,6 @@ void xe::Application::glfw_cursor_position_callback(GLFWwindow *window, double x
 }
 
 void xe::Application::glfw_mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
-
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
     if (app_ptr) {
         app_ptr->mouse_button_callback(button, action, mods);
@@ -218,7 +251,6 @@ void xe::Application::key_callback(int key, int scancode, int action, int mods) 
 }
 
 void xe::Application::glfw_window_refresh_callback(GLFWwindow *window) {
-
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
     if (app_ptr) {
         app_ptr->window_refresh_callback();
