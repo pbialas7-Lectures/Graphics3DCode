@@ -11,12 +11,17 @@
 #include <GLFW/glfw3.h>
 #include "RegisteredObject.h"
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 namespace xe {
     class Application {
     public:
-        Application(int width, int height, std::string title, bool debug);
+        Application(int width, int height, std::string title, bool debug, int swap_interval=1);
 
         void run(int verbose = 0);
+
         void run_cli(int argc, char **argv);
 
         auto frame_buffer_size() const {
@@ -28,6 +33,7 @@ namespace xe {
         void save_frame_buffer();
 
         virtual void init() {};
+
         virtual void init_cli(int argc, char **argv) {}
 
         virtual void frame() {}

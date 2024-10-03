@@ -83,6 +83,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui
+)
+FetchContent_MakeAvailable(imgui)
+
+SET(IMGUI_DIR ${CMAKE_BINARY_DIR}/_deps/imgui-src)
+
 find_package(OpenGL REQUIRED)
 
 # My part vs
@@ -119,8 +127,7 @@ endif ()
 set(ASSIGNMENTS
         00_Triangle 01_House 02_Colors 03_Indices 04_Uniforms 05_PVM 06_Pyramid 07_Resize 08_Zoom
         09_CameraMovement 10_Mesh 11_KdMaterial 12_Textures 13_OBJReader 14_Diffuse
-        15_Specular 15_z_BlinnPhong_textures 15_za_a_BlinnPhong_normal_map 15_za_BlinnPhong_environment
-        16_0_PBR_Light_Exposure 16_1_PBR_Metal 16_2_PBR)
+        15_Specular)
 
 set(ASSIGNMENTS_DIR ${SOURCE_DIR}/Assignments)
 link_libraries(application)

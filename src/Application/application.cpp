@@ -61,7 +61,8 @@ namespace {
  * @param debug specify if the debug information should be generated after each OpenGL function call
  *              has efect only if compiled with debug version of glad.     
  */
-xe::Application::Application(int width, int height, std::string title, bool debug) : screenshot_n_(0) {
+xe::Application::Application(int width, int height, std::string title, bool debug, int swap_interval)
+        : screenshot_n_(0) {
     SPDLOG_INFO("Application::Application({}, {}, {}, {})", width, height, title, debug);
     if (glfwInit()) {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MAJOR);
@@ -113,7 +114,15 @@ xe::Application::Application(int width, int height, std::string title, bool debu
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glfwSwapInterval(1);
+        glfwSwapInterval(swap_interval);
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+
+        ImGui_ImplGlfw_InitForOpenGL(window_, true);
+        const char *glsl_version = "#version 410";
+        ImGui_ImplOpenGL3_Init(glsl_version);
     }
 }
 
@@ -131,6 +140,9 @@ void xe::Application::run(int verbose) {
 
     loop();
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     cleanup();
     glfwTerminate();
 }
@@ -166,6 +178,9 @@ void xe::Application::run_cli(int argc, char **argv) {
     init();
 
     loop();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     cleanup();
     glfwTerminate();
@@ -181,12 +196,34 @@ void xe::Application::loop() {
         //Also clears the depth buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //This method should be overridden by you and will contain the rendering code.
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         frame();
         /* Swap front and back buffers
            The rendering is done into the BACK buffer, swapping it with front buffer displays it on the screen.
            This is done after n screen updates where n is the number set by the glfwSwapInterwal.
            Setting it to one as I did set the swap rate to v-sync rate.
         */
+        ImGuiIO &io = ImGui::GetIO();
+        ImGuiWindowFlags window_flags =
+                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+                ImGuiWindowFlags_NoSavedSettings |
+                ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+        ImGui::SetNextWindowBgAlpha(0.35f);
+        ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_Always, ImVec2(0.0, 0.0));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::Begin("Hello, world!", nullptr,
+                     window_flags);                          // Create a window called "Hello, world!" and append into it.
+
+        ImGui::Text("FPS: %.1f", io.Framerate);
+        ImGui::End();
+        ImGui::PopStyleVar();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window_);
 
         /* Poll for and process events */

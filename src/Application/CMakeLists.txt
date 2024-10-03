@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(application CXX)
 
+file(GLOB IMGUI_SRC ${IMGUI_DIR}/*.cpp)
+
 add_library(${PROJECT_NAME}
         application.cpp
         application.h
@@ -13,6 +15,14 @@ add_library(${PROJECT_NAME}
         stb.cpp
         uniforms.h
         uniforms.cpp
+        ${IMGUI_DIR}/imgui.h
+        ${IMGUI_SRC}
+        ${IMGUI_DIR}/backends/imgui_impl_glfw.h
+        ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_opengl3.h
+        ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
+message(${IMGUI_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${IMGUI_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog cxxopts)
