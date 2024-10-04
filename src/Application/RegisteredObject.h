@@ -3,7 +3,7 @@
 //
 #pragma  once
 
-#include <iostream>
+
 #include <list>
 
 class RegisteredObject {

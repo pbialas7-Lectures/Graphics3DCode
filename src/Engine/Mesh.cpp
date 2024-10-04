@@ -16,14 +16,14 @@ namespace xe {
             stride_(stride), index_type_(index_type) {
         glGenVertexArrays(1, &vao_);
 
-        OGL_CALL(glGenBuffers(1, &v_buffer_));
-        OGL_CALL(glGenBuffers(1, &i_buffer_));
+        OGL_CALL(glCreateBuffers(1, &v_buffer_));
+        OGL_CALL(glNamedBufferData(v_buffer_, v_buffer_size, nullptr, GL_STATIC_DRAW));
+
+        OGL_CALL(glCreateBuffers(1, &i_buffer_));
+        OGL_CALL(glNamedBufferData(i_buffer_, i_buffer_size, nullptr, GL_STATIC_DRAW));
+
         OGL_CALL(glBindVertexArray(vao_));
-        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_));
-        OGL_CALL(glBufferData(GL_ARRAY_BUFFER, v_buffer_size, nullptr, GL_STATIC_DRAW));
-        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0u));
         OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_));
-        OGL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, i_buffer_size, nullptr, GL_STATIC_DRAW));
         OGL_CALL(glBindVertexArray(0u));
         OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u));
 
@@ -42,16 +42,11 @@ namespace xe {
 
 
     void Mesh::load_indices(size_t offset, size_t size, void *data) {
-
-        OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_));
-        OGL_CALL(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data));
-        OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u));
+        OGL_CALL(glNamedBufferSubData(i_buffer_, offset, size, data));
     }
 
     void Mesh::load_vertices(size_t offset, size_t size, void *data) {
-        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_));
-        OGL_CALL(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
-        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0u));
+        OGL_CALL(glNamedBufferSubData(v_buffer_, offset, size, data));
     }
 
 

@@ -76,13 +76,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cxxopt)
 
-FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.5.1 # or a later release
-)
-FetchContent_MakeAvailable(Catch2)
-
+# IMGUI
 FetchContent_Declare(
         imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui
@@ -93,7 +87,7 @@ SET(IMGUI_DIR ${CMAKE_BINARY_DIR}/_deps/imgui-src)
 
 find_package(OpenGL REQUIRED)
 
-# My part vs
+# My part
 
 link_libraries(OpenGL::GL glfw glm glad)
 add_subdirectory(src/Application)

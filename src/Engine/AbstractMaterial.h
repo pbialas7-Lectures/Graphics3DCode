@@ -49,11 +49,8 @@ namespace xe {
 
     template<class D>
     void xe::AbstractMaterial<D>::create_material_uniform_buffer(GLsizei size) {
-        OGL_CALL(glGenBuffers(1, &material_uniform_buffer_));
-
-        OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, material_uniform_buffer_));
-        OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW));
-        OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0u));
+        OGL_CALL(glCreateBuffers(1, &material_uniform_buffer_));
+        OGL_CALL(glNamedBufferData(material_uniform_buffer_, size, nullptr, GL_STATIC_DRAW));
     }
 
     template<class D>

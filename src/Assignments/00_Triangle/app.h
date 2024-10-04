@@ -13,8 +13,9 @@
 
 class SimpleShapeApplication : public xe::Application {
 public:
-    SimpleShapeApplication(int width, int height, std::string title, bool debug) : Application(width, height, title,
-                                                                                               debug) {}
+    SimpleShapeApplication(int width, int height, std::string title, bool debug, int swap_interval = 1) : Application(
+            width, height, title,
+            debug, swap_interval) {}
 
     void init() override;
 
