@@ -40,4 +40,6 @@
 
 8. Color the roof of the house red (1,0,0) and the wall green (0,1,0) and submit the final version to the repository. 
    
+   ![colors](colors.png)
+   
 
