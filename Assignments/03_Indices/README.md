@@ -18,14 +18,14 @@ so if they differ in color, they are considered different even if they have the 
 
 1. First, we will not remove the vertices, we will only add an index buffer. To do this, you need to declare a new
    vector `vector<GLubyte>` which will contain the indexes. Since we are not changing anything in the vertex
-   buffer for now, we fill it with indexes from `0` to `number of vertices-1`.
+   buffer for now, we fill it with integers from `0` to `number of vertices-1`.
 
-1. Then, using the `glGenBuffers` command, create a new index buffer in the same way as you have created the vertex
+1. Then, using the `glCreateBuffers` command, create a new index buffer in the same way as you have created the vertex
    buffer.
-   Then bind this buffer with the `glBindBuffer` command, giving `GL_ELEMENT_ARRAY_BUFFER` as the first argument.
-   Then, using the `glBufferData` command, copy the data from the index vector to it and unbind the buffer.
+   Then, using the `glNamedBufferData` command, copy the data from the index vector to  it. 
 
-1. Now bind this buffer again between calls to `glBindVertexArray(vao_)` and `glBindVertexArray(0)`.
+1. Now bind this buffer
+   using the `glBindBuffer` command  with target argument set to `GL_UNIFOMR_BUFFER`  between calls to `glBindVertexArray(vao_)` and `glBindVertexArray(0)`.
    This way it will be remembered in the Vertex Array Object (VAO) `vao_`.
 
 1. Now in the `frame` function we replace the drawing function `glDrawArrays` with `glDrawElements`, of course

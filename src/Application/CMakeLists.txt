@@ -21,6 +21,8 @@ add_library(${PROJECT_NAME}
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.h
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+        debug.h
+        debug.cpp
 )
 
 message(${IMGUI_DIR})

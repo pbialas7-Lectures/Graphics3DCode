@@ -35,7 +35,7 @@ your exercises.
    This will not yet change the behavior of the application, so add the `glViewport` call to this method to set the
    viewport to the size of the framebuffer.
 
-   Try to resize the window. What happens? If you have done everythinh correctly, the pyramid should scale with the size
+   Try to resize the window. What happens? If you have done everything correctly, the pyramid should scale with the size
    of the window. However, the proportions of the pyramid are not preserved. That is because the aspect ratio of the
    viewport no longer matches the aspect ratio of the perspective projection set up in the call the `glm::perspective`
    function in the `init` method.
@@ -79,9 +79,10 @@ your exercises.
    Now in the `init` method use this variable to store the handle of the uniform buffer. Change the code accordingly,
    and remove the old handle variable from the `init` method. Check if everything works as before.
 
-   So please move the P_ and PVM calculation to the `frame` method and remove the old code from the `init` method. Then
-   bind
-   the uniform buffer using the `glBindBufferBase` method and load the matrix to this buffer using the `glBufferSubData`
+   So please move the `P_` and `PVM` calculation to the `frame` method and remove the old code from the `init` method
+   and load the matrix to the transformations uniform buffer using the `glNamedBufferSubData`
+
+5. Then bind the uniform buffer using the `glBindBufferBase` method and
    method. Remove this code from the `init` method. After executing the draw call unbind the buffer using
    the `glBindBufferBase` method.
 

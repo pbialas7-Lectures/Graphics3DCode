@@ -21,6 +21,18 @@ namespace xe {
             return std::string((const char *) version);
         }
 
+        int get_gl_version_major(void) {
+            int major;
+            glGetIntegerv(GL_MAJOR_VERSION, &major);
+            return major;
+        }
+
+        int get_gl_version_minor(void) {
+            int minor;
+            glGetIntegerv(GL_MINOR_VERSION, &minor);
+            return minor;
+        }
+
         std::string get_gl_vendor(void) {
             auto vendor = glGetString(GL_VENDOR);
             return std::string((const char *) vendor);

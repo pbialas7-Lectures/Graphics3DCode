@@ -23,16 +23,17 @@
 #include "cxxopts.hpp"
 
 #include "utils.h"
+#include "debug.h"
 
 #include "stb/stb_image_write.h"
 
 /**
- * @brief Predefined debuging callbacks.
+ * @brief Predefined debugging callbacks.
  * 
  * If generated with debug option GLAD  permits to register callbacks that will be called before and after each OpenGL function call. 
- * This is switched off by default by me, so to not interfere with my error reporting code.  GLAD debuging can be enabled in the CMakeLists.txt file.
+ * This is switched off by default by me, as not to interfere with my error reporting code.  GLAD debuging can be enabled in the CMakeLists.txt file.
  * 
- * This unnamed namespace contains two predefined postcall callbacks making them local to this file.  
+ * This unnamed namespace contains two predefined post-call callbacks making them local to this file.
  * 
  */
 namespace {
@@ -52,6 +53,7 @@ namespace {
     }
 }
 
+
 /**
  * @brief Construct a new xe::Application::Application object
  * 
@@ -63,13 +65,14 @@ namespace {
  */
 xe::Application::Application(int width, int height, std::string title, bool debug, int swap_interval)
         : screenshot_n_(0) {
-    SPDLOG_INFO("Application::Application({}, {}, {}, {})", width, height, title, debug);
+    SPDLOG_INFO("Application::Application({}, {}, {}, {}, {})", width, height, title, debug, swap_interval);
     if (glfwInit()) {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MAJOR);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MINOR);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
         window_ = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
@@ -91,17 +94,16 @@ xe::Application::Application(int width, int height, std::string title, bool debu
         glfwSetWindowRefreshCallback(window_, glfw_window_refresh_callback);
 
 #ifdef GLAD_OPTION_GL_DEBUG
-        std::cerr << "GLAD_OPTION_GL_DEBUG\n";
-        //Additionally if GLAD debugging is on, the we can still switch it off via debug variable.
-        //This works by registering an empty predefined above callback.  
+        SPDLOG_INFO("GLAD_OPTION_GL_DEBUG is ON");
+        // Additionally if GLAD debugging is on, the we can still switch it off via debug variable.
+        // This works by registering an empty predefined above callback.
         if (debug) {
-            std::cerr << "DEBUG ON\n";
+            SPDLOG_INFO("DEBUG is ON, setting callbacks");
             gladSetGLPreCallback(_pre_call_callback);
             gladSetGLPostCallback(_post_call_callback_default);
         }
-        else
-        {
-            std::cerr << "NO DEBUG\n";
+        else {
+            SPDLOG_INFO("DEBUG is OFF");
             gladSetGLPostCallback(_post_call_callback_no_debug);
         }
 #endif
@@ -136,6 +138,23 @@ void xe::Application::run(int verbose) {
         SPDLOG_INFO("{} {}", utils::get_gl_vendor(), utils::get_gl_renderer());
         SPDLOG_INFO("OpenGL {} GLSL {}", utils::get_gl_version(), utils::get_glsl_version());
     }
+
+    auto major = utils::get_gl_version_major();
+    auto minor = utils::get_gl_version_minor();
+
+    if (major < 4 || minor < 5) {
+        SPDLOG_WARN("OpenGL version {}.{} is not supported. Minimum required version is 4.5", major, minor);
+    }
+
+    int flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        SPDLOG_INFO("OpenGL context has debug flag enabled");
+        if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+            setup_debug_output();
+        }
+    }
+
     init();
 
     loop();

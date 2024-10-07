@@ -81,7 +81,6 @@ namespace {
             size_t index_offset = 0;
 
             for (size_t f = 0; f < sh.mesh.num_face_vertices.size(); f++) {
-                std::cout<<sh.mesh.material_ids[f]<<"\n";
                 if (sh.mesh.material_ids[f] != mat_idx) {
                     sub_mesh.end = fce;
                     sub_mesh = emit_submesh(mesh, sub_mesh);

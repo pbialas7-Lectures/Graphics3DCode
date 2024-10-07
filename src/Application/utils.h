@@ -25,6 +25,9 @@ namespace xe {
 
         std::string get_glsl_version(void);
 
+        int get_gl_version_major(void);
+        int get_gl_version_minor(void);
+
         std::string get_gl_description(void);
 
         // Error reporting/debuging

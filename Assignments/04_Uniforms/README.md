@@ -37,17 +37,15 @@ passed via uniform interface block.
 
 
 2. Next, you have to create a buffer that will back up this interface block. In the `init` method create a buffer and
-   bind it to target `GL_UNIFORM_BUFFER`. Then allocate `8*sizeof(float)` memory for this buffer without loading any
-   data using the `glBufferData` function.
+   Then allocate `8*sizeof(float)` memory for this buffer without loading any
+   data using the `glNamedBufferData` function.
 
 3. Now load the data into the buffer. To this end, define two variables:
    ```c++
    float strength = 0.5;
    float mix_color[3] = {0.0, 0.0, 1.0};
    ```
-
-4. Bind the buffer to inteface block using `glBindBufferBase` function and  
-   load those variables into the buffer using `glBufferSubData` function. Please respect the `std140` layout rules which
+   Load those variables into the buffer using `glNamedBufferSubData` function. Please respect the `std140` layout rules which
    can
    be found on page 138 of
    [OpenGL 4.5 (Core profile) specification](https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf). In
@@ -62,6 +60,10 @@ passed via uniform interface block.
     0.0 0.0 1.0 0.5
     ```
    and fit into 16bytes (4 floats). I decided not to do this, just to show you how the `std140` layout works :)
+4. 
+4. Bind the buffer to interface block using `glBindBufferBase` function and the `GL_UNIFORM_BUFFER` target.
+   Remember to
+   bind the buffer between. 
 
 5. Now use the variables from the interface block to modify the pixel color in the fragment shader. Use the  `mix`
    function. Modify
@@ -92,7 +94,7 @@ The parameters of this transformation will be passed to vertex shader via unifor
    variables are aligned to 8 bytes (two floats) boundaries (rule 2). The 2x2 matrix `mat2` is treated as an array
    of two `vec2` variables  (rule 5). Each element of this array is aligned to a 16-byte boundary (rule 4). How
    many bytes do you have to allocate?
-4. Create variables that will hold values to be loaded into the buffer:
+3. Create variables that will hold values to be loaded into the buffer:
    ```c++
    float theta = 1.0*glm::pi<float>()/6.0f;//30 degrees
    auto cs = std::cos(theta);
@@ -101,9 +103,10 @@ The parameters of this transformation will be passed to vertex shader via unifor
    glm::vec2 trans{0.0,  -0.25};
    glm::vec2 scale{0.5, 0.5};
    ```
-   As we are using now `glm` for matrix and vector manipulation you have to include `glm/glm.hpp` and
+   As we use now `glm` for matrix and vector manipulation you have to include `glm/glm.hpp` and
    `glm/gtc/constants.hpp` files.
-3. Using `glBindBufferBase` function bind this buffer to uniform interface block and load data into the uniform buffer,
+
+4. Load data into the uniform buffer,
    remember the `std140` layout rules. For `mat2` it means that each column of
    the matrix is aligned to a four floats boundary and the whole array is padded to a multiple of four floats as well.
    So a matrix
@@ -115,8 +118,10 @@ The parameters of this transformation will be passed to vertex shader via unifor
    ```
    a c x x c d  
    ```
-   where x denotes a "unused" space.
+   where x denotes an "unused" space.
    You can access the column of a `glm` matrix by subscripting: `rot[0]` is the first column and `rot[1]` second.
+
+5. Using `glBindBufferBase` function bind this buffer to uniform interface block in the shader. 
 
 6. And finally, transform the vertices in the vertex shader:
    ```glsl 

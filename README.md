@@ -13,7 +13,10 @@ git clone https://github.com/pbialas7-Lectures/Graphics3DCode.git
 
 ## OpenGL version
 
-In this project I am using OpenGL 4.6. You will need a graphics card/driver that supports this version. You can check
+In this project, I will be using OpenGL 4.6.
+The minimum version required is 4.5.
+You will need a graphics card/driver that supports this version.
+You can check
 the version of OpenGL supported by your graphics card/driver using
 the [OpenGL Extensions Viewer](https://www.realtech-vr.com/glview/). If for some reason you cannot use OpenGL 4.6 (see
 Apple below) you can change the version in the `CMakeLists.txt` file by setting the different value for `MINOR`
@@ -21,9 +24,10 @@ variable. Using version 4.5 should be fine.
 
 ### Apple
 
-Unfortunately, Apple does not support OpenGL 4.6. The highest version supported by Apple is 4.1.
-CMake will detect this and set the version to 4.1.
-This will cause problems with the assignments. The possible solutions will be given where needed.
+Unfortunately, Apple does not support OpenGL 4.6.
+The highest version supported by Apple is 4.1.
+So I am sorry to say it will be impossible to use Apple computers with macOS for
+this course :(
 
 ## Building
 

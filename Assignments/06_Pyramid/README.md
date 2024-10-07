@@ -1,5 +1,7 @@
 # Pyramid
 
+#### 4 points
+
 In this assignment, you will finally create a true 3D object.
 You will also learn how to use the depth buffer and how to cull faces.
 

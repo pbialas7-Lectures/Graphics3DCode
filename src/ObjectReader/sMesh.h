@@ -19,7 +19,7 @@ namespace xe {
 
     using mtl_material_t = tinyobj::material_t;
 
-
+    // Encapsulates a mesh loaded from an OBJ file.
     struct sMesh {
         static const uint32_t MAX_TEXCOORDS = 2u;
 

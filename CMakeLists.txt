@@ -46,7 +46,7 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-
+# GLFW
 FetchContent_Declare(
         glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -54,14 +54,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glfw)
 
 # GLM
-
 FetchContent_Declare(
         glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git
 )
 FetchContent_MakeAvailable(glm)
 
-
+# SPDLOG
 FetchContent_Declare(
         spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
@@ -69,7 +68,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(spdlog)
 
-
+# CXXOPTS
 FetchContent_Declare(
         cxxopt
         GIT_REPOSITORY https://github.com/jarro2783/cxxopts.git
