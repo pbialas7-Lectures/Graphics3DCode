@@ -70,9 +70,21 @@ the list of kits. After choosing it, the configuration and build should proceed 
 
 ### Using Mingw-gw with Visual Studio Code on Windows
 
-It should be also possible to use the [Mingw-gw64](https://www.mingw-w64.org/) compiler.
-However, I have not tested this setup this year.
-I will let you know as soon as I manage to do this.
+
+To install Mingw-gw64 follow the instructions
+on [VS Code Documentation](https://code.visualstudio.com/docs/cpp/config-mingw). Follow steps 1-4 from the
+prerequisites.
+
+After that, you should have a new kit visible in VS Code.
+However, if you try to configure and build a project, you may
+get an error that CMake generator cannot be found. That is because the `make.exe` command in the Mingw-gw64 distribution
+is
+called `mingw32-make.exe`. To fix this, you will need to make a symbolic link. Open the command prompt (In start menu
+type `cmd`). Then navigate to `C:\msys64\mingw64\bin` folder and type:
+
+```shell
+mklink make.exe `mingw32-make.exe
+```
 
 ### CLion
 
