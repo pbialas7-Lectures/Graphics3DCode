@@ -4,9 +4,9 @@ This folder contains the descriptions of assignments to be performed during this
 Each new assignment will be based on the previous ones. For this purpose, you will copy assignments to new folders. How
 to do this is described in assignment [`House`](01_House/README.md). Each assignment will be scored. The number of
 points assigned to each assignment will appear in the assignment description as well as in the Teams
-spreadsheet [zadania](https://ujchmura.sharepoint.com/:x:/r/teams/Section_550032_1/Shared%20Documents/General/zadania.xlsx?d=w2f00faf3a47a4e1e85a4d56be86ed82d&csf=1&web=1&e=fAAxf3)
+spreadsheet `assignements` 
 located in the general channel of the
-team [Programowanie grafiki 3D \[ WFAIS.IF-F201.0 23_24Z WYK 1 \]  ](https://teams.microsoft.com/l/team/19%3akawIWvjkm-apQ02mA1Jkt4RKtVhxZcQMsxM5TRvEVc41%40thread.tacv2/conversations?groupId=e025e0b7-c6db-4fc1-9dae-aaff45b35931&tenantId=eb0e26eb-bfbe-47d2-9e90-ebd2426dbceb).
+team [Programowanie grafiki 3D \[ WFAIS.IF-F201.0 24_25Z WYK 1 \]](https://teams.microsoft.com/l/team/19%3Afjrr4y3RP5dB96Ss6ngAdhglVVXsZhm4KPsFD4gKrCA1%40thread.tacv2/conversations?groupId=87aee928-3c6a-4e45-9422-fb132a26c77a&tenantId=eb0e26eb-bfbe-47d2-9e90-ebd2426dbceb).
 
 To pass, you have to reach the `DiffuseLightning` assignment, then the final grade will be calculated based on total
 number of points. The scale is not yet set as it may depend slightly upon your performance. However, it will be at least
@@ -16,8 +16,7 @@ Assignments will have a due date, after which they will no longer be accepted.
 You can submit subsequent assignments, but all prior assignments must be included in them.
 So you have to do all assignments (up to `DiffuseLighting`) anyway, so you may as well try to submit them on time. The
 due date is given in the Teams
-spreadsheet [zadania](https://ujchmura.sharepoint.com/:x:/r/teams/Section_550032_1/Shared%20Documents/General/zadania.xlsx?d=w2f00faf3a47a4e1e85a4d56be86ed82d&csf=1&web=1&e=fAAxf3).
-
+spreadsheet [zadania](https://ujchmura.sharepoint.com/:x:/r/teams/Section_576780_1/Shared%20Documents/General/zadania.xlsx?d=w9cf9f3aa0a774913b6bf8f0454f89ae3&csf=1&web=1&e=bppEaG)
 In the assignment descriptions, I will omit the arguments of various OpenGL functions. Your task will be to complete
 them based on the documentation. Usually, just google the name of the function to get a link
 to [OpenGL® 4.5 Reference Pages](https://www.khronos.org/registry/OpenGL-Refpages/gl4/).
@@ -61,7 +60,7 @@ git pull origin.lecture
 
 After creating your repository, please give me permission to read/write from/to it (add me to the project). On GitHub
 I go by the name `pbialas7`. Please add the URL to the repository to the Teams
-sheet [repozytoria](https://ujchmura.sharepoint.com/:x:/r/teams/Section_550032_1/Shared%20Documents/General/repozytoria.xlsx?d=w38fc99320d0f4a2fa9d0bf1f8575ba0c&csf=1&web=1&e=zcoYLf).
+sheet [repozytoria](https://ujchmura.sharepoint.com/:x:/r/teams/Section_576780_1/Shared%20Documents/General/repozytoria.xlsx?d=w07aa0e890b1c47158051ef78caa32cc0&csf=1&web=1&e=yKvHrk).
 
 The assignments can and are even recommended to be done in pairs. You just need to report it to me in advance and keep
 the code in one repository. There is space in the sheet to enter two people for one repository.
@@ -85,4 +84,3 @@ python ./scripts/copy_assignment.py 00_Triangle 01_House
 ```
 
 Use at your own risk!
-
