@@ -59,7 +59,7 @@ OK.
        auto t = -glm::vec3{
                glm::dot(x_, position_),
                glm::dot(y_, position_),
-               glm::dot(z_, position_),
+               glm::dot(z_, position_)
        };
        V[3] = glm::vec4(t, 1.0f);
        
@@ -152,8 +152,8 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
 
    class CameraController {
    public:
-       CameraControler():camera_(nullptr) {}
-       CameraControler(Camera* camera):camera_(camera) {}
+       CameraController():camera_(nullptr) {}
+       CameraController(Camera* camera):camera_(camera) {}
        void set_camera(Camera *camera) { camera_ = camera; }
    
    private:
@@ -171,7 +171,7 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
        }
    ```
 
-   `scale_` is another field of the `CameraControler` class and is a converter between pixels and angle. Its value
+   `scale_` is another field of the `CameraController` class and is a converter between pixels and angle. Its value
    should be selected experimentally for a given screen resolution.
 
    We slowly approach the end. Now we will implement three methods responsible for handling mouse events. First of all,
@@ -226,13 +226,13 @@ To do this:
    and a method
 
    ```c++
-   void set_controler(CameraController *controller) { controller_ = controller; }
+   void set_controller(CameraController *controller) { controller_ = controller; }
    ```
 
    to the `SimpleShapeApplication` class. Then in the `init` method we set the controller:
 
    ```c++
-   set_controler(new CameraController(camera()));
+   set_controller(new CameraController(camera()));
    ```
 
 2. And finally, we add event handling by overriding the methods:

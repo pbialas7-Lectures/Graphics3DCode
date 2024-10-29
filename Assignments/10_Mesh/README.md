@@ -56,12 +56,12 @@ already provided in the constructor (see description below), and uses the `Attri
 
 1. We will store the meshes in the vector of meshes in the `SimpleShapeApplication` class, so please add the field
    ```c++
-   std::vector<Mesh*> meshes_; 
+   std::vector<xe::Mesh*> meshes_; 
    ```
    to this class in `app.h` file and a corresponding `add_mesh` method:
 
    ```c++
-   void add_mesh(Mesh *mesh) {
+   void add_mesh(xe::Mesh *mesh) {
        meshes_.push_back(mesh);
    }
    ```
