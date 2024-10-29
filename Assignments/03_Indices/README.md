@@ -25,7 +25,7 @@ so if they differ in color, they are considered different even if they have the 
    Then, using the `glNamedBufferData` command, copy the data from the index vector to  it. 
 
 1. Now bind this buffer
-   using the `glBindBuffer` command  with target argument set to `GL_UNIFOMR_BUFFER`  between calls to `glBindVertexArray(vao_)` and `glBindVertexArray(0)`.
+   using the `glBindBuffer` command  with target argument set to `GL_ELEMENT_ARRAY_BUFFER`  between calls to `glBindVertexArray(vao_)` and `glBindVertexArray(0)`.
    This way it will be remembered in the Vertex Array Object (VAO) `vao_`.
 
 1. Now in the `frame` function we replace the drawing function `glDrawArrays` with `glDrawElements`, of course
