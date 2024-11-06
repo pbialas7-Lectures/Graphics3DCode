@@ -17,7 +17,9 @@ include_directories(${3rdParty_DIR})
 include_directories(${SOURCE_DIR})
 
 add_compile_definitions(XE_DEBUG)
-
+if (MSVC)
+    add_compile_options(/utf-8)
+endif ()
 
 # GLAD
 set(MAJOR 4)
