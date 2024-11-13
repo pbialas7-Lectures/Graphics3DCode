@@ -28,6 +28,9 @@ In this assignment we will only use the first two terms of the equation, the amb
    at the beginning of the method.
    In the file `square.mtl` change the `illum=0` to `illum=1` and add the `Ka` coefficient with same value as `Kd`.
 
+   The `Kd` coefficient corresponds to the `c_diff` variable in the lightning equation and
+   the `Ka` coefficient corresponds to the `c_ambient` variable.
+
    Everything should work as previously.
 
 2. Copy the `Kd_vs.glsl` and `Kd_fs.glsl` shader files to `BlinnPhong_vs.glsl` and `BlinnPhong_fs.glsl` respectively. In
