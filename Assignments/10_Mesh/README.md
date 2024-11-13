@@ -13,6 +13,7 @@ they can be accessible to all further assignments without a need to copy them:
 
 1. So go ahead and copy the `09_CameraMovement` assignment
    to `10_Mesh`.
+
 2. Then move the files `camera.h` and `camera_controller.h`  from `src/Assignament/10_Mesh` to the
    directory `src/Engine`.
 
@@ -41,12 +42,13 @@ they can be accessible to all further assignments without a need to copy them:
 ## Mesh class
 
 `Mesh` class corresponds to a single `Vertex Array Object` (VAO) containing one vertex buffer and one index buffer.
-Every object of this class must contain at least one object of `Mesh::Primitive` class.
-`Primitive` class corresponds to a single call to `glDrawElements` function and contains the range of the indices to be
-submitted to this call. `Primitive` also contains a pointer to the `Material` that will be used in next assignments to
+Every object of this class must contain at least one object of `Mesh::SubMesh` class.
+`SubMesh` class corresponds to a single call to `glDrawElements` function and contains the range of the indices to be
+submitted to this call. `SubMesh` also contains a pointer to the `Material` that will be used in next assignments to
 specify the kind of material used by this primitive which in turn will determine the color of the pixels. By default,
 this pointer is initialized to `null_material` which is a pointer to `NullMaterial`
-that does nothing. Primitives are added to mesh using the `add_primitive` method.
+that does nothing.
+Submeshes are added to mesh using the `add_submesh` method.
 
 Mesh class also assumes using a predefined set of vertex attributes that are specified by the `xe::Attribute` enum.
 The values of the enum correspond to the location value of the corresponding attribute in vertex shader.
@@ -88,10 +90,10 @@ already provided in the constructor (see description below), and uses the `Attri
 
 5. Similarly, load data into the index buffer using `load_indices` method.
 
-6. Add a primitive to this mesh that will contain all the indices and schedule mesh for drawing using
+6. Add a submesh to this mesh that will contain all the indices and schedule mesh for drawing using
    the `SimpleShapeApplication::add_mesh` method.
 
-7. Finally, in the method frame `change` the call to `glDrawElements`to a loop that will call `draw` method on each mesh
+7. Finally, in the method frame change the call to `glDrawElements`to a loop that will call `draw` method on each mesh
    in`meshes_`
 
    ```c++
