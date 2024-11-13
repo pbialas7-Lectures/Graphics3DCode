@@ -36,7 +36,8 @@ namespace xe {
 
         virtual void init_cli(int argc, char **argv) {}
 
-        virtual void frame() {}
+        virtual void frame() {
+        }
 
         virtual void cleanup() {
             RegisteredObject::cleanup();

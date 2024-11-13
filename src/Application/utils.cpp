@@ -48,23 +48,6 @@ namespace xe {
             return std::string((const char *) glsl_version);
         }
 
-        std::string get_gl_description(void) {
-            std::stringstream ss;
-            auto vendor = glGetString(GL_VENDOR);
-            auto renderer = glGetString(GL_RENDERER);
-            auto version = glGetString(GL_VERSION);
-            auto glsl_version = glGetString(GL_SHADING_LANGUAGE_VERSION);
-
-            int gl_major_version;
-            int gl_minor_version;
-            glGetIntegerv(GL_MAJOR_VERSION, &gl_major_version);
-            glGetIntegerv(GL_MINOR_VERSION, &gl_minor_version);
-
-            ss << vendor << " " << renderer << " OpenGL " << gl_major_version << "." << gl_minor_version << "\n";
-            ss << version << " " << glsl_version;
-
-            return ss.str();
-        }
 
         std::string shader_type(GLenum type) {
 
@@ -265,6 +248,23 @@ namespace xe {
 #endif
 
             return create_shader_from_source(type, shader_source);
+        }
+    }
+
+    std::string utils::glfw::platform_name(int platform) {
+        switch (platform) {
+            case GLFW_PLATFORM_WIN32:
+                return "Win32";
+            case GLFW_PLATFORM_COCOA:
+                return "Cocoa";
+            case GLFW_PLATFORM_X11:
+                return "X11";
+            case GLFW_PLATFORM_WAYLAND:
+                return "Wayland";
+            case GLFW_PLATFORM_NULL:
+                return "None";
+            default:
+                return "Unknown";
         }
     }
 }
