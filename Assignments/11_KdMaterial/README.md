@@ -137,7 +137,7 @@ This field has also to be initialized in the `init` method using the `create_pro
 
 7. Delete the code creating the shader program from the `init` method of the `SimpleShapeApplication` class.
 
-At this point, you should have program running and displaying the pyramid as before. But we are not yet  using
+At this point, you should have program running and displaying the pyramid as before. But we are not yet using
 the color from the KdMaterial. To do this, we have to modify the fragment shader.
 
 1. In the fragment shader add the uniform interface block.
@@ -152,15 +152,20 @@ the color from the KdMaterial. To do this, we have to modify the fragment shader
        bool use_vertex_color; 
    };
    ```
-   Make sure that this binding (0) does not conflict with the biding of the PVM uniform block if so please use another binding.
+   Make sure that this binding (0) does not conflict with the biding of the PVM uniform block if so please use another
+   binding.
 
-2. To the `bind` method of the `KdMaterial` class add the call that will load the `Kd` material uniform buffer
+    2. To the `bind` method of the `KdMaterial` class add the call that will load the `Kd` material uniform buffer
 
-   ```c++
-   OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0 , material_uniform_buffer_));
-   OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), &Kd_));
-   OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(int), &use_vertex_colors_));
-   ```
+       ```c++
+       OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0 , material_uniform_buffer_));
+       OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), &Kd_));
+       OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(int), &use_vertex_colors_));
+       ```
+
+       The `use_vertex_colors_` is a integer field of the `KdMaterial` class
+       that should be set to `1` if the vertex colors are present in the vertex buffer and are to be used, and `0`
+       otherwise.
 
 3. Add an `unbind` function that unbinds the material uniform buffer.
 
