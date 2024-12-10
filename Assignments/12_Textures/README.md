@@ -34,12 +34,16 @@ different vertices in the pyramid.
 
 ## Texture
 
+We will use the texture from the file `multicolor.png` which can be found in the `Models` directory. 
+
+<img src="multicolor.png" style="display:block; margin: 1em auto; width: 30%">
+
 To use the texture, we need to load it and send it to the shader.
 For loading and image will use the `stb_image` library.
 The library is already included in the project.
 To use it please include the `stb/stb_image.h` header file. The image can then be loaded with the `stbi_load` function.
 
-1. But first create the `Models` subdirectory in the root directory and copy the `multicolor.png` file to it.
+
 2. In the `init` method of the `SimpleShapeApplication` class load the image using the following code
 
    ```c++
