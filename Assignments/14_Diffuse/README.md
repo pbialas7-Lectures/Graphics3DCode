@@ -147,7 +147,8 @@ The transformed normal vector must be normalized again after the transformation.
    mandates that a 3x3 three matrix is stored as three columns, each column aligned to the `4*sizeof(float)` boundary.
    So matrix
    ```text
-      VM_normal = [00 01 02
+      VM_normal = [
+      00 01 02
       10 11 12
       20 21 22]
    ```
