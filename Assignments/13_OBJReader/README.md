@@ -55,7 +55,8 @@ associated [Wavefront Material Template Library (MTL)](http://paulbourke.net/dat
 
 3. Replace all the code creating pyramid mesh and material by
    ```c++
-    auto pyramid = load_mesh_from_obj("Models/pyramid.obj", "Models");
+   auto pyramid = xe::load_mesh_from_obj(std::string(ROOT_DIR) + "/Models/blue_marble.obj",
+                                          std::string(ROOT_DIR) + "/Models");
     add_mesh(pyramid);
    ```
    You should again see the textured pyramid.
