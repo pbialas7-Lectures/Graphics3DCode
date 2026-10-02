@@ -50,19 +50,11 @@ namespace xe {
         void add_attribute(AttributeType attr_type, GLuint size, GLenum type, GLsizei offset) const;
 
         void add_submesh(GLuint start, GLuint end) {
-            primitives_.emplace_back(start, end);
+            submeshes_.emplace_back(start, end);
         }
 
         void add_submesh(GLuint start, GLuint end, const Material *material) {
-            primitives_.emplace_back(start, end, material);
-        }
-
-        void add_primitive(GLuint start, GLuint end) {
-            add_submesh(start, end);
-        }
-
-        void add_primitive(GLuint start, GLuint end, const Material *material) {
-            add_submesh(start, end, material);
+            submeshes_.emplace_back(start, end, material);
         }
 
         virtual void draw() const;
@@ -92,7 +84,7 @@ namespace xe {
         const GLenum index_type_;
         const GLsizei stride_;
 
-        std::vector<SubMesh> primitives_;
+        std::vector<SubMesh> submeshes_;
 
     };
 

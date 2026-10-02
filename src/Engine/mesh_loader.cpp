@@ -144,7 +144,7 @@ namespace xe {
             }
 
             SPDLOG_DEBUG("Adding primitive {:4d} {:4d} {:4d}", i, 3 * sm.start, 3 * sm.end);
-            mesh->add_primitive(3 * sm.start, 3 * sm.end, material);
+            mesh->add_submesh(3 * sm.start, 3 * sm.end, material);
         }
 
         return mesh;

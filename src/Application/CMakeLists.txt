@@ -25,6 +25,5 @@ add_library(${PROJECT_NAME}
         debug.cpp
 )
 
-message(${IMGUI_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${IMGUI_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog cxxopts)

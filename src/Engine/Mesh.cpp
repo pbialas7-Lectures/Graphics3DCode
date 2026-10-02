@@ -62,11 +62,11 @@ namespace xe {
 
     void Mesh::draw() const {
         OGL_CALL(glBindVertexArray(vao_));
-        for (auto i = 0; i < primitives_.size(); i++) {
-            primitives_[i].material->bind();
-            auto indices = reinterpret_cast<void *>(index_size_ * primitives_[i].start);
-            OGL_CALL(glDrawElements(GL_TRIANGLES, primitives_[i].count(), index_type_, indices));
-            primitives_[i].material->unbind();
+        for (auto i = 0; i < submeshes_.size(); i++) {
+            submeshes_[i].material->bind();
+            auto indices = reinterpret_cast<void *>(index_size_ * submeshes_[i].start);
+            OGL_CALL(glDrawElements(GL_TRIANGLES, submeshes_[i].count(), index_type_, indices));
+            submeshes_[i].material->unbind();
         }
         OGL_CALL(glBindVertexArray(0u));
     }

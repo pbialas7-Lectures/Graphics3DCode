@@ -120,10 +120,10 @@ This field has also to be initialized in the `init` method using the `create_pro
    ```c++
    auto kd_white_material = new KdMaterial(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
    ```
-   and pass it as an argument to the `add_primitive` method of the `Mesh` class.
+   and pass it as an argument to the `add_submesh` method of the `Mesh` class.
 
    ```c++
-    pyramid->add_primitive(0, 18, kd_white_material);
+    pyramid->add_submesh(0, 18, kd_white_material);
    ```
 
 5. Delete the `glUseProgram` call from the `SimpleShapeApplication::init` method.

@@ -114,10 +114,10 @@ uniform sampler2D map_Kd;
    In the `unbind` method check if
    the value of the `texture_` field is greater than zero and if so unbind the texture.
 
-7. In the `init` method of the `SimpleShapeApplication` add a single primitive encompassing all the indices and add a
+7. In the `init` method of the `SimpleShapeApplication` add a single submesh encompassing all the indices and add a
    material with texture. Set the `Kd` to white.
    ```c++
-   pyramid->add_primitive(0, 18, new xe::KdMaterial({1.f, 1.f, 1.0f, 1.0f}, false, tex_handle));
+   pyramid->add_submesh(0, 18, new xe::KdMaterial({1.f, 1.f, 1.0f, 1.0f}, false, tex_handle));
    ```
 
 ## Gamma correction
