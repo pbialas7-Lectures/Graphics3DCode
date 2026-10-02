@@ -81,7 +81,7 @@ Then you should modify the project name in `src/Assignments/01_House/CMakeLists.
 I have provided a python script that you can use for this:
 
 ```shell
-python ./scripts/copy_assignment.py 00_Triangle 01_House
+python3 ./scripts/copy_assignment.py 00_Triangle 01_House
 ```
 
 Use at your own risk!
