@@ -12,13 +12,13 @@ that will be a base class for all materials.
 It defines a pure virtual function `bind` that has to be implemented in each derived class. This method should load the
 required shader program and all necessary uniforms.
 
-# AbstractMaterial class
+## AbstractMaterial class
 
 The `AbstractMaterial`  derives from `Material` class and is implemented in `AbstractMaterial.h`
 and `AbstractMaterial.cpp` in the `src/Engine/`.
 It provides several methods that help create concrete materials.
 
-The `AbstractMaterial` class is a template because this enables of the use of the
+The `AbstractMaterial` class is a template because this enables the use of the
 so-called [CRTP](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern) (Curiously Recurring Template
 Pattern) idiom.
 This idiom allows us to make sure that each derived class will have its own copy of the static fields.
@@ -60,44 +60,45 @@ If the colors are not provided in the vertex buffer, the resulting color will be
 
 ### Material uniform buffer
 
-1. Thanks to the CRTP (Curiously Reoccurring Template Pattern) trick,
+1. Thanks to the CRTP (Curiously Recurring Template Pattern) trick,
    class `KdMaterial` will inherit from `AbstractMaterial<KdMaterial>` class,
    its own `material_uniform_buffer_` static variable.
    The material uniform buffer has to be created before we start using this class. This will be done in the
-   static `KDMaterial::init()` method.
+   static `KdMaterial::init()` method.
    Go ahead and add this method and its empty implementation to the `KdMaterial` class and call this method at the
    beginning of the `init` method of `SimpleShapeApplication` class.
 
 2. Add code creating the material uniform buffer to this method. Use the `create_material_uniform_buffer` method
    of `AbstractMaterial` class with
-   size parameter equal to `2*sizeof(gm::vec4)`.
+   size parameter equal to `2*sizeof(glm::vec4)`.
 
    ```c++
    create_material_uniform_buffer(2*sizeof(glm::vec4));
    ```
-   This method will create the uniform buffer and assign its handle to the `material_uniform_buffer_` field of
-   the `KdMaterial` class.
+   This method will create the uniform buffer and assign its handle to the private static `material_uniform_buffer_`
+   field of the `AbstractMaterial<KdMaterial>` class. In `KdMaterial` you can access it using the
+   `material_uniform_buffer()` method.
 
 ### Shader program
 
 Another attribute of the material is the shader program implementing the coloring. The handle to this program is stored
 in the again static `program_` field.
-This field has also to be initialized in the `init` method using the `create_program_in_project` method.
+This field has also to be initialized in the `init` method using the `create_program_in_engine` method.
 
 1. In preparation, move the shader source files from the `11_KdMaterial/shaders` directory to `Engine/shaders`, you have
-   to create this director first, and
+   to create this directory first, and
    rename them `Kd_vs.glsl` and `Kd_fs.glsl`. Change the argument of `xe::utils::create_program` method call in
-   the `init` method of the `SimpleShapeApplicationClass` to reflect those changes. Delete the empty `shaders`
+   the `init` method of the `SimpleShapeApplication` class to reflect those changes. Delete the empty `shaders`
    directory.
 
-2. Add the `create_program_in_project` method call to the `KdMaterial::init` method.
+2. Add the `create_program_in_engine` method call to the `KdMaterial::init` method.
 
    ```c++
    create_program_in_engine({{GL_VERTEX_SHADER, "Kd_vs.glsl"},
                               {GL_FRAGMENT_SHADER, "Kd_fs.glsl"}});
    ```
 
-   `KdMaterial::create_program_in_project` is just "syntactic sugar" for the call to the `xe::utils::create_program`. It
+   `KdMaterial::create_program_in_engine` is just "syntactic sugar" for the call to the `xe::utils::create_program`. It
    allows specifying only the shader file names, and the method will automatically add the path to the `Engine/shaders`
    directory. But for this to work the `KdMaterial::init` method has to be defined in the `KdMaterial.cpp` file and not
    inlined in the `KdMaterial.h` file.
@@ -109,20 +110,12 @@ This field has also to be initialized in the `init` method using the `create_pro
    ``` 
    and definition in  `KdMaterial.cpp` file add the following code:
    ```c++
-    void KdMaterial::KdMaterial::bind() {
+    void KdMaterial::bind() const {
          glUseProgram(program());
     }
    ``` 
 
-4. Now we have to make sure that the `KdMaterial` class is initialized before the first use.
-   To this end, we will add
-   the `KdMaterial::init` method call to the `SimpleShapeApplication::init` method.
-
-   ```c++
-   KdMaterial::init();
-   ```   
-
-5. Create an object of the `KdMaterial` class in the `init` method of the `SimpleShapeApplication` class
+4. Create an object of the `KdMaterial` class in the `init` method of the `SimpleShapeApplication` class
 
    ```c++
    auto kd_white_material = new KdMaterial(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -133,9 +126,9 @@ This field has also to be initialized in the `init` method using the `create_pro
     pyramid->add_primitive(0, 18, kd_white_material);
    ```
 
-6. Delete the `glUseProgram` call from the `SimpleShapeApplication::init` method.
+5. Delete the `glUseProgram` call from the `SimpleShapeApplication::init` method.
 
-7. Delete the code creating the shader program from the `init` method of the `SimpleShapeApplication` class.
+6. Delete the code creating the shader program from the `init` method of the `SimpleShapeApplication` class.
 
 At this point, you should have program running and displaying the pyramid as before. But we are not yet using
 the color from the KdMaterial. To do this, we have to modify the fragment shader.
@@ -149,23 +142,28 @@ the color from the KdMaterial. To do this, we have to modify the fragment shader
    ```glsl
    layout(std140, binding=0) uniform KdMaterial {
        vec4 Kd;
-       bool use_vertex_color; 
+       bool use_vertex_colors; 
    };
    ```
-   Make sure that this binding (0) does not conflict with the biding of the PVM uniform block if so please use another
+   Make sure that this binding (0) does not conflict with the binding of the PVM uniform block if so please use another
    binding.
 
-    2. To the `bind` method of the `KdMaterial` class add the call that will load the `Kd` material uniform buffer
+2. To the `bind` method of the `KdMaterial` class add the call that will load the `Kd` material uniform buffer
 
-       ```c++
-       OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0 , material_uniform_buffer_));
-       OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), &Kd_));
-       OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(int), &use_vertex_colors_));
-       ```
+   ```c++
+   OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0 , material_uniform_buffer()));
+   OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), &Kd_));
+   OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(int), &use_vertex_colors_));
+   ```
 
-       The `use_vertex_colors_` is a integer field of the `KdMaterial` class
-       that should be set to `1` if the vertex colors are present in the vertex buffer and are to be used, and `0`
-       otherwise.
+   The `use_vertex_colors_` is a integer field of the `KdMaterial` class
+   that should be set to `1` if the vertex colors are present in the vertex buffer and are to be used, and `0`
+   otherwise. Add this field to the class, initialize it to `0` in the existing constructor and add a second
+   constructor
+
+   ```c++
+   KdMaterial(const glm::vec4 &Kd, bool use_vertex_colors) : Kd_(Kd), use_vertex_colors_(use_vertex_colors) {}
+   ```
 
 3. Add an `unbind` function that unbinds the material uniform buffer.
 
@@ -188,8 +186,8 @@ the color from the KdMaterial. To do this, we have to modify the fragment shader
 6. Add the code that uses or not the vertex colors depending on the value of the `use_vertex_colors` variable.
 
    You should now see the pyramid in white color, as the default value of this attribute is `false`.
-   Change that to `true` in the constructor of the material, and you should see the pyramid in the color of the vertex
-   colors.
+   Create the material using the two-parameter constructor with `true` as the second argument, and you should see the
+   pyramid in the color of the vertex colors.
    Change it back to `false`.
 
 7. Divide the pyramid into five primitives corresponding to faces and base.

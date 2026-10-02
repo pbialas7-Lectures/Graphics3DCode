@@ -4,7 +4,7 @@
 
 1. Start the assignment by copying the `01_House` assignment folder to `02_Colors` folder as described previously.
 
-3. Now add the color data to the vertices. In the array holding the vertices, after coordinates of each vertex add a
+2. Now add the color data to the vertices. In the array holding the vertices, after coordinates of each vertex add a
    RGB blue color value (0,0,1). Please remember that in OpenGL the color channels take values from the interval [0,1].
    The data in vertex buffer should be arranged like this:
    ```

@@ -15,21 +15,22 @@ associated [Wavefront Material Template Library (MTL)](http://paulbourke.net/dat
 2. Add the definition of this function in the `texture.cpp` file. This function should take the name of the texture file
    and return the OpenGL handle to the texture. If the `is_sRGB`
    is `true`,
-   function should use the `GLSRGB` internal format while loading the texture. Otherwise, it should use `GL_RGB`
+   function should use the `GL_SRGB` internal format while loading the texture. Otherwise, it should use `GL_RGB`
    internal format.
    Use the code creating the texture that was previously in the `app.cpp` file.
 
 3. In the `app.cpp` file, use this newly defined function to load the texture.
 
 
-1. In class `KdMaterial` add a new _factory_ method that will create a material object from the MTL description. This
+4. In class `KdMaterial` add a new _factory_ method that will create a material object from the MTL description. This
    method must be `static`:
     ```c++
     static Material *create_from_mtl(const mtl_material_t &mat, std::string mtl_dir);
     ```
-   You will need to include `ObjReader/sMesh.h` file where the `mtl_material_t` is defined.
+   You will need to include `ObjectReader/sMesh.h` file where the `mtl_material_t` is defined.
+   Also add a `void set_texture(GLuint texture)` method to the `KdMaterial` class that sets the `texture_` field.
 
-2. Add the definition of this function
+5. Add the definition of this function
    ```c++
    Material *KdMaterial::create_from_mtl(const mtl_material_t &mat, std::string mtl_dir) {
         glm::vec4 color = get_color(mat.diffuse);
@@ -46,6 +47,7 @@ associated [Wavefront Material Template Library (MTL)](http://paulbourke.net/dat
         return material;
    }
    ```
+   `glm::to_string` requires defining `GLM_ENABLE_EXPERIMENTAL` before including the `glm/gtx/string_cast.hpp` header.
    This function assumes that the textures are in sRGB space. 
    In the `KdMaterial::init` function add the following code:
    ```c++
@@ -53,14 +55,14 @@ associated [Wavefront Material Template Library (MTL)](http://paulbourke.net/dat
    ```
    that will register this function as a factory method for the `KdMaterial` class.
 
-3. Replace all the code creating pyramid mesh and material by
+6. Replace all the code creating pyramid mesh and material by
    ```c++
-   auto pyramid = xe::load_mesh_from_obj(std::string(ROOT_DIR) + "/Models/blue_marble.obj",
+   auto pyramid = xe::load_mesh_from_obj(std::string(ROOT_DIR) + "/Models/pyramid.obj",
                                           std::string(ROOT_DIR) + "/Models");
     add_mesh(pyramid);
    ```
    You should again see the textured pyramid.
 
-4. Finally, load the `Models/blue_marble.obj` model instead of the pyramid.
+7. Finally, load the `Models/blue_marble.obj` model instead of the pyramid.
    You should see the Earth model with the
    texture.  

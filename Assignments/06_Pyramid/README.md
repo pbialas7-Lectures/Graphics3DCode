@@ -5,7 +5,7 @@
 In this assignment, you will finally create a true 3D object.
 You will also learn how to use the depth buffer and how to cull faces.
 
-1. Start be removing the `Mixer` interface buffer and all the associated code both in shaders and c++ files.
+1. Start by removing the `Mixer` interface block and all the associated code both in shaders and c++ files.
    You will not need it anymore.
 
 2. Next set the model transformation to unity and place the camera at (0,0,2) looking at (0,0,0) with up vector
@@ -36,13 +36,13 @@ You will also learn how to use the depth buffer and how to cull faces.
    If the output remains the same, it means that all the faces are "face-up."
    If the house disappears completely, it means that all the faces are "face-down."
    If some triangles disappear, then
-   the orientation triangles were not consistent.
+   the orientations of the triangles were not consistent.
    Before proceeding further fix this so that all triangles have the same orientation.
 
 ## The pyramid
 
 1. Keeping in mind the above consideration, please create a pyramid.
-   The pyramid base should be a square with side length equal to one laying in the (x,y,0) plane and centered at
+   The pyramid base should be a square with side length equal to one lying in the (x,y,0) plane and centered at
    (0,0,0).
    The apex of the pyramid should be at (0,0,1). Each side
    and base of the pyramid should have different color:
@@ -59,13 +59,13 @@ You will also learn how to use the depth buffer and how to cull faces.
    To do this issue the following command before drawing the object:
 
    ```c++
-   glEnable(GL_DEPTH_TEST)
+   glEnable(GL_DEPTH_TEST);
    ```
 
    Actually, you will probably not see any difference. That's because of the enabled face culling. The back faces are
    not
    drawn, so they will not obscure the front faces.
-   Disable the face culling temporally and see the difference. You can do it by commenting out
+   Disable the face culling temporarily and see the difference. You can do it by commenting out
    the `glEnable(GL_CULL_FACE)`
    command. You may have also to change the position of the camera to see any effect.
 

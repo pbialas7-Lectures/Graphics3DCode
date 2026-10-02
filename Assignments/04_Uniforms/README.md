@@ -36,7 +36,7 @@ passed via uniform interface block.
    After running the program, nothing should change.
 
 
-2. Next, you have to create a buffer that will back up this interface block. In the `init` method create a buffer and
+2. Next, you have to create a buffer that will back up this interface block. In the `init` method create a buffer using `glCreateBuffers`.
    Then allocate `8*sizeof(float)` memory for this buffer without loading any
    data using the `glNamedBufferData` function.
 
@@ -60,17 +60,16 @@ passed via uniform interface block.
     0.0 0.0 1.0 0.5
     ```
    and fit into 16bytes (4 floats). I decided not to do this, just to show you how the `std140` layout works :)
-4. 
 4. Bind the buffer to interface block using `glBindBufferBase` function and the `GL_UNIFORM_BUFFER` target.
    Remember to
-   bind the buffer between. 
+   use the same binding point (0) as in the `binding` qualifier of the interface block.
 
 5. Now use the variables from the interface block to modify the pixel color in the fragment shader. Use the  `mix`
    function. Modify
    only
    the RGB values and not the alpha. For that you can use _swizzling_ i.e. access the RGB values of the pixel
    color
-   as `gl_FragColor.rgb` and similarly for all other color variables in fragment shader.
+   as `vFragColor.rgb` and similarly for all other color variables in fragment shader.
 
    The result should look like this:
    <img alt="House" src="house1.png" class="center">
@@ -116,7 +115,7 @@ The parameters of this transformation will be passed to vertex shader via unifor
    ```
    Is stored as
    ```
-   a c x x c d  
+   a c x x b d x x  
    ```
    where x denotes an "unused" space.
    You can access the column of a `glm` matrix by subscripting: `rot[0]` is the first column and `rot[1]` second.

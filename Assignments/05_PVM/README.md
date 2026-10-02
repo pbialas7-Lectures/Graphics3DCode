@@ -40,7 +40,7 @@ PVM = P*V*M
 that we will put into a uniform interface block.
 
 1. In vertex shader change the `Transformations` interface block to
-   ```c++
+   ```glsl
    layout(std140, binding=1) uniform Transformations {
        mat4 PVM;
    };

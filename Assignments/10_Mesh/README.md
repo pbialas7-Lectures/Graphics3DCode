@@ -14,11 +14,11 @@ they can be accessible to all further assignments without a need to copy them:
 1. So go ahead and copy the `09_CameraMovement` assignment
    to `10_Mesh`.
 
-2. Then move the files `camera.h` and `camera_controller.h`  from `src/Assignament/10_Mesh` to the
+2. Then move the files `camera.h` and `camera_controller.h`  from `src/Assignments/10_Mesh` to the
    directory `src/Engine`.
 
 
-4. Put the `Camera` and `CameraController` classes into the `xe` namespace, by surrounding their code by the namespace
+3. Put the `Camera` and `CameraController` classes into the `xe` namespace, by surrounding their code by the namespace
    declaration:
 
    ```c++
@@ -28,10 +28,10 @@ they can be accessible to all further assignments without a need to copy them:
    ```
    Modify all the references to those classes and its methods by prefixing them with `xe::`.
 
-3. Now change the `#include` directives that include those files so to reflect the new path.
+4. Now change the `#include` directives that include those files so to reflect the new path.
    If you use `CLion` or another IDE this may have been done for you already.
 
-5. Finally, in the `CMakeLists.txt` file in `src/10_Mesh` directory modify  `target_link_libraries` function to link
+5. Finally, in the `CMakeLists.txt` file in `src/Assignments/10_Mesh` directory modify  `target_link_libraries` function to link
    the `Engine` library
 
     ```cmake
@@ -50,20 +50,20 @@ this pointer is initialized to `null_material` which is a pointer to `NullMateri
 that does nothing.
 Submeshes are added to mesh using the `add_submesh` method.
 
-Mesh class also assumes using a predefined set of vertex attributes that are specified by the `xe::Attribute` enum.
+Mesh class also assumes using a predefined set of vertex attributes that are specified by the `xe::AttributeType` enum.
 The values of the enum correspond to the location value of the corresponding attribute in vertex shader.
 Adding the attribute to the mesh is done using the `add_attribute` method.
 This method is similar to the `glVertexAttribPointer` function, but it does not require the `stride` argument as it is
-already provided in the constructor (see description below), and uses the `Attribute` enum instead of the attribute index.
+already provided in the constructor (see description below), and uses the `AttributeType` enum instead of the attribute index.
 
 1. We will store the meshes in the vector of meshes in the `SimpleShapeApplication` class, so please add the field
    ```c++
-   std::vector<Mesh*> meshes_; 
+   std::vector<xe::Mesh*> meshes_; 
    ```
    to this class in `app.h` file and a corresponding `add_mesh` method:
 
    ```c++
-   void add_mesh(Mesh *mesh) {
+   void add_mesh(xe::Mesh *mesh) {
        meshes_.push_back(mesh);
    }
    ```
@@ -85,7 +85,7 @@ already provided in the constructor (see description below), and uses the `Attri
 
    Those values cannot be changed after the creation of the mesh.
 
-4. Load the vertices using the `load_vertices_method` and set the layouts for attributes using `add_attribute`
+4. Load the vertices using the `load_vertices` method and set the layouts for attributes using `add_attribute`
    method.
 
 5. Similarly, load data into the index buffer using `load_indices` method.
@@ -93,8 +93,8 @@ already provided in the constructor (see description below), and uses the `Attri
 6. Add a submesh to this mesh that will contain all the indices and schedule mesh for drawing using
    the `SimpleShapeApplication::add_mesh` method.
 
-7. Finally, in the method frame change the call to `glDrawElements`to a loop that will call `draw` method on each mesh
-   in`meshes_`
+7. Finally, in the method frame change the call to `glDrawElements` to a loop that will call `draw` method on each mesh
+   in `meshes_`
 
    ```c++
     for (auto m: meshes_)

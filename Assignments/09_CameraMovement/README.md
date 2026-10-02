@@ -106,7 +106,7 @@ of two steps:
    ```
    Please add this function to the anonymous namespace in the `camera.h` file.
 
-2. The Method below rotates the camera by and
+2. The method below rotates the camera by an
    angle around an axis passing through specified point `c`. The rotation matrix is applied to all
    three vectors defining the camera orientation. The position however has to be rotated by an axis passing through
    the specified point `c`, not the origin. To achieve this, we translate the position by `-c`, moving point `c` to the
@@ -148,17 +148,18 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
 1. In the new header file `camera_controller.h` we create a class
 
    ```c++
+   #pragma once
    #include "camera.h"   
 
    class CameraController {
    public:
-       CameraControler():camera_(nullptr) {}
-       CameraControler(Camera* camera):camera_(camera) {}
+       CameraController():camera_(nullptr) {}
+       CameraController(Camera* camera):camera_(camera) {}
        void set_camera(Camera *camera) { camera_ = camera; }
    
    private:
        Camera *camera_; 
-   }
+   };
    ```
 
    Assuming that we have already obtained the mouse position change `dx` and `dy`, we rotate the camera using the
@@ -171,14 +172,15 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
        }
    ```
 
-   `scale_` is another field of the `CameraControler` class and is a converter between pixels and angle. Its value
-   should be selected experimentally for a given screen resolution.
+   `scale_` is another field of the `CameraController` class and is a converter between pixels and angle. Its value
+   should be selected experimentally for a given screen resolution. Add this field of type `float` to the class and
+   initialize it in both constructors, e.g. to `0.01f`.
 
    We slowly approach the end. Now we will implement three methods responsible for handling mouse events. First of all,
    we want the rotation to work only when we move the mouse holding down the left mouse button (LMB). Therefore, we will
-   add another `LMB_pressed_` field of type `bool` to the class. In the class constructor, we should set its value
-   to `false`. Because we will be tracking changes in the mouse position, we need two additional fields `x_` and `y_` of
-   type `float`which will store the last mouse position. Having these fields, the mouse movement handling will be done
+   add another `LMB_pressed_` field of type `bool` to the class. In both class constructors, we should set its value
+   to `false` (add it to the initializer lists). Because we will be tracking changes in the mouse position, we need two additional fields `x_` and `y_` of
+   type `float` which will store the last mouse position. Having these fields, the mouse movement handling will be done
    by the method:
 
    ```c++
@@ -226,19 +228,21 @@ To do this:
    and a method
 
    ```c++
-   void set_controler(CameraController *controller) { controller_ = controller; }
+   void set_controller(CameraController *controller) { controller_ = controller; }
    ```
 
    to the `SimpleShapeApplication` class. Then in the `init` method we set the controller:
 
    ```c++
-   set_controler(new CameraController(camera()));
+   set_controller(new CameraController(camera()));
    ```
 
-2. And finally, we add event handling by overriding the methods:
+2. And finally, we add event handling by overriding the methods. As with `framebuffer_resize_callback`, declare them
+   with the `override` keyword in the `SimpleShapeApplication` class in the `app.h` file and put the definitions in
+   the `app.cpp` file:
 
    ```c++
-   void mouse_button_callback(int button, int action, int mods) {
+   void SimpleShapeApplication::mouse_button_callback(int button, int action, int mods) {
      Application::mouse_button_callback(button, action, mods);
    
      if (controller_) {
@@ -255,7 +259,7 @@ To do this:
    ```      
 
    ```c++
-   void cursor_position_callback(double x, double y) {
+   void SimpleShapeApplication::cursor_position_callback(double x, double y) {
      Application::cursor_position_callback(x, y);
      if (controller_) {
         controller_->mouse_moved(x, y);

@@ -10,12 +10,12 @@ Try to resize the display window. Currently, resizing the window changes the can
 pyramid remains all the time in the same place without changing. If we reduce the size of the window some portions of
 the pyramid may be cut out. This happens because the size of the viewport was set once in the `init` method and is not
 changed during the application execution. The portions of the display window (framebuffer) that are outside the viewport
-are just filled with background color. The portions of the vieport that are outside the framebuffer are simply not
+are just filled with background color. The portions of the viewport that are outside the framebuffer are simply not
 displayed. We will change this behavior as to rescale the displayed objects when the window is resized.
 
 For this purpose, we will use the virtual void method I prepared: `Application::framebuffer_resize_callback (int w, int
 h)`, which is called during each frame buffer size change with the `w` and `h` parameters defining the new buffer sizes.
-This method can be overridden in classes derived from the `Application` class, such as `SimpleShapeApp`, which you use
+This method can be overridden in classes derived from the `Application` class, such as `SimpleShapeApplication`, which you use
 in
 your exercises.
 
@@ -71,7 +71,7 @@ your exercises.
 
 3. The PVM matrix needs to be recalculated and loaded to uniform buffer every time the framebuffer is resized. We could
    do this in the `framebuffer_resize_callback` method, but in anticipation of further use, we will move this code to
-   the `frame` method. For that to be succesful we need a way to access the uniform buffer handle in this method, so
+   the `frame` method. For that to be successful we need a way to access the uniform buffer handle in this method, so
    again we will create a new field in the `SimpleShapeApplication` class in the `app.h` file:
    ```c++
    GLuint u_trans_buffer_handle_;
@@ -82,17 +82,18 @@ your exercises.
    So please move the `P_` and `PVM` calculation to the `frame` method and remove the old code from the `init` method
    and load the matrix to the transformations uniform buffer using the `glNamedBufferSubData`
 
-5. Then bind the uniform buffer using the `glBindBufferBase` method and
-   method. Remove this code from the `init` method. After executing the draw call unbind the buffer using
+4. Then, in the `frame` method, bind the uniform buffer to the `Transformations` interface block using
+   the `glBindBufferBase` function. Remove this code from the `init` method. After executing the draw call unbind the buffer using
    the `glBindBufferBase` method.
 
-4. Finally, in the `framebuffer_resize_callback` add the code that changes the `aspect_`. This will be used to calculate
+5. Finally, in the `framebuffer_resize_callback` add the code that changes the `aspect_`. This will be used to calculate
    the new perspective matrix in the `frame` method. The `fov_`, `near_` and `far_` values should remain unchanged.
 
    Now try to resize the window.
    The pyramid should scale with the window and its proportions should be preserved.
-   To be more precise, the pyramid will scale only with the horizontal size of the window.
-   The vertical size will be scaled accordingly to preserve the aspect ratio. 
+   To be more precise, the pyramid will scale only with the vertical size of the window, because the `fov` parameter
+   of `glm::perspective` is the vertical field of view. Changing the horizontal size will only change how much of the
+   scene is visible on the sides. 
    
   
   

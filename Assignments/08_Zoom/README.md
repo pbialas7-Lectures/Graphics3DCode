@@ -46,7 +46,7 @@ using the mouse wheel. Zooming will be implemented by changing the field of view
    };
    ```
 
-2. In the file `app.h` in the `SimpleShapeAplication` class add a field:
+2. In the file `app.h` in the `SimpleShapeApplication` class add a field:
    ```c++
    Camera *camera_;
    ```
@@ -60,6 +60,8 @@ using the mouse wheel. Zooming will be implemented by changing the field of view
         return camera_;
     }
    ```
+   The `assert` macro requires including the `<cassert>` header in `app.h`.
+
    Initialize the `camera_` field to `nullptr` in the constructor by adding it to the initializers' list:
    ```c++
     SimpleShapeApplication(int width, int height, std::string title, bool debug) :
@@ -106,7 +108,8 @@ Zooming in will decrease the field of view, and zooming out will increase it.
 However, we need to remember that the field of view is limited to the range (0, pi) in radians or (0 to 180) in degrees.
 
 1. To smoothly transition from one end of the range to the other, we will use the logistic function:
-   <img alter="logistic" src="logistic_plot.png" style="display:block;width:50%; margin: 1em auto;">
+   <img alt="logistic formula" src="logistic.png" style="display:block; margin: 1em auto;">
+   <img alt="logistic" src="logistic_plot.png" style="display:block;width:50%; margin: 1em auto;">
    ```c++
    float logistic(float y) {
        return 1.0f/(1.0f+std::exp(-y));
@@ -114,7 +117,8 @@ However, we need to remember that the field of view is limited to the range (0, 
    ```
 
    and its inverse, also called `logit` function:
-   <img alter="logit" src="logit_plot.png" style="display:block;width:50%; margin: 1em auto;">
+   <img alt="logit formula" src="logit.png" style="display:block; margin: 1em auto;">
+   <img alt="logit" src="logit_plot.png" style="display:block;width:50%; margin: 1em auto;">
    ```c++   
    float logit(float x) {
        return std::log(x/(1.0f-x)); 
@@ -167,7 +171,7 @@ However, we need to remember that the field of view is limited to the range (0, 
    method of the camera:
 
     ```c++
-    void SimpleShapeApplication::scroll_callback(double xoffset, double yoffset) override {
+    void SimpleShapeApplication::scroll_callback(double xoffset, double yoffset) {
     Application::scroll_callback(xoffset, yoffset);   
     camera()->zoom(yoffset / 20.0f);
     }

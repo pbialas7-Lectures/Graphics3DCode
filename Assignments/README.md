@@ -8,15 +8,16 @@ spreadsheet `assignements`
 located in the general channel of the
 team [Programowanie grafiki 3D \[ WFAIS.IF-F201.0 24_25Z WYK 1 \]](https://teams.microsoft.com/l/team/19%3Afjrr4y3RP5dB96Ss6ngAdhglVVXsZhm4KPsFD4gKrCA1%40thread.tacv2/conversations?groupId=87aee928-3c6a-4e45-9422-fb132a26c77a&tenantId=eb0e26eb-bfbe-47d2-9e90-ebd2426dbceb).
 
-To pass, you have to reach the `DiffuseLightning` assignment, then the final grade will be calculated based on total
+To pass, you have to reach the [`Diffuse`](14_Diffuse/README.md) assignment, then the final grade will be calculated based on total
 number of points. The scale is not yet set as it may depend slightly upon your performance. However, it will be at least
 50% of the points for passing, and 95% for the highest grade.
 
 Assignments will have a due date, after which they will no longer be accepted.
 You can submit subsequent assignments, but all prior assignments must be included in them.
-So you have to do all assignments (up to `DiffuseLighting`) anyway, so you may as well try to submit them on time. The
+So you have to do all assignments (up to `Diffuse`) anyway, so you may as well try to submit them on time. The
 due date is given in the Teams
-spreadsheet [zadania](https://ujchmura.sharepoint.com/:x:/r/teams/Section_576780_1/Shared%20Documents/General/zadania.xlsx?d=w9cf9f3aa0a774913b6bf8f0454f89ae3&csf=1&web=1&e=bppEaG)
+spreadsheet [zadania](https://ujchmura.sharepoint.com/:x:/r/teams/Section_576780_1/Shared%20Documents/General/zadania.xlsx?d=w9cf9f3aa0a774913b6bf8f0454f89ae3&csf=1&web=1&e=bppEaG).
+
 In the assignment descriptions, I will omit the arguments of various OpenGL functions. Your task will be to complete
 them based on the documentation. Usually, just google the name of the function to get a link
 to [OpenGL® 4.5 Reference Pages](https://www.khronos.org/registry/OpenGL-Refpages/gl4/).
@@ -55,7 +56,7 @@ In this way, you will be able to pull my changes from my repository and push you
 changes, you will have to use
 
 ```shell
-git pull origin.lecture
+git pull origin.lecture main
 ```
 
 After creating your repository, please give me permission to read/write from/to it (add me to the project). On GitHub
@@ -68,14 +69,14 @@ the code in one repository. There is space in the sheet to enter two people for 
 ## Preparing the assignments
 
 Before starting each assignment, you should copy the directory containing previous assignment. Specifically you should
-not modify anything in `src/Assignments/Triangle` folder, but copy it to `src/Assignments/House`  folder. You can do it
+not modify anything in `src/Assignments/00_Triangle` folder, but copy it to `src/Assignments/01_House`  folder. You can do it
 using `cp` command (on linux/unix).
 
 ```shell
-cp -r scr/Assignments/00_Triangle  scr/Assignments/01_House
+cp -r src/Assignments/00_Triangle  src/Assignments/01_House
 ```
 
-Then you should modify the project name in `src/Assignments/House/CMakeLists.txt` from `Triagle` to `House`.
+Then you should modify the project name in `src/Assignments/01_House/CMakeLists.txt` from `Triangle` to `House`.
 
 I have provided a python script that you can use for this:
 
