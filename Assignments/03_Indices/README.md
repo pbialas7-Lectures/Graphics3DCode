@@ -7,8 +7,7 @@ As you have probably noticed, some
 vertices in the vertex buffer are repeated.
 In the case of large meshes, each vertex may be repeated several times,
 which leads to waste of resources and consequently to slower application performance.
-To remedy this, you can use an
-index buffer.
+To remedy this, you can use an  index buffer.
 The idea is to load only non-repeating vertices into the vertex buffer.
 Then, to define triangles, we use the _indexes_ of the vertices that we pass in the index buffer. So instead of
 repeating the same vertex several times, we use the same vertex index several times. As an index is an integer, we
@@ -32,5 +31,5 @@ so if they differ in color, they are considered different even if they have the 
    changing the arguments accordingly.
 
 1. If our house is displayed, please remove the repeated vertices from the vertex buffer and modify the index buffer
-   accordingly so that the __same__ house still appears on the screen. You should end up with 7 vertices in the vertex
+   accordingly so that the __same__ house still appears on the screen. You should end up with seven vertices in the vertex
    buffer. 

@@ -5,7 +5,7 @@
 In this assignment, you will finally create a true 3D object.
 You will also learn how to use the depth buffer and how to cull faces.
 
-1. Start by removing the `Mixer` interface block and all the associated code both in shaders and c++ files.
+1. Start by removing the `Mixer` interface block and all the associated code both in shaders and C++ files.
    You will not need it anymore.
 
 2. Next set the model transformation to unity and place the camera at (0,0,2) looking at (0,0,0) with up vector

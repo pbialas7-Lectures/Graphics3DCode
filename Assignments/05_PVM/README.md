@@ -39,7 +39,7 @@ PVM = P*V*M
 
 that we will put into a uniform interface block.
 
-1. In vertex shader change the `Transformations` interface block to
+1. In vertex shader change the `Transformations` interface block to contain one 4x4 matrix
    ```glsl
    layout(std140, binding=1) uniform Transformations {
        mat4 PVM;
@@ -78,7 +78,7 @@ This should change nothing in the display. Please remove the old code.
 
 2. Using the `glm::lookAt` function set the camera position (V matrix) at (0,-2,2) looking at (0,0,0) with up vector (
    0,0,1).
-   Next using the glm::perspective function set the projection matrix (P matrix) to have 45 degrees field of view,
+3. Next using the glm::perspective function set the projection matrix (P matrix) to have 45 degrees field of view,
    aspect ratio equal to the aspect ratio of the window, near plane at 0.1 and far plane at 20.0.
    You can use function `glm::radians` to convert degrees to radians. To obtain the width and height of the window
    needed for calculating the aspect ratio use the `frame_buffer_size` function. It is already used at the end of

@@ -127,8 +127,7 @@ The parameters of this transformation will be passed to vertex shader via unifor
    gl_Position.xy = rotation*(scale*a_vertex_position.xy)+translation;
    gl_Position.zw = a_vertex_position.zw;  
    ```
-   It is best to add the transformations one by one. Start with translation, then scale and finally rotation. Are the
-   parenthesis around  `scale*a_vertex_position.xy` really needed? Why?
+   It is best to add the transformations one by one. Start with translation, then scale and finally rotation.
 
    The final result should look like this:
    <img alt="House" src="house2.png" class="center">
