@@ -125,6 +125,8 @@ subfolder named after the build configuration, e.g. `build\src\Assignments\00_Tr
 In VS Code and CLion choose the program to run from the list of targets.
 
 The program opens a window with a small "Info" panel in the top left corner showing the number of frames per second.
+It is usually equal to the refresh rate of your monitor, e.g. 60, because the program waits for the monitor before
+displaying each frame; this is explained in [DOUBLE_BUFFERING.md](./DOUBLE_BUFFERING.md).
 The following keyboard shortcuts work in every program:
 
 | Shortcut | Action                                                                                                    |
