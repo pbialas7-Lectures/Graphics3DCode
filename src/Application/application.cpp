@@ -65,6 +65,8 @@ namespace {
 /**
  * @brief Creates the window, the OpenGL context and the ImGui context. Exits the program on failure.
  *
+ * The context has the core profile of the OpenGL version set by MAJOR and MINOR in the top CMakeLists.txt.
+ *
  * @param width  Width of the window.
  * @param height Height of the window.
  * @param title Title of the created application window.
@@ -98,9 +100,14 @@ xe::Application::Application(int width, int height, std::string title, bool debu
 
         window_ = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
         if (!window_) {
-            const char *error_desc;
+            const char *error_desc = nullptr;
             auto err_code = glfwGetError(&error_desc);
-            SPDLOG_CRITICAL("Cannot create window: {} {}", err_code, error_desc);
+            SPDLOG_CRITICAL("Cannot create window with an OpenGL {}.{} core profile context: {} (GLFW error {:#x})",
+                            MAJOR, MINOR, error_desc ? error_desc : "no description", err_code);
+            // The most common reason is a graphics card or driver that does not support the requested version.
+            SPDLOG_CRITICAL("Check the OpenGL version supported by your graphics card and driver, e.g. with glxinfo or "
+                            "OpenGL Extensions Viewer. If it is lower than {}.{}, update the driver or set MINOR in the "
+                            "top CMakeLists.txt to a lower value; version 4.5 is the minimum required.", MAJOR, MINOR);
             glfwTerminate();
             exit(-1);
         }
@@ -171,6 +178,9 @@ void xe::Application::run(int verbose) {
 
 /**
  * @brief Reports OpenGL information and sets up debug output if the context supports it.
+ *
+ * Also warns if the OpenGL version of the context is lower than 4.5, the minimum required by the code. This can
+ * happen when MINOR in the top CMakeLists.txt was lowered to get a context on an older graphics card.
  */
 void xe::Application::startup(int verbose) {
     if (verbose > 0) {

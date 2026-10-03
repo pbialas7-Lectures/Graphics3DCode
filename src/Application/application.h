@@ -43,6 +43,10 @@ namespace xe {
         /**
          * @brief Creates the window, the OpenGL context and the ImGui context. Exits the program on failure.
          *
+         * The context has the core profile of the OpenGL version set by MAJOR and MINOR in the top CMakeLists.txt.
+         * If the graphics card or driver does not support this version, the window cannot be created; the error
+         * message then explains how to check the supported version and how to lower MINOR.
+         *
          * @param width Width of the window.
          * @param height Height of the window.
          * @param title Title of the window.
