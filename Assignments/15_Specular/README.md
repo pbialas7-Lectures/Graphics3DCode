@@ -1,7 +1,7 @@
 # Specular
 
 In this assignment, you will add a specular component to the fragment shader. In addition to what was needed to
-calculate the diffuse lighting, you will need also _view vector_: this is a normalized vector from fragment to the
+calculate the diffuse lighting, you will also need the _view vector_: this is a normalized vector from fragment to the
 observer. This is very easy to calculate as the position of the observer (camera) is the origin of the coordinate
 system (0,0,0).
 
@@ -10,8 +10,8 @@ system (0,0,0).
    vec3 view_dir = -normalize(vertex_position_vs);
    ```
 
-2. Using light vector and view vector, calculate the half-vector. Use the normalized light direction `light_dir` from
-   the previous assignment:
+2. Using the light vector and the view vector, calculate the half-vector. Use the normalized light direction `light_dir`
+   from the previous assignment:
    ```glsl
    vec3 half_vector = normalize(light_dir + view_dir);
    ```
@@ -30,15 +30,15 @@ system (0,0,0).
    float specular = pow(max(dot(half_vector, normal), 0.0), Ns);
    frag_color += (Ns + 8.0) * INV_PI_8 * specular * Ks.rgb * light_energy;
    ```
-   where `light_energy` is the light color multiplied by its intensity, attenuation and `max(dot(normal, light_dir), 0.0)`,
-   i.e. everything that the diffuse term is multiplied by, apart from `color` and `INV_PI`, and `INV_PI_8` is a
-   constant equal to 1/(8 pi).
+   where `light_energy` is the light color multiplied by its intensity, attenuation and
+   `max(dot(normal, light_dir), 0.0)`, i.e. everything that the diffuse term is multiplied by, apart from `color` and
+   `INV_PI`, and `INV_PI_8` is a constant equal to 1/(8 pi).
 
 4. Add the specular component to the fragment color in the fragment shader.
 
 5. Add fields for `Ks` and `Ns` in the `BlinnPhongMaterial` class.
 
-6. In the `BlinnPhongMaterial::create_from_mtl`  factory method add code that will set those parameters from the
+6. In the `BlinnPhongMaterial::create_from_mtl` factory method add code that will set those parameters from the
    description in the material files. `Ks` is called `specular` and `Ns` is called `shininess` in the `mtl_material_t`
    structure. Like `Kd` and `Ka`, the `Ks` color is in sRGB space, so convert it to linear space with
    `srgb_inverse_gamma_correction`.
@@ -46,17 +46,18 @@ system (0,0,0).
 7. Add those fields also to the `BlinnPhongMaterial` interface block in the fragment shader.
 
 8. In the `bind` method of the `BlinnPhongMaterial` class, add code that will load values of those parameters in the
-   corresponding uniform buffer.
-   Remember to change the size of the buffer. For example, with `vec4 Ks` added after `Kd` and `float Ns` after `Ks`,
-   the layout is: `Ka` at offset 0, `Kd` at 16, `Ks` at 32, `Ns` at 48, `use_vertex_colors` at 52 and `use_map_Kd` at 56.
-   You can check the offsets using `uniform_info`.
+   corresponding uniform buffer. Remember to change the size of the buffer to `4*sizeof(glm::vec4)`, i.e. 64 bytes; this
+   leaves room for the `illum` field added in the last step. For example, with `vec4 Ks` added after `Kd` and `float Ns`
+   after `Ks`, the layout is: `Ka` at offset 0, `Kd` at 16, `Ks` at 32, `Ns` at 48, `use_vertex_colors` at 52 and
+   `use_map_Kd` at 56. You can check the offsets using `uniform_info`.
 
-9. Copy `square.mtl` and `square.obj`  to `square_specular.mtl` and `square_specular.obj`. Change appropriate
+9. Copy `square.mtl` and `square.obj` to `square_specular.mtl` and `square_specular.obj`. Change appropriate
    references in the `square_specular.obj` file. Change the name of OBJ file to `square_specular` in the `init` method
    of the `SimpleShapeApplication` class.
 
 10. Add values of `Ks` and `Ns` parameters in the square material file `square_specular.mtl` and set the `illum`
-    parameter to 2.
+    parameter to 2. Use the same values as in the fragment shader, `Ks 1.0 1.0 1.0` and `Ns 500`, so that you can check
+    that nothing changes when you switch to the values from the uniform buffer in the next step.
 
 11. In the fragment shader use those values from the uniform buffer instead of hand-coded values.
 
