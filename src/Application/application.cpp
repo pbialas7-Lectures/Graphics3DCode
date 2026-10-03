@@ -97,6 +97,9 @@ xe::Application::Application(int width, int height, std::string title, bool debu
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug ? GLFW_TRUE : GLFW_FALSE);
+        // The window is shown by loop(), after init(). Until then nothing is drawn into it, so a visible window would
+        // show garbage while init() runs, e.g. while large textures are loaded.
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
         window_ = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
         if (!window_) {
@@ -259,6 +262,8 @@ void xe::Application::run_cli(int argc, char **argv) {
  * @brief The main loop: renders frames and processes input events until the window is closed.
  */
 void xe::Application::loop() {
+    // The window was created hidden, see the constructor.
+    glfwShowWindow(window_);
     while (!glfwWindowShouldClose(window_)) {
         // If a capture was requested (Ctrl-F), start it now, before any GL commands
         // for this frame are issued, so that the whole frame is captured.
