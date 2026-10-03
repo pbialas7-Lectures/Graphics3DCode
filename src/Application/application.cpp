@@ -187,10 +187,20 @@ void xe::Application::startup(int verbose) {
 }
 
 void xe::Application::shutdown() {
+    if (shut_down_)
+        return;
+    shut_down_ = true;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     cleanup();
+}
+
+xe::Application::~Application() {
+    // If run() was never called, release ImGui and the registered objects here. A derived cleanup() override
+    // is no longer reachable at this point, so only the base one runs.
+    shutdown();
+    glfwDestroyWindow(window_);
     glfwTerminate();
 }
 

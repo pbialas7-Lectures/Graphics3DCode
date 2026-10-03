@@ -26,6 +26,12 @@ namespace xe {
 
         void bind() const override {};
 
+        // The singleton is deleted by RegisteredObject::cleanup(); forget it so a later call creates a new one.
+        ~NullMaterial() override {
+            if (null_material_ == this)
+                null_material_ = nullptr;
+        }
+
         static NullMaterial *null_material() {
             if(!null_material_)
                 null_material_ = new NullMaterial;

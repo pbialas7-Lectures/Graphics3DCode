@@ -20,6 +20,14 @@ namespace xe {
     public:
         Application(int width, int height, std::string title, bool debug, int swap_interval=1);
 
+        // Destroys the window and the OpenGL context. This runs after the members of a derived application
+        // have been destroyed, so members owning OpenGL objects are deleted while the context still exists.
+        virtual ~Application();
+
+        Application(const Application &) = delete;
+
+        Application &operator=(const Application &) = delete;
+
         void run(int verbose = 0);
 
         void run_cli(int argc, char **argv);
@@ -68,7 +76,9 @@ namespace xe {
 
         void startup(int verbose); // GL info, version check and debug output setup
 
-        void shutdown();
+        void shutdown(); // ImGui shutdown and cleanup(); the context itself is destroyed in the destructor
+
+        bool shut_down_ = false;
 
         void loop(); // main loop
 
