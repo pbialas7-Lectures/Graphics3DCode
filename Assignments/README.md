@@ -7,7 +7,7 @@ will be scored. The number of
 points assigned to each assignment will appear in the assignment description as well as in the Teams
 spreadsheet `assignements`
 located in the general channel of the
-team [Programowanie grafiki 3D \[ WFAIS.IF-F201.0 24_25Z WYK 1 \]](https://teams.microsoft.com/l/team/19%3Afjrr4y3RP5dB96Ss6ngAdhglVVXsZhm4KPsFD4gKrCA1%40thread.tacv2/conversations?groupId=87aee928-3c6a-4e45-9422-fb132a26c77a&tenantId=eb0e26eb-bfbe-47d2-9e90-ebd2426dbceb).
+[course team](https://teams.microsoft.com/l/team/19%3A-rUP1GUAhYdDATjI1djR2MqYPLl8j9igT6vpYDIsdCw1%40thread.tacv2/conversations?groupId=7f734604-dc54-4ac6-9714-3ce4f58e01ba&tenantId=eb0e26eb-bfbe-47d2-9e90-ebd2426dbceb) on Microsoft Teams.
 
 To pass, you have to reach the [`Diffuse`](14_Diffuse/README.md) assignment, then the final grade will be calculated based on total
 number of points. The scale is not yet set as it may depend slightly upon your performance. However, it will be at least
@@ -51,12 +51,12 @@ The `src/Assignments/Debugging` program is the example used in [DEBUGGING.md](DE
 
 ## Turning in assignments
 
-You will keep the assignments in your repositories. Unfortunately, we still haven't managed to set up our gitlab.
-Therefore, please create a **private** repository on [GitHub](https://github.com/) and connect it
-as a remote repository to the local repository where you store your code. Create it **empty**, without a README,
-license or `.gitignore` file, otherwise pushing your code to it will fail. Pushing to GitHub requires authentication
-with an [SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) or
-a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens);
+You will keep the assignments in your repositories. Please create a **private** repository on
+[GitHub](https://github.com/) and connect it as a remote repository to the local repository where you store your code.
+Create it **empty**, without a README, license or `.gitignore` file, otherwise pushing your code to it will fail.
+Pushing to GitHub requires authentication with an [SSH
+key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) or a [personal access
+token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens);
 your GitHub password will not work.
 
 You can connect the repositories e.g. this way. First clone my repository as described in the [README.md](../README.md)
