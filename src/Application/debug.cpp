@@ -2,8 +2,9 @@
 // Created by pbialas on 07.10.24.
 //
 
-#include <iostream>
 #include <string>
+
+#include "spdlog/spdlog.h"
 
 #define GLFW_INCLUDE_NONE
 
@@ -82,14 +83,18 @@ namespace {
         if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
         auto message = std::string(pmessage, length);
-        std::cout << "---------------" << std::endl;
-        std::cout << "Debug message (" << id << "): " << message << std::endl;
-
-        std::cout << "Source: " << get_debug_message_source(source) << std::endl;
-        std::cout << "Type: " << get_debug_message_type(type) << std::endl;
-        std::cout << "Severity: " << get_debug_message_severity(severity) << std::endl;
-
-        std::cout << std::endl;
+        auto level = spdlog::level::info;
+        switch (severity) {
+            case GL_DEBUG_SEVERITY_HIGH:
+                level = spdlog::level::err;
+                break;
+            case GL_DEBUG_SEVERITY_MEDIUM:
+                level = spdlog::level::warn;
+                break;
+        }
+        spdlog::log(level, "GL debug message ({}): {} [source: {}, type: {}, severity: {}]", id, message,
+                    get_debug_message_source(source), get_debug_message_type(type),
+                    get_debug_message_severity(severity));
     }
 }
 

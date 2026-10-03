@@ -61,8 +61,8 @@ namespace {
  * @param width  Width of the window    
  * @param height Height of the window
  * @param title Title of the created application window. 
- * @param debug specify if the debug information should be generated after each OpenGL function call
- *              has efect only if compiled with debug version of glad.     
+ * @param debug specify if an OpenGL debug context should be created and debug output reported.
+ *              Additionally, if compiled with debug version of glad, enables error checking after each OpenGL function call.
  */
 xe::Application::Application(int width, int height, std::string title, bool debug, int swap_interval)
         : screenshot_n_(0) {
@@ -83,8 +83,7 @@ xe::Application::Application(int width, int height, std::string title, bool debu
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug ? GLFW_TRUE : GLFW_FALSE);
 
         window_ = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
         if (!window_) {
@@ -145,9 +144,19 @@ xe::Application::Application(int width, int height, std::string title, bool debu
 /**
  * @brief This starts the main event loop. 
  * 
- * @param verbose unused parameter. 
+ * @param verbose if greater than zero, OpenGL vendor, renderer and version information is printed.
  */
 void xe::Application::run(int verbose) {
+    startup(verbose);
+    init();
+    loop();
+    shutdown();
+}
+
+/**
+ * @brief Reports OpenGL information and sets up debug output if the context supports it.
+ */
+void xe::Application::startup(int verbose) {
     if (verbose > 0) {
         SPDLOG_INFO("{} {}", utils::get_gl_vendor(), utils::get_gl_renderer());
         SPDLOG_INFO("OpenGL {} GLSL {}", utils::get_gl_version(), utils::get_glsl_version());
@@ -165,16 +174,11 @@ void xe::Application::run(int verbose) {
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
         SPDLOG_INFO("OpenGL context has debug flag enabled");
-        if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-            setup_debug_output();
-        }
+        setup_debug_output();
     }
+}
 
-
-    init();
-
-    loop();
-
+void xe::Application::shutdown() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -200,21 +204,11 @@ void xe::Application::run_cli(int argc, char **argv) {
 
     verbose = result["verbose"].as<int>();
 
-    if (verbose > 0) {
-        SPDLOG_INFO("{} {}", utils::get_gl_vendor(), utils::get_gl_renderer());
-        SPDLOG_INFO("OpenGL {} GLSL {}", utils::get_gl_version(), utils::get_glsl_version());
-    }
-
+    startup(verbose);
     init_cli(vc.size(), vc.data());
     init();
-
     loop();
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    cleanup();
-    glfwTerminate();
+    shutdown();
 }
 
 void xe::Application::loop() {
@@ -247,7 +241,6 @@ void xe::Application::loop() {
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glFinish();
 
         /* Swap front and back buffers
            The rendering is done into the BACK buffer, swapping it with front buffer displays it on the screen.

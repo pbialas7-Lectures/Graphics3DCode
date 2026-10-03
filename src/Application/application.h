@@ -61,6 +61,10 @@ namespace xe {
 
     private:
 
+        void startup(int verbose); // GL info, version check and debug output setup
+
+        void shutdown();
+
         void loop(); // main loop
 
         unsigned int screenshot_n_;
