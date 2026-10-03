@@ -1,0 +1,13 @@
+# The metal plate material of square_textures.mtl with a normal map. The `bump` statement (also written `map_Bump`)
+# gives the bump texture, here a tangent-space normal map in the OpenGL convention (green channel pointing along +v).
+newmtl MetalPlate
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ns 2000.0
+map_Kd metal_plate/textures/metal_plate_diff_1k.png
+map_Ka metal_plate/textures/metal_plate_diff_1k.png
+map_Ks metal_plate/textures/metal_plate_spec_1k.png
+map_Ns metal_plate/textures/ns0001.png
+bump metal_plate/textures/metal_plate_nor_gl_1k.png
+illum 2
