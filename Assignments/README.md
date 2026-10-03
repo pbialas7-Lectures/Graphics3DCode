@@ -46,6 +46,7 @@ code is described in [DEBUGGING.md](DEBUGGING.md).
 | `13_OBJReader`       | [Reading Wavefront OBJ files](13_OBJReader/README.md)   |
 | `14_Diffuse`         | [Diffuse lighting](14_Diffuse/README.md)                |
 | `15_Specular`        | [Specular](15_Specular/README.md)                       |
+| `15_z_BlinnPhong_textures` | [Blinn-Phong textures](15_z_BlinnPhong_textures/README.md) |
 
 The `src/Assignments/Debugging` program is the example used in [DEBUGGING.md](DEBUGGING.md).
 

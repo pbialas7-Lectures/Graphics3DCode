@@ -1,0 +1,13 @@
+# Blinn-Phong material with the metal plate textures (without the normal map, see square_normal_map.mtl).
+# The diffuse, ambient and specular colors are multiplied by the textures, the shininess Ns by the red channel
+# of map_Ns.
+newmtl MetalPlate
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ns 2000.0
+map_Kd metal_plate/textures/metal_plate_diff_1k.png
+map_Ka metal_plate/textures/metal_plate_diff_1k.png
+map_Ks metal_plate/textures/metal_plate_spec_1k.png
+map_Ns metal_plate/textures/ns0001.png
+illum 2
