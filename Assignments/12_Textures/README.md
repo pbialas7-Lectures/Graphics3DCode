@@ -9,9 +9,8 @@ reflection coefficient of the object.
 ## Texture coordinates
 
 To add a texture to the object, we need to know the texture coordinates for each vertex. The texture coordinates (UV
-map) for the pyramid are provided in the file [uv.png](uv.png):
-<p align="center"><img alt="UV map" src="uv.png" width="50%"></p>
-Those coordinates are not really very visible on this scale, but you can read them when you enlarge the image.
+map) for the pyramid are provided in the file [uv.svg](uv.svg):
+<p align="center"><img alt="UV map" src="uv.svg" width="50%"></p>
 
 As stated before, the vertices are considered equal if they have all attributes equal. This means that two vertices with
 different texture coordinates are considered different. So if not for the vertex color attribute, we would have eight
