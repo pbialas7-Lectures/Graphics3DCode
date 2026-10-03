@@ -57,12 +57,22 @@ except Exception as ex:
 cmake_lists_path = dest_path / "CMakeLists.txt"
 cmake_lists_txt = cmake_lists_path.read_text()
 
-leading_number_re = re.compile(r"^\d+_")
+# Strip the leading number together with the optional sub-numbers and markers, e.g. 16_0_ or 15_za_a_.
+leading_number_re = re.compile(r"^\d+(?:_(?:\d+|[a-z]{1,2}))*_")
 project_name = leading_number_re.sub("", args.dest)
 project_re = re.compile(r"project\(\s*(\w+)\s*\)", re.I)
 cmake_lists_txt = project_re.sub("project(" + project_name + ")", cmake_lists_txt)
 
 cmake_lists_path.write_text(cmake_lists_txt)
+
+# CMake refuses to configure when two assignments define targets with the same name.
+for other_cmake_lists_path in sorted(ASSIGNMENTS_PATH.glob("*/CMakeLists.txt")):
+    if other_cmake_lists_path.parent == dest_path:
+        continue
+    match = project_re.search(other_cmake_lists_path.read_text())
+    if match and match.group(1) == project_name:
+        print(f"Warning: project name {project_name} is already used by {other_cmake_lists_path.parent.name}, "
+              f"rename the project in {cmake_lists_path} if both assignments are built")
 
 # Only assignments listed in the top CMakeLists.txt are built.
 top_cmake_lists_txt = (ROOT_PATH / "CMakeLists.txt").read_text()
