@@ -17,7 +17,9 @@
 namespace xe {
     namespace utils {
 
-        using shader_source_map_t = std::unordered_map<GLenum, std::string>;
+        // Maps shader type (e.g. GL_VERTEX_SHADER) to the path of the file containing its source.
+        using shader_path_map_t = std::unordered_map<GLenum, std::string>;
+        using shader_source_map_t [[deprecated("use shader_path_map_t")]] = shader_path_map_t;
         using shader_map_t = std::unordered_map<GLenum, GLuint>;
         using shader_map_element_t = std::pair<GLenum, std::string>;
 
@@ -53,7 +55,7 @@ namespace xe {
 
         GLuint create_program(const std::string &vs_path, const std::string &fs_path);
 
-        GLuint create_program(const shader_source_map_t &shaders_src);
+        GLuint create_program(const shader_path_map_t &shader_paths);
 
 
         namespace glfw {

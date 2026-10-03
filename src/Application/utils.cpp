@@ -145,10 +145,10 @@ namespace xe {
             }
         }
 
-        GLuint create_program(const shader_source_map_t &shaders_src, const std::string &version) {
+        GLuint create_program(const shader_path_map_t &shader_paths) {
             shader_map_t shaders;
-            for (const auto &[shader_type, src]: shaders_src) {
-                auto shader = create_shader_from_file(shader_type, src);
+            for (const auto &[shader_type, path]: shader_paths) {
+                auto shader = create_shader_from_file(shader_type, path);
                 if (shader > 0)
                     shaders[shader_type] = shader;
                 else {
@@ -182,10 +182,6 @@ namespace xe {
             // Shaders are only flagged for deletion here, they are freed when the program is deleted.
             delete_shaders(shaders);
             return program;
-        }
-
-        GLuint create_program(const shader_source_map_t &shaders_src) {
-            return create_program(shaders_src, "");
         }
 
         GLuint create_shader_from_source(GLenum type, source_t &shader_source) {
