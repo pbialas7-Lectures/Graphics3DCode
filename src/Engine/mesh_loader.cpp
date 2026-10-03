@@ -26,6 +26,15 @@ namespace xe {
 
     using uint = unsigned int;
 
+    static Material *create_material(const std::string &name, const mtl_material_t &mat, const std::string &mtl_dir) {
+        auto func = get_mat_function(name);
+        if (!func) {
+            spdlog::error("Material {} is not registered, call its init() before loading meshes", name);
+            return nullptr;
+        }
+        return func(mat, mtl_dir);
+    }
+
     Mesh *load_mesh_from_obj(std::string path, std::string mtl_dir) {
 
 
@@ -87,8 +96,8 @@ namespace xe {
 
                 auto v_offset = offset;
                 for (auto i = 0; i < smesh.vertex_texcoords[it].size(); i++, v_offset += stride) {
-                    SPDLOG_TRACE("texcoord[{}] {} ", i, glm::to_string(smesh.vertex_texcoords[0][i]));
-                    std::memcpy(v_ptr + v_offset, glm::value_ptr(smesh.vertex_texcoords[0][i]), sizeof(glm::vec2));
+                    SPDLOG_TRACE("texcoord[{}] {} ", i, glm::to_string(smesh.vertex_texcoords[it][i]));
+                    std::memcpy(v_ptr + v_offset, glm::value_ptr(smesh.vertex_texcoords[it][i]), sizeof(glm::vec2));
                 }
                 offset += 2 * sizeof(GLfloat);
             }
@@ -107,7 +116,14 @@ namespace xe {
         }
 
         if (smesh.has_tangents) {
-            mesh->add_attribute(xe::AttributeType::TANGENT, 4, GL_FLOAT, stride);
+            mesh->add_attribute(xe::AttributeType::TANGENT, 4, GL_FLOAT, offset);
+
+            auto v_offset = offset;
+            for (auto i = 0; i < smesh.vertex_tangents.size(); i++, v_offset += stride) {
+                SPDLOG_TRACE("tangent[{}] {} ", i, glm::to_string(smesh.vertex_tangents[i]));
+                std::memcpy(v_ptr + v_offset, glm::value_ptr(smesh.vertex_tangents[i]), sizeof(glm::vec4));
+            }
+
             offset += 4 * sizeof(GLfloat);
         }
 
@@ -123,16 +139,16 @@ namespace xe {
                 SPDLOG_DEBUG("Material illum {}", mat.illum);
                 switch (mat.illum) {
                     case 0:
-                        material = mat_functions["KdMaterial"](mat, mtl_dir);
+                        material = create_material("KdMaterial", mat, mtl_dir);
                         break;
                     case 1:
-                        material = mat_functions["BlinnPhongMaterial"](mat, mtl_dir);
+                        material = create_material("BlinnPhongMaterial", mat, mtl_dir);
                         break;
                     case 2:
-                        material = mat_functions["BlinnPhongMaterial"](mat, mtl_dir);
+                        material = create_material("BlinnPhongMaterial", mat, mtl_dir);
                         break;
                     case 11:
-                        material = mat_functions["PBRMaterial"](mat, mtl_dir);
+                        material = create_material("PBRMaterial", mat, mtl_dir);
                         break;
                     default:
                         spdlog::error("Unknown Illumimination model {}", mat.illum);
