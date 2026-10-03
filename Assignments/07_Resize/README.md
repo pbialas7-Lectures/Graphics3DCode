@@ -13,8 +13,9 @@ changed during the application execution. The portions of the display window (fr
 are just filled with background color. The portions of the viewport that are outside the framebuffer are simply not
 displayed. We will change this behavior as to rescale the displayed objects when the window is resized.
 
-For this purpose, we will use the virtual void method I prepared: `Application::framebuffer_resize_callback (int w, int
-h)`, which is called during each frame buffer size change with the `w` and `h` parameters defining the new buffer sizes.
+For this purpose, we will use the virtual void method I prepared:
+`Application::framebuffer_resize_callback(int w, int h)`, which is called during each frame buffer size change with
+the `w` and `h` parameters defining the new buffer sizes.
 This method can be overridden in classes derived from the `Application` class, such as `SimpleShapeApplication`, which you use
 in
 your exercises.
@@ -33,11 +34,19 @@ your exercises.
    }
    ```
    This will not yet change the behavior of the application, so add the `glViewport` call to this method to set the
-   viewport to the size of the framebuffer.
+   viewport to the size of the framebuffer. As always, wrap it in `OGL_CALL`.
+
+   When the window is minimized, the framebuffer can have zero size (this happens e.g. on Windows). Such a size is not
+   useful for rendering, and later on it would make the aspect ratio `w/h` undefined, so ignore it by returning early
+   at the beginning of the method, after calling the base class method:
+   ```c++
+   if (w <= 0 || h <= 0)
+       return;
+   ```
 
    Try to resize the window. What happens? If you have done everything correctly, the pyramid should scale with the size
    of the window. However, the proportions of the pyramid are not preserved. That is because the aspect ratio of the
-   viewport no longer matches the aspect ratio of the perspective projection set up in the call the `glm::perspective`
+   viewport no longer matches the aspect ratio of the perspective projection set up in the call to the `glm::perspective`
    function in the `init` method.
 
 2. To preserve the proportions of the pyramid, we need to change the aspect ratio of the perspective projection each

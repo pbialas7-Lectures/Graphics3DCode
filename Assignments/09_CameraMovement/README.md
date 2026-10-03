@@ -84,7 +84,7 @@ of two steps:
    axis passing through the origin.
 
    ```c++
-   glm::mat3 rotation(float angle, const glm::vec3 &axis) {
+   inline glm::mat3 rotation(float angle, const glm::vec3 &axis) {
        auto u = glm::normalize(axis);
        auto s = std::sin(angle);
        auto c = std::cos(angle);
@@ -104,7 +104,7 @@ of two steps:
        );
    }     
    ```
-   Please add this function to the anonymous namespace in the `camera.h` file.
+   Please add this function to the anonymous namespace in the `camera.h` file, next to `logistic` and `logit`.
 
 2. The method below rotates the camera by an
    angle around an axis passing through specified point `c`. The rotation matrix is applied to all
@@ -173,8 +173,11 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
    ```
 
    `scale_` is another field of the `CameraController` class and is a converter between pixels and angle. Its value
-   should be selected experimentally for a given screen resolution. Add this field of type `float` to the class and
-   initialize it in both constructors, e.g. to `0.01f`.
+   should be selected experimentally for a given screen resolution. Add this field to the class with a default value,
+   so you do not have to repeat it in both constructors:
+   ```c++
+   float scale_ = 0.01f;
+   ```
 
    We slowly approach the end. Now we will implement three methods responsible for handling mouse events. First of all,
    we want the rotation to work only when we move the mouse holding down the left mouse button (LMB). Therefore, we will
@@ -231,10 +234,20 @@ To do this:
    void set_controller(CameraController *controller) { controller_ = controller; }
    ```
 
-   to the `SimpleShapeApplication` class. Then in the `init` method we set the controller:
+   to the `SimpleShapeApplication` class. Initialize `controller_` to `nullptr` in the constructor's initializer
+   list, as you did with `camera_`: the event handlers below check it before use, which only works if it starts as
+   `nullptr`. Then in the `init` method we set the controller:
 
    ```c++
    set_controller(new CameraController(camera()));
+   ```
+
+   The application owns the controller as well, so delete it in the destructor together with the camera:
+   ```c++
+   ~SimpleShapeApplication() override {
+       delete controller_;
+       delete camera_;
+   }
    ```
 
 2. And finally, we add event handling by overriding the methods. As with `framebuffer_resize_callback`, declare them
@@ -243,28 +256,34 @@ To do this:
 
    ```c++
    void SimpleShapeApplication::mouse_button_callback(int button, int action, int mods) {
-     Application::mouse_button_callback(button, action, mods);
-   
-     if (controller_) {
-     double x, y;
-     glfwGetCursorPos(window_, &x, &y);
-   
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-        controller_->LMB_pressed(x, y);
-   
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-        controller_->LMB_released(x, y);
-    }
-   } 
+       Application::mouse_button_callback(button, action, mods);
+
+       if (controller_) {
+           double x, y;
+           glfwGetCursorPos(window_, &x, &y);
+
+           if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+               controller_->LMB_pressed(x, y);
+
+           if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+               controller_->LMB_released(x, y);
+       }
+   }
    ```      
 
    ```c++
    void SimpleShapeApplication::cursor_position_callback(double x, double y) {
-     Application::cursor_position_callback(x, y);
-     if (controller_) {
-        controller_->mouse_moved(x, y);
-     }
+       Application::cursor_position_callback(x, y);
+       if (controller_) {
+           controller_->mouse_moved(x, y);
+       }
    }
    ```
 
-Good luck :) 
+Good luck :)
+
+## Extension (optional)
+
+Every rotation is computed in floating point, so after many of them the vectors `x_`, `y_` and `z_` slowly stop being
+exactly orthonormal, and the view becomes slightly distorted. If you want to prevent this, re-orthonormalize them after
+each rotation in the same way as in `look_at`: normalize `z_`, then recompute `x_` and `y_` from cross products.

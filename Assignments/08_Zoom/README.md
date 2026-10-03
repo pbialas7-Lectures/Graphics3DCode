@@ -68,6 +68,13 @@ using the mouse wheel. Zooming will be implemented by changing the field of view
     Application(width, height, title, debug), camera_(nullptr) {}
     ```
 
+   The application will own the camera, so it should also delete it. Add a destructor:
+   ```c++
+   ~SimpleShapeApplication() override {
+       delete camera_;
+   }
+   ```
+
 3. Next we modify our code to use the `Camera` class:
 
    In the `init` method initialize the camera pointer:
@@ -108,19 +115,19 @@ Zooming in will decrease the field of view, and zooming out will increase it.
 However, we need to remember that the field of view is limited to the range (0, pi) in radians or (0 to 180) in degrees.
 
 1. To smoothly transition from one end of the range to the other, we will use the logistic function:
-   <img alt="logistic formula" src="logistic.png" style="display:block; margin: 1em auto;">
-   <img alt="logistic" src="logistic_plot.png" style="display:block;width:50%; margin: 1em auto;">
+   <p align="center"><img alt="logistic formula" src="logistic.png"></p>
+   <p align="center"><img alt="logistic" src="logistic_plot.png" width="50%"></p>
    ```c++
-   float logistic(float y) {
+   inline float logistic(float y) {
        return 1.0f/(1.0f+std::exp(-y));
    }
    ```
 
    and its inverse, also called `logit` function:
-   <img alt="logit formula" src="logit.png" style="display:block; margin: 1em auto;">
-   <img alt="logit" src="logit_plot.png" style="display:block;width:50%; margin: 1em auto;">
+   <p align="center"><img alt="logit formula" src="logit.png"></p>
+   <p align="center"><img alt="logit" src="logit_plot.png" width="50%"></p>
    ```c++   
-   float logit(float x) {
+   inline float logit(float x) {
        return std::log(x/(1.0f-x)); 
    }
    ```
@@ -128,15 +135,17 @@ However, we need to remember that the field of view is limited to the range (0, 
 
    ```c++
    namespace {
-       float logistic(float y) {
+       inline float logistic(float y) {
          ...
        }
    
-       float logit(float x) {
+       inline float logit(float x) {
           ...
        }
    }
-   ```   
+   ```
+   The anonymous namespace makes the functions local to each `.cpp` file that includes `camera.h`, and `inline`
+   prevents "unused function" warnings in the files that do not call them.
 
 2. The idea is to take the current field of view scale it to the range (0,1) and then transform it into range
    (-Inf, Inf) using the logit function.
@@ -153,7 +162,7 @@ However, we need to remember that the field of view is limited to the range (0, 
 
    The figure below illustrates how field of view changes with the offset for few selected values of the initial field
    of view.
-   <img alt="zoom" src="zoom.png" style="display: block;margin: 1em auto; width: 50%">
+   <p align="center"><img alt="zoom" src="zoom.png" width="50%"></p>
    As you can see fov changes rather quickly around initial fov
    and then goes smoothly either to zero or 180 degrees.
 
@@ -167,6 +176,11 @@ However, we need to remember that the field of view is limited to the range (0, 
 
    that takes the offset as a parameter and modifies the field of view `fov_` accordingly.
 
+   In single precision `logistic` returns exactly `1.0f` for arguments larger than about 17, so after a lot of
+   scrolling `fov_` can reach exactly 180 degrees. Then `logit` returns infinity and zooming stops responding. If you
+   want to guard against this, clamp `x` to a range slightly smaller than (0,1), e.g.
+   `x = glm::clamp(x, 0.001f, 0.999f);` before taking the `logit`.
+
 3. Finally, override the `scroll_callback` method in the `SimpleShapeApplication` class, so it calls the `zoom`
    method of the camera:
 
@@ -178,6 +192,10 @@ However, we need to remember that the field of view is limited to the range (0, 
     ```
 
    The constant `20.0f` was chosen experimentally.
+
+   Note the direction: scrolling the wheel up (away from you) gives a positive `yoffset`, which increases the field of
+   view, so the scene gets smaller and we zoom __out__; scrolling down zooms in. Many programs use the opposite
+   convention. If you prefer that, just change the sign of the offset passed to `zoom`.
    Put this definition in the `app.cpp` file, and remember to add the declaration of this method with the `override`
    keyword in the class definition in the `app.h` file, like we did with the `framebuffer_resize_callback`.  
 
