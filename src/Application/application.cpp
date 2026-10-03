@@ -190,7 +190,7 @@ void xe::Application::run_cli(int argc, char **argv) {
     int verbose = 0;
     cxxopts::Options options("xe::Application", "Simple OpenGL Application");
     options.add_options()("v,verbose", "Verbose output",
-                          cxxopts::value<int>()->default_value("1"));
+                          cxxopts::value<int>()->default_value("0")->implicit_value("1"));
 
     options.allow_unrecognised_options();
     auto result = options.parse(argc, argv);
