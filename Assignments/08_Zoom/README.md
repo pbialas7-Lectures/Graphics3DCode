@@ -187,15 +187,16 @@ However, we need to remember that the field of view is limited to the range (0, 
     ```c++
     void SimpleShapeApplication::scroll_callback(double xoffset, double yoffset) {
     Application::scroll_callback(xoffset, yoffset);   
-    camera()->zoom(yoffset / 20.0f);
+    camera()->zoom(-yoffset / 20.0f);
     }
     ```
 
    The constant `20.0f` was chosen experimentally.
 
-   Note the direction: scrolling the wheel up (away from you) gives a positive `yoffset`, which increases the field of
-   view, so the scene gets smaller and we zoom __out__; scrolling down zooms in. Many programs use the opposite
-   convention. If you prefer that, just change the sign of the offset passed to `zoom`.
+   Note the minus sign: scrolling the wheel up (away from you) gives a positive `yoffset`, and we want that to zoom
+   __in__, i.e. to decrease the field of view. A positive argument of `zoom` increases the field of view, so we pass
+   `-yoffset`. Scrolling down then zooms out.
+
    Put this definition in the `app.cpp` file, and remember to add the declaration of this method with the `override`
    keyword in the class definition in the `app.h` file, like we did with the `framebuffer_resize_callback`.  
 
