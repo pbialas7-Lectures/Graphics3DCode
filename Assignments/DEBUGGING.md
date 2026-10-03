@@ -7,6 +7,8 @@ The errors are for the most part not reported by the API, and you have to check 
 This document will provide you with an example of how to handle errors in OpenGL code.
 The code of this example is provided in the `src/Assignments/Debugging` directory.
 I have rigged the example to generate an error, so you can see how the error is reported.
+The C++ code itself can be debugged with breakpoints in VS Code or CLion, as described in
+the [main README](../README.md#vs-code).
 
 The error is introduced in the third line of the following code taken from
 `src/Assignments/Debugging/app.cpp`:
