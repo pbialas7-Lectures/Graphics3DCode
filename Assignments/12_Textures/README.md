@@ -10,7 +10,7 @@ reflection coefficient of the object.
 
 To add a texture to the object, we need to know the texture coordinates for each vertex. The texture coordinates (UV
 map) for the pyramid are provided in the file [uv.png](uv.png):
-<img src="uv.png" style="display:block; margin: 1em auto; width: 50%">
+<p align="center"><img alt="UV map" src="uv.png" width="50%"></p>
 Those coordinates are not really very visible on this scale, but you can read them when you enlarge the image.
 
 As stated before, the vertices are considered equal if they have all attributes equal. This means that two vertices with
@@ -20,15 +20,16 @@ different vertices in the pyramid.
 1. So go ahead and remove the vertex color attribute from the vertex buffer. Remember to
    change the arguments of the mesh constructor.
 
-2. Remove the vertices from the vertex buffer so only eight vertices with different texture coordinates remain. Modify
-   the index buffer accordingly. Remember to respect the orientation of the triangles.
-3. Add the texture coordinates to the vertex buffer. Remember to change the arguments of the mesh constructor and add
+2. Add the texture coordinates read from the UV map to the vertex buffer and at the same time remove the vertices
+   that are no longer needed, so that only the eight vertices with different positions or texture coordinates remain.
+   Modify the index buffer accordingly. Remember to respect the orientation of the triangles.
+   Remember to change the arguments of the mesh constructor and add the
    corresponding `add_attribute` call. Use `AttributeType::TEXCOORD_0` attribute. Make sure that everything works.
 
-4. In vertex shader, add the corresponding input vertex attribute with location defined by
-   the `AttributeType::TEXCOORD_0`. Define the corresponding output variable and assign the vertex attribute to it.
+3. In vertex shader, add the corresponding input vertex attribute with location defined by
+   the `AttributeType::TEXCOORD_0`, that is `layout(location = 3)`. Define the corresponding output variable and assign the vertex attribute to it.
 
-5. In fragment shader, add the corresponding input variable. Use this variable to set the RG colors of the fragment.
+4. In fragment shader, add the corresponding input variable. Use this variable to set the RG colors of the fragment.
    This will enable you to check if the texture coordinates are sent correctly to the fragment shader. If everything is OK
    revert to the original color setting code.
 
@@ -36,7 +37,7 @@ different vertices in the pyramid.
 
 We will use the texture from the file `multicolor.png` which can be found in the `Models` directory. 
 
-<img src="multicolor.png" style="display:block; margin: 1em auto; width: 30%">
+<p align="center"><img alt="multicolor texture" src="multicolor.png" width="30%"></p>
 
 To use the texture, we need to load it and send it to the shader.
 For loading the image we will use the `stb_image` library.
@@ -57,10 +58,17 @@ To use it please include the `stb/stb_image.h` header file. The image can then b
     std::cout<<"Loaded a "<<width<<"x"<<height<<" texture with "<<channels<<" channels\n";
    }
    ```
-   If everything is correct, you should see the info message.
+   If everything is correct, you should see the info message. If loading fails, there is no point in continuing, so
+   you may exit the program in the error branch.
 
-2. Create the texture using the `glGenTextures` function, storing its handle in a `GLuint tex_handle` variable, then bind it using `glBindTexture`  and load the image using `glTexImage2D` function. Set the
+2. Create the texture using the `glGenTextures` function, storing its handle in a `GLuint tex_handle` variable, then
+   bind it using `glBindTexture`  and load the image using `glTexImage2D` function. Set the
    interpolation (filtering) methods that do not use mipmapping using the `glTexParameteri` function.
+
+   The format of the image data passed to `glTexImage2D` must match the number of channels reported by `stbi_load`:
+   `GL_RGB` for three channels and `GL_RGBA` for four. The `multicolor.png` image has three channels, but other images
+   may have four. After the call to `glTexImage2D`, OpenGL has its own copy of the image, so free the memory allocated by
+   `stbi_load` using `stbi_image_free(img)`.
 
 Now we have to modify the fragment shader to enable it to read the color from the texture. That requires a _sampler_ which
 is defined as a uniform variable
@@ -71,21 +79,29 @@ uniform sampler2D map_Kd;
 
 1. Please add this line to the fragment shader. This is a uniform variable, not interface block. To assign a value to
    it,
-   we must first get its location using the `glGetUniformLocation` function. Add a static field `map_Kd_location_` of  
-   type `GLint` to the `KdMaterial` class and set its value in the `KdMaterial::init` function
+   we must first get its location using the `glGetUniformLocation` function. Add a static field `map_Kd_location_` of
+   type `GLint` to the `KdMaterial` class
    ```c++
-   map_Kd_location_ = glGetUniformLocation(program(),"map_Kd");
+   inline static GLint map_Kd_location_ = -1;
+   ```
+   (the `inline` keyword lets you initialize a static field in the class body; without it, you would have to define
+   it separately in `KdMaterial.cpp`) and set its value in the `KdMaterial::init` function
+   ```c++
+   OGL_CALL(map_Kd_location_ = glGetUniformLocation(program(), "map_Kd"));
    if (map_Kd_location_ == -1) {
-            SPDLOG_WARN("Cannot find map_Kd uniform");
-        }
+       SPDLOG_WARN("Cannot find map_Kd uniform");
+   }
    ```
 2. Similarly, as with vertex colors, we have to somehow transmit to the fragment shader the information that the texture
    will be bound to the sampler, and we want to use it. We will do it using the material uniform buffer. Please add the
    ```glsl
    bool use_map_Kd; 
    ```
-   field to the `KdMaterial` interface block in fragment shader. Then in the `bind` method of the `KdMaterial` class load
-   zero into this field. The bool variable in an interface block takes as much space as int or float.
+   field to the `KdMaterial` interface block in fragment shader, after `use_vertex_colors`. Then in the `bind` method of
+   the `KdMaterial` class load zero into this field. The bool variable in an interface block takes as much space as int
+   or float, so `use_map_Kd` starts at byte 20 (`Kd` takes bytes 0-15 and `use_vertex_colors` bytes 16-19), and the
+   buffer of `2*sizeof(glm::vec4)` bytes created in the previous assignment is still large enough. You can check the
+   offsets using `uniform_info(program(), "KdMaterial")` as described in the `Uniforms` assignment.
 
 3. In the fragment shader add code that depending on the value of the `use_map_Kd` variable multiply the color
    calculated so far using `Kd`, and vertex colors if present, by the value obtained from the sampler:
@@ -106,8 +122,15 @@ uniform sampler2D map_Kd;
    ```
 
 6. In the `bind` method add the code that checks if the `texture_` field is greater than zero. If so please load one
-   into the `use_map_Kd` field of the material uniform buffer. Then set the active texture unit to zero using
-   the `glActiveTexture` function and bind  `texture_` using the `glBindTexture` function. 
+   into the `use_map_Kd` field of the material uniform buffer. Then assign the texture unit zero to the sampler
+   ```c++
+   OGL_CALL(glUniform1i(map_Kd_location_, 0));
+   ```
+   (`glUniform1i` sets the uniform in the currently used program, so this has to come after the `glUseProgram` call),
+   set the active texture unit to zero using
+   the `glActiveTexture` function and bind  `texture_` using the `glBindTexture` function.
+   Samplers are initialized to texture unit zero, so it would work without the `glUniform1i` call, but it is better to
+   be explicit, as we will use more texture units later.
    
    If `texture_` is equal to zero then just load zero into `use_map_Kd` field of the material uniform buffer.
 
@@ -117,8 +140,9 @@ uniform sampler2D map_Kd;
 7. In the `init` method of the `SimpleShapeApplication` add a single submesh encompassing all the indices and add a
    material with texture. Set the `Kd` to white.
    ```c++
-   pyramid->add_submesh(0, 18, new xe::KdMaterial({1.f, 1.f, 1.0f, 1.0f}, false, tex_handle));
+   pyramid->add_submesh(0, indices.size(), new xe::KdMaterial({1.f, 1.f, 1.0f, 1.0f}, false, tex_handle));
    ```
+   The material does not take ownership of the texture, it only uses its handle.
 
 ## Gamma correction
 
@@ -127,10 +151,11 @@ At this moment, this is not a problem because we are not doing any calculations 
 the screen where they are expected to be in sRGB color space.
 
 1. But if we want to do any calculations on the color, we have to convert it to the linear color space. This can be done
-   automatically by OpenGL, by changing the internal format in the `glTexImage2D` call to `GL_SRGB`. Please do it and
+   automatically by OpenGL, by changing the internal format in the `glTexImage2D` call to `GL_SRGB8` (or
+   `GL_SRGB8_ALPHA8` for images with four channels; `GL_SRGB8` has no alpha channel). Please do it and
    notice that the colors have changed. This is because we are sending the linear values to the screen without any gamma
    correction.
-   <img alt="linear RGB" src="linearRGB.png" style="display:block; margin: 1em auto; width: 50%">
+   <p align="center"><img alt="linear RGB" src="linearRGB.png" width="50%"></p>
 
 2. We will add gamma correction directly in the shader. In fragment shader please add the function definition
    ```glsl
@@ -146,6 +171,6 @@ the screen where they are expected to be in sRGB color space.
    vFragColor.rgb = srgb_gamma_correction(color.rgb);
    ```   
    with `color` being the final color calculated in the shader. The colors should change back to the original ones.
-   <img alt="sRGB" src="sRGB.png" style="display:block; margin: 1em auto; width: 50%">
+   <p align="center"><img alt="sRGB" src="sRGB.png" width="50%"></p>
 
 
