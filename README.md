@@ -5,7 +5,8 @@ your assignments.
 
 ## Downloading
 
-To download the project you have to clone the repository
+To download the project you have to clone the repository with Git (how to install it is described
+in [Building](#building) below):
 
 ```shell
 git clone https://github.com/pbialas7-Lectures/Graphics3DCode.git
@@ -38,13 +39,12 @@ required minimum of 4.5, and it cannot be changed by setting `MINOR`. Please use
 
 This project uses CMake to set up and build the project.
 As a part of the setup process, CMake will download a number of dependencies.
-This can take some time, so be patient. The way to build the project is described below.
+This can take some time, so be patient.
 
-### "Plain vanilla" (Linux/Unix via command line)
+First install the tools and libraries needed on your system, as described in the [Linux](#linux) or
+[Windows](#windows) section below. Then build the project from the command line, in VS Code or in CLion.
 
-The project is managed by CMake and can be built via the command line.
-This should work for Linux/Unix.
-I have not tested the command line build on Windows.
+### Linux
 
 You will need a C++ compiler, CMake, Git and the development files for OpenGL, X11 and Wayland, which are needed
 to compile the GLFW library. On Debian and derivatives like Ubuntu and Linux Mint you can install them with
@@ -59,7 +59,20 @@ and on Fedora with
 sudo dnf install gcc-c++ cmake git pkgconf mesa-libGL-devel wayland-devel libxkbcommon-devel libXcursor-devel libXi-devel libXinerama-devel libXrandr-devel
 ```
 
-Then change to the cloned repository and run:
+### Windows
+
+On Windows install [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) and select the
+**Desktop development with C++** workload in the installer; this provides the C++ compiler and CMake. You will also
+need [Git for Windows](https://git-scm.com/downloads), because CMake uses Git to download the dependencies. Keep the
+installer option that adds Git to the `PATH`.
+
+### "Plain vanilla" (Linux via command line)
+
+The project is managed by CMake and can be built via the command line.
+This should work for Linux/Unix.
+I have not tested the command line build on Windows.
+
+After installing the packages listed in the [Linux](#linux) section, change to the cloned repository and run:
 
 ```shell
 mkdir build
@@ -71,13 +84,6 @@ cmake --build . -j 4
 
 The `-j 4` option builds with four parallel jobs; you can use more if your computer has enough cores and memory.
 
-### Windows
-
-On Windows install [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) and select the
-**Desktop development with C++** workload in the installer; this provides the C++ compiler and CMake. You will also
-need [Git for Windows](https://git-scm.com/downloads), because CMake uses Git to download the dependencies. Keep the
-installer option that adds Git to the `PATH`.
-
 ### VS Code
 
 While you may work via command line and your preferred text editor, it is much more comfortable to use an IDE. I
@@ -87,8 +93,10 @@ After installing VS Code, use it to open a folder containing the project reposit
 You should install the recommended extensions. The list is in the `.vscode/extensions.json` file, but you should be
 prompted to do this after opening the
 project folder. Also on opening, you may be prompted to configure the project.
-You will have to choose the kit used for compilation, you will need a C++17 compiler. On Linux I am using
-`clang` (10 or higher) but you can also use `g++`.
+You will have to choose the kit used for compilation, you will need a C++17 compiler.
+
+On Linux, install the packages listed in the [Linux](#linux) section first. I am using `clang` (10 or higher) but you
+can also use `g++`.
 
 On Windows, after installing Visual Studio Community with the C++ workload and Git (see [Windows](#windows) above),
 a Visual Studio kit should appear in the list of kits. After choosing it, the configuration and build should proceed
@@ -101,7 +109,13 @@ It is a commercial product, but you can get a free license if you are a student.
 You can get the license [here](https://www.jetbrains.com/community/education/#students).
 Setting up CLion is similar to setting up VS Code.
 Just open the project folder in CLion and it should configure itself.
-You will have to choose the compiler kit. On Linux I am using clang (10 or higher) but you can also use g++.
+
+On Linux, install the packages listed in the [Linux](#linux) section first. CLion will use the system compiler; I am
+using clang (10 or higher) but you can also use g++.
+
+On Windows, install Visual Studio Community with the C++ workload and Git (see [Windows](#windows) above). By default
+CLion uses its own bundled MinGW compiler, so go to *Settings | Build, Execution, Deployment | Toolchains*, add a
+*Visual Studio* toolchain and move it to the top of the list to make it the default.
 
 ## Running
 
