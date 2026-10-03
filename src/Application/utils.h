@@ -47,13 +47,9 @@ namespace xe {
 
         // Program creation utils
 
-        std::string load_file(const std::string &path);
-
         GLuint create_shader_from_file(GLenum type, const std::string &path);
 
         GLuint link_program(GLuint program);
-
-        GLuint create_program(const std::string &vs_path, const std::string &fs_path);
 
         GLuint create_program(const shader_path_map_t &shader_paths);
 
