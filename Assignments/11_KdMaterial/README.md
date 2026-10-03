@@ -1,4 +1,4 @@
-# Materials
+# KdMaterial
 
 In the previous assignment, we have provided an abstract layer over the vertex and index buffer manipulations. In this
 assignment, we will add an abstraction of the material that will be responsible for coloring the primitives.
@@ -45,18 +45,24 @@ If the colors are not provided in the vertex buffer, the resulting color will be
    ```c++
    namespace xe {
        class KdMaterial : public AbstractMaterial<KdMaterial> {
-       }
-    }
+       };
+   }
    ```
 
    The `KdMaterial` class should have a constant field `Kd_` of type `glm::vec4` that will
-   store the color of the material. This field should be initialized in the constructor of the class.
+   store the color of the material. It should be initialized in the constructor of the class
 
    ```c++
-      KdMaterial(const glm::vec4 &Kd) : Kd_(Kd) {}
+      explicit KdMaterial(const glm::vec4 &Kd) : Kd_(Kd) {}
    ```
 
-   which should be defined in the  `KdMaterial` class body.
+   which should be defined in the  `KdMaterial` class body. We will add the possibility to use the vertex colors
+   later.
+
+   Put the definitions of the other methods of this class into a new `KdMaterial.cpp` file in the `Engine` directory.
+   The `Engine` library collects its source files using `file(GLOB ...)` in its `CMakeLists.txt`, so after creating a
+   new `.cpp` file you have to re-run CMake (e.g. `cmake ..` in the `build` directory, or reload the CMake project in
+   your IDE). Otherwise, the new file will not be compiled and you will get "undefined reference" errors when linking.
 
 ### Material uniform buffer
 
@@ -88,8 +94,9 @@ This field has also to be initialized in the `init` method using the `create_pro
 1. In preparation, move the shader source files from the `11_KdMaterial/shaders` directory to `Engine/shaders`, you have
    to create this directory first, and
    rename them `Kd_vs.glsl` and `Kd_fs.glsl`. Change the argument of `xe::utils::create_program` method call in
-   the `init` method of the `SimpleShapeApplication` class to reflect those changes. Delete the empty `shaders`
-   directory.
+   the `init` method of the `SimpleShapeApplication` class to reflect those changes: the shaders are no longer in the
+   assignment directory, so instead of `PROJECT_DIR` use `std::string(ROOT_DIR) + "/src/Engine/shaders/Kd_vs.glsl"`
+   and similarly for the fragment shader. Delete the empty `shaders` directory.
 
 2. Add the `create_program_in_engine` method call to the `KdMaterial::init` method.
 
@@ -100,8 +107,7 @@ This field has also to be initialized in the `init` method using the `create_pro
 
    `KdMaterial::create_program_in_engine` is just "syntactic sugar" for the call to the `xe::utils::create_program`. It
    allows specifying only the shader file names, and the method will automatically add the path to the `Engine/shaders`
-   directory. But for this to work the `KdMaterial::init` method has to be defined in the `KdMaterial.cpp` file and not
-   inlined in the `KdMaterial.h` file.
+   directory. Please define the `KdMaterial::init` method in the `KdMaterial.cpp` file.
 
 3. Now please define the `bind` method of the `KdMaterial` class that will just load the shader program using
    the `glUseProgram` function. Add the declaration in the `KdMaterial.h` file in the body of `KdMaterial` class:
@@ -111,20 +117,23 @@ This field has also to be initialized in the `init` method using the `create_pro
    and definition in  `KdMaterial.cpp` file add the following code:
    ```c++
     void KdMaterial::bind() const {
-         glUseProgram(program());
+         OGL_CALL(glUseProgram(program()));
     }
    ``` 
 
 4. Create an object of the `KdMaterial` class in the `init` method of the `SimpleShapeApplication` class
 
    ```c++
-   auto kd_white_material = new KdMaterial(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+   auto kd_white_material = new xe::KdMaterial(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
    ```
    and pass it as an argument to the `add_submesh` method of the `Mesh` class.
 
    ```c++
-    pyramid->add_submesh(0, 18, kd_white_material);
+    pyramid->add_submesh(0, indices.size(), kd_white_material);
    ```
+
+   Like meshes, materials are derived from `RegisteredObject`, so they have to be created with `new` and are deleted
+   automatically when the application finishes; do not delete them yourself.
 
 5. Delete the `glUseProgram` call from the `SimpleShapeApplication::init` method.
 
@@ -156,16 +165,23 @@ the color from the KdMaterial. To do this, we have to modify the fragment shader
    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(int), &use_vertex_colors_));
    ```
 
-   The `use_vertex_colors_` is a integer field of the `KdMaterial` class
+   The `use_vertex_colors_` is an integer field of the `KdMaterial` class
    that should be set to `1` if the vertex colors are present in the vertex buffer and are to be used, and `0`
-   otherwise. Add this field to the class, initialize it to `0` in the existing constructor and add a second
-   constructor
+   otherwise. It has to be an `int` and not a `bool`: the `glBufferSubData` call above copies `sizeof(int)` bytes from
+   it, as a `bool` in a `std140` uniform block takes four bytes, while a C++ `bool` usually takes only one.
+   Add this field to the class, and replace the existing constructor with these two:
 
    ```c++
    KdMaterial(const glm::vec4 &Kd, bool use_vertex_colors) : Kd_(Kd), use_vertex_colors_(use_vertex_colors) {}
+   explicit KdMaterial(const glm::vec4 &Kd) : KdMaterial(Kd, false) {}
    ```
 
-3. Add an `unbind` function that unbinds the material uniform buffer.
+3. Add an `unbind` method that unbinds the material uniform buffer. Declare it in the class body
+   ```c++
+   void unbind() const override;
+   ```
+   and in its definition in `KdMaterial.cpp` call `glBindBufferBase(GL_UNIFORM_BUFFER, 0, 0)` (wrapped in `OGL_CALL`).
+   `Mesh::draw` calls `unbind` after drawing each submesh.
 
 4. Assign the `Kd` variable to the `vFragColor` variable in the fragment shader.
 
