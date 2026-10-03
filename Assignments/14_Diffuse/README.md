@@ -10,12 +10,12 @@ In this assignment we will start to light up the models :) We will begin with th
    (0.7490, 0.7569, 0.7601). Please disable the back-face culling, as the square is not a closed object. The square should lie in the x-y plane and be centered at the origin and have size 2x2.
 2. Set the camera in position (0, 0, 3) with fov 45 degrees and look down at the origin. Set the up vector to (0, 1, 0).
    You should see something like this:
-   <img src="square.png" style="display: block; margin: 1em auto;">
+   <p align="center"><img alt="square" src="square.png"></p>
 
-# Blinn-Phong material
+## Blinn-Phong material
 
 We will use the Blinn-Phong lighting model given by the equation:
-<img src="phong.png" style="display: block; margin: 1em auto; width: 40%;">
+<p align="center"><img alt="Blinn-Phong lighting equation" src="phong.png" width="40%"></p>
 In this assignment we will only use the first two terms of the equation, the ambient and diffuse lighting.
 
 1. Start by copying the files `KdMaterial.h` and `KdMaterial.cpp` to `BlinnPhongMaterial.h` and `BlinnPhongMaterial.cpp`
@@ -26,6 +26,8 @@ In this assignment we will only use the first two terms of the equation, the amb
    xe::BlinnPhongMaterial::init();
    ```
    at the beginning of the method.
+   As with `KdMaterial.cpp`, re-run CMake after creating `BlinnPhongMaterial.cpp`, so that it is compiled into the
+   `Engine` library.
    In the file `square.mtl` change the `illum 0` to `illum 1` and add the `Ka` coefficient with same value as `Kd`.
 
    The `Kd` coefficient corresponds to the `c_diff` variable in the lighting equation and
@@ -39,15 +41,20 @@ In this assignment we will only use the first two terms of the equation, the amb
 
 3. Add `Ka_` field of `glm::vec4` in `BlinnPhongMaterial` class.
 4. In the `create_from_mtl` method of this class assign `get_color(mat.ambient)` to this field. Like `mat.diffuse`,
-   `mat.ambient` is a `float[3]` array.
-5. In the `init` method of this class register this factory method:
+   `mat.ambient` is a `float[3]` array. Like `Kd`, the `Ka` color from the MTL file is in sRGB space, so convert it to
+   linear space with `srgb_inverse_gamma_correction` as well.
+5. Check that the `init` method of this class registers this factory method:
    ```c++
    xe::add_mat_function("BlinnPhongMaterial", BlinnPhongMaterial::create_from_mtl);
    ```
-   
+   If you have replaced every occurrence of `KdMaterial` in step 1, including the one in the string, this line is
+   already there. That is why everything kept working after step 1: the OBJ loader uses this factory for materials
+   with `illum 1` or `illum 2`.
+
 6. In the `BlinnPhongMaterial` interface block in the `BlinnPhong` fragment shader add a `vec4 Ka` field at the beginning of the
    block.
-   Modify the block size and loading accordingly.
+   Modify the block size and loading accordingly: now `Ka` is at offset 0, `Kd` at 16, `use_vertex_colors` at 32 and
+   `use_map_Kd` at 36, so the block takes `3*sizeof(glm::vec4)` bytes. You can check this with `uniform_info`.
 
    Everything should work as previously.
 
@@ -94,7 +101,7 @@ we must pass it to the fragment shader.
    vFragColor.rgb = abs(vertex_position_vs);
    ```
    You should see something like this:
-   <img src="positions.png" style="display: block; margin: 1em auto;">
+   <p align="center"><img alt="vertex positions" src="positions.png"></p>
    The color should not change when you rotate the camera.
 
 ## Transformations to the view space
@@ -143,7 +150,8 @@ The transformed normal vector must be normalized again after the transformation.
    below the `VM` matrix.
 2. In the `init` method of the `SimpleShapeApplication` allocate enough space for the additional `VM_normal` matrix. Remember
    that because of
-   the std140 layout a 3x3 matrix is stored as a 4x3 matrix.
+   the std140 layout a 3x3 matrix is stored as three columns of four floats, i.e. it takes `3*sizeof(glm::vec4)` bytes.
+   Together with `PVM` and `VM` the block takes 176 bytes.
 
 3. In the `SimpleShapeApplication::frame` method set the `VM_normal` matrix to identity and pass it to the shader. The std140 layout
    mandates that a 3x3 matrix is stored as three columns, each column aligned to the `4*sizeof(float)` boundary.
@@ -236,21 +244,38 @@ qualifiers make sure that this class conforms to `std140` and can be directly co
    ```c++
    const GLuint MAX_POINT_LIGHTS = 16;
    ```
+   According to `std140`, `n_lights` fits into the unused last four bytes of `ambient` (offset 12), and the array of
+   lights starts at offset 16. Each `PointLight` takes 32 bytes, so the whole block takes
+   `4*sizeof(float) + MAX_POINT_LIGHTS*sizeof(xe::PointLight)` = 528 bytes.
 
 5. Add a white light at position `(0,0,1)` with intensity `1.0` and radius `0.1`.
 
 6. In the `frame` method load the number of lights (the size of the `lights_` vector) into the lights uniform buffer.
+   The `n_lights` variable in the shader is an `int`, while `lights_.size()` returns `std::size_t`, which has eight bytes.
+   So first convert the size to an `int` variable and load that. Also make sure that you never load more than
+   `MAX_POINT_LIGHTS` lights, as they would not fit into the buffer:
+   ```c++
+   int n_lights = static_cast<int>(std::min<std::size_t>(lights_.size(), xe::MAX_POINT_LIGHTS));
+   ```
 
 7. In the `frame` method add a loop that will load each light from the `lights_` vector to the lights uniform buffer.
    Before loading the light transform it from world space to the view space using the `transform` function
-   provided in the `light.h` file. 
+   provided in the `light.h` file. The light positions are given in world space, so use the view matrix of the camera
+   `camera()->view()`, not `VM`.
 
 8. In the fragment shader add the contribution of each light to the fragment color using the diffuse part of the formula
-   presented above. Remember the 1/pi factor.
+   presented above. Remember the 1/pi factor. Accumulate the result in a local variable, starting with the ambient
+   term, and apply the gamma correction only to the final sum:
    ```glsl
-   vec3 light_vector = normalize(lights[i].position - vertex_position_vs);
-   float diffuse = max(dot(normal, light_vector), 0.0);
-   vFragColor.rgb += INV_PI * color.rgb * lights[i].color * lights[i].intensity * diffuse;
+   vec3 frag_color = Ka.rgb * ambient;
+   for (int i = 0; i < n_lights; i++) {
+       vec3 light_vector = lights[i].position - vertex_position_vs;
+       float light_distance = length(light_vector);
+       vec3 light_dir = light_vector / light_distance;
+       float diffuse = max(dot(normal, light_dir), 0.0);
+       frag_color += INV_PI * color.rgb * lights[i].color * lights[i].intensity * diffuse;
+   }
+   vFragColor.rgb = srgb_gamma_correction(frag_color);
    ```
    where `color` is the diffuse color (`Kd`, multiplied by vertex and texture colors if present) and `INV_PI` is a
    constant equal to 1/pi that you have to define.
@@ -259,8 +284,8 @@ qualifiers make sure that this class conforms to `std140` and can be directly co
    float r = max(lights[i].radius, light_distance);
    float attenuation = 1.0 / (r * r);
    ```
-   where `light_distance` is the distance from the light to the fragment. Multiply the contribution of the light
-   calculated in the previous step by `attenuation`.
+   where `light_distance` is the distance from the light to the fragment computed in the previous step. Multiply the
+   contribution of the light calculated in the previous step by `attenuation`.
 
 ## Back faces
 
