@@ -5,5 +5,5 @@ should see a red triangle on a light-gray background:
 
 ![Triangle](triangle.png)
 
-Before proceeding further please copy this folder to `House` folder as described in next [House](../01_House/README.md)
-assignment. 
+Before proceeding further please copy this folder to the `01_House` folder as described in the next
+[House](../01_House/README.md) assignment.

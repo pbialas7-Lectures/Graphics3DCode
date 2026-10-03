@@ -13,17 +13,17 @@ passed via uniform interface block.
 
 1. First, please add the following interface block to the fragment shader:
    ```glsl
-    layout(std140, binding = 0) uniform Mixer {
-    float strength;
-    vec3  mix_color; 
+   layout(std140, binding = 0) uniform Mixer {
+       float strength;
+       vec3  mix_color;
    };
-    ```  
+   ```
    `mix_color` is the color that will be mixed with the original color of the pixel. `strength` is the strength of the
    mixing with one being the maximum and resulting in the mixing color, and zero in original color.
 
    The `binding=0` qualifier specifies the binding point of the interface block. This is a feature of OpenGL 4.2 and
    higher, so accordingly you have to change first line of fragment shader to `#version 420`.
-   The `std140` qualifier indicates how the block members will be lay out in the memory (more about that later and
+   The `std140` qualifier indicates how the block members will be laid out in the memory (more about that later and
    in [STD140](STD140.md) ).
    After running the program, nothing should change.
 
@@ -37,12 +37,11 @@ passed via uniform interface block.
    float strength = 0.5;
    float mix_color[3] = {0.0, 0.0, 1.0};
    ```
-   Load those variables into the buffer using `glNamedBufferSubData` function. Please respect the `std140` layout rules which
-   can
-   be found on page 138 of
-   [OpenGL 4.5 (Core profile) specification](https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf). In
-   this case, rules 1 and 3 apply. The floats are aligned to 4bytes (1 float) boundaries, but the float array of
-   length 3 is aligned to 16 bytes (4 floats) boundary. So the data in the buffer should look like this:
+   Load those variables into the buffer using `glNamedBufferSubData` function. Please respect the `std140` layout rules
+   which can be found in section 7.6.2.2 "Standard Uniform Block Layout" of the
+   [OpenGL 4.6 (Core profile) specification](https://registry.khronos.org/OpenGL/specs/gl/glspec46.core.pdf). In
+   this case, rules 1 and 3 apply. The `float` is aligned to a 4 bytes (1 float) boundary (rule 1), but the `vec3` is
+   aligned to a 16 bytes (4 floats) boundary (rule 3). So the data in the buffer should look like this:
    ```
    0.5 x x x  0.0 0.0 1.0 x
    ```
@@ -51,7 +50,7 @@ passed via uniform interface block.
     ```
     0.0 0.0 1.0 0.5
     ```
-   and fit into 16bytes (4 floats). I decided not to do this, just to show you how the `std140` layout works :)
+   and fit into 16 bytes (4 floats). I decided not to do this, just to show you how the `std140` layout works :)
 4. Bind the buffer to interface block using `glBindBufferBase` function and the `GL_UNIFORM_BUFFER` target.
    Remember to
    use the same binding point (0) as in the `binding` qualifier of the interface block.
@@ -75,10 +74,10 @@ The parameters of this transformation will be passed to vertex shader via unifor
 1. In vertex shader, please add interface block (remember to change the version to 420):
    ```glsl
    layout(std140, binding=1) uniform Transformations {
-    vec2 scale;
-    vec2 translation;
-    mat2 rotation;
-    };
+       vec2 scale;
+       vec2 translation;
+       mat2 rotation;
+   };
    ```
 
 2. In the `init` function create a new uniform buffer and allocate storage for it. According to `std140` layout `vec2`
@@ -97,12 +96,12 @@ The parameters of this transformation will be passed to vertex shader via unifor
    ```c++
    float theta = 1.0*glm::pi<float>()/6.0f;//30 degrees
    auto cs = std::cos(theta);
-   auto ss = std::sin(theta);  
+   auto ss = std::sin(theta);
    glm::mat2 rot{cs,ss,-ss,cs};
    glm::vec2 trans{0.0,  -0.25};
    glm::vec2 scale{0.5, 0.5};
    ```
-   As we use now `glm` for matrix and vector manipulation you have to include `glm/glm.hpp` and
+   As we now use `glm` for matrix and vector manipulation you have to include `glm/glm.hpp` and
    `glm/gtc/constants.hpp` files.
 
 4. Load data into the uniform buffer,
@@ -113,23 +112,21 @@ The parameters of this transformation will be passed to vertex shader via unifor
    a b
    c d
    ```
-   Is stored as
+   is stored as
    ```
-   a c x x b d x x  
+   a c x x b d x x
    ```
    where x denotes an "unused" space.
    You can access the column of a `glm` matrix by subscripting: `rot[0]` is the first column and `rot[1]` second.
 
-5. Using `glBindBufferBase` function bind this buffer to uniform interface block in the shader. 
+5. Using `glBindBufferBase` function bind this buffer to uniform interface block in the shader.
 
 6. And finally, transform the vertices in the vertex shader:
-   ```glsl 
+   ```glsl
    gl_Position.xy = rotation*(scale*a_vertex_position.xy)+translation;
-   gl_Position.zw = a_vertex_position.zw;  
+   gl_Position.zw = a_vertex_position.zw;
    ```
    It is best to add the transformations one by one. Start with translation, then scale and finally rotation.
 
    The final result should look like this:
    <p align="center"><img alt="House" src="house2.png" width="50%"></p>
-
-
