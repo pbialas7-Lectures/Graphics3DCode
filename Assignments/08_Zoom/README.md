@@ -13,60 +13,64 @@ using the mouse wheel. Zooming will be implemented by changing the field of view
    #include <cmath>
    #include "glm/glm.hpp"
    #include "glm/gtc/matrix_transform.hpp"
-   
+
    class Camera {
    public:
-   
+
      void look_at(const glm::vec3 &eye, const glm::vec3 &center, const glm::vec3 &up) {
          V_ = glm::lookAt(eye, center, up);
      }
-   
+
      void perspective(float fov, float aspect, float near, float far) {
          fov_ = fov;
          aspect_ = aspect;
          near_ = near;
          far_ = far;
      }
-   
+
      void set_aspect(float aspect) {
          aspect_ = aspect;
      }
-   
+
      glm::mat4 view() const { return V_; }
-   
+
      glm::mat4 projection() const { return glm::perspective(fov_, aspect_, near_, far_); }
-     
+
    private:
      float fov_;
      float aspect_;
      float near_;
      float far_;
-   
+
      glm::mat4 V_;
    };
    ```
 
-2. In the file `app.h` in the `SimpleShapeApplication` class add a field:
+2. In the file `app.h` include the new header:
+   ```c++
+   #include "camera.h"
+   ```
+   and in the `SimpleShapeApplication` class add a field:
    ```c++
    Camera *camera_;
    ```
    and two methods
 
-    ```c++
-    void set_camera(Camera *camera) { camera_ = camera; }
-   
-    Camera *camera() const {
-        assert(camera_);
-        return camera_;
-    }
+   ```c++
+   void set_camera(Camera *camera) { camera_ = camera; }
+
+   Camera *camera() const {
+       assert(camera_);
+       return camera_;
+   }
    ```
    The `assert` macro requires including the `<cassert>` header in `app.h`.
 
    Initialize the `camera_` field to `nullptr` in the constructor by adding it to the initializers' list:
    ```c++
-    SimpleShapeApplication(int width, int height, std::string title, bool debug) :
-    Application(width, height, title, debug), camera_(nullptr) {}
-    ```
+   SimpleShapeApplication(int width, int height, std::string title, bool debug, int swap_interval = 1) :
+           Application(width, height, title, debug, swap_interval), camera_(nullptr) {}
+   ```
 
    The application will own the camera, so it should also delete it. Add a destructor:
    ```c++
@@ -112,11 +116,12 @@ using the mouse wheel. Zooming will be implemented by changing the field of view
 
 Zooming will be implemented by changing the field of view of the camera.
 Zooming in will decrease the field of view, and zooming out will increase it.
-However, we need to remember that the field of view is limited to the range (0, pi) in radians or (0 to 180) in degrees.
+However, we need to remember that the field of view is limited to the range (0, pi) in radians or (0, 180) in degrees.
 
 1. To smoothly transition from one end of the range to the other, we will use the logistic function:
    <p align="center"><img alt="logistic formula" src="logistic.png"></p>
    <p align="center"><img alt="logistic" src="logistic_plot.png" width="50%"></p>
+
    ```c++
    inline float logistic(float y) {
        return 1.0f/(1.0f+std::exp(-y));
@@ -126,19 +131,20 @@ However, we need to remember that the field of view is limited to the range (0, 
    and its inverse, also called `logit` function:
    <p align="center"><img alt="logit formula" src="logit.png"></p>
    <p align="center"><img alt="logit" src="logit_plot.png" width="50%"></p>
-   ```c++   
+
+   ```c++
    inline float logit(float x) {
-       return std::log(x/(1.0f-x)); 
+       return std::log(x/(1.0f-x));
    }
    ```
-   Please put those functions on top, but after the includes, of the   `camera.h` file in an anonymous namespace :
+   Please put those functions at the top of the `camera.h` file, after the includes, in an anonymous namespace:
 
    ```c++
    namespace {
        inline float logistic(float y) {
          ...
        }
-   
+
        inline float logit(float x) {
           ...
        }
@@ -147,12 +153,12 @@ However, we need to remember that the field of view is limited to the range (0, 
    The anonymous namespace makes the functions local to each `.cpp` file that includes `camera.h`, and `inline`
    prevents "unused function" warnings in the files that do not call them.
 
-2. The idea is to take the current field of view scale it to the range (0,1) and then transform it into range
+2. The idea is to take the current field of view, scale it to the range (0,1) and then transform it into range
    (-Inf, Inf) using the logit function.
    Then we add the offset received by rotating the mouse wheel and transform it back to the range (0,1) using the
    logistic function and finally rescale it to the range (0, pi):
 
-   ```c++ 
+   ```c++
    auto x = fov/glm::pi<float>();
    auto y = logit(x);
    y+= y_offset;
@@ -160,9 +166,10 @@ However, we need to remember that the field of view is limited to the range (0, 
    fov = x*glm::pi<float>();
    ```
 
-   The figure below illustrates how field of view changes with the offset for few selected values of the initial field
+   The figure below illustrates how field of view changes with the offset for a few selected values of the initial field
    of view.
    <p align="center"><img alt="zoom" src="zoom.png" width="50%"></p>
+
    As you can see fov changes rather quickly around initial fov
    and then goes smoothly either to zero or 180 degrees.
 
@@ -170,7 +177,7 @@ However, we need to remember that the field of view is limited to the range (0, 
 
    ```c++
    void zoom(float y_offset) {
-    ... 
+    ...
    }
    ```
 
@@ -184,12 +191,12 @@ However, we need to remember that the field of view is limited to the range (0, 
 3. Finally, override the `scroll_callback` method in the `SimpleShapeApplication` class, so it calls the `zoom`
    method of the camera:
 
-    ```c++
-    void SimpleShapeApplication::scroll_callback(double xoffset, double yoffset) {
-    Application::scroll_callback(xoffset, yoffset);   
-    camera()->zoom(-yoffset / 20.0f);
-    }
-    ```
+   ```c++
+   void SimpleShapeApplication::scroll_callback(double xoffset, double yoffset) {
+       Application::scroll_callback(xoffset, yoffset);
+       camera()->zoom(-yoffset / 20.0f);
+   }
+   ```
 
    The constant `20.0f` was chosen experimentally.
 
@@ -198,7 +205,4 @@ However, we need to remember that the field of view is limited to the range (0, 
    `-yoffset`. Scrolling down then zooms out.
 
    Put this definition in the `app.cpp` file, and remember to add the declaration of this method with the `override`
-   keyword in the class definition in the `app.h` file, like we did with the `framebuffer_resize_callback`.  
-
-
-   
+   keyword in the class definition in the `app.h` file, like we did with the `framebuffer_resize_callback`.

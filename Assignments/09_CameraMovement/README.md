@@ -35,13 +35,13 @@ OK.
 
    We still need methods to read these values:
 
-      ```c++
-      glm::vec3 x() const { return x_; }
-      glm::vec3 y() const { return y_; }
-      glm::vec3 z() const { return z_; }
-      glm::vec3 position() const { return position_; }
-      glm::vec3 center() const { return center_; }
-      ```
+   ```c++
+   glm::vec3 x() const { return x_; }
+   glm::vec3 y() const { return y_; }
+   glm::vec3 z() const { return z_; }
+   glm::vec3 position() const { return position_; }
+   glm::vec3 center() const { return center_; }
+   ```
 
    Our code should still be compilable and work correctly. The next step is to change the code in the `view` method of
    the same class. Instead of returning the `V_` matrix, we will generate it from new variables "on demand," again as
@@ -55,30 +55,28 @@ OK.
            V[i][1] = y_[i];
            V[i][2] = z_[i];
        }
-       
+
        auto t = -glm::vec3{
                glm::dot(x_, position_),
                glm::dot(y_, position_),
                glm::dot(z_, position_),
        };
        V[3] = glm::vec4(t, 1.0f);
-       
+
        return V;
-       
-       }
-   ```  
+   }
+   ```
 
 If everything has been done correctly, the program should continue to work without changes. We can now remove the `V_`
-field from the class.
+field from the class, together with the line setting it in the `look_at` method.
 
 ## Rotations
 
 Now we will implement methods for rotating the camera. Rotating the camera around an axis at the central point consists
 of two steps:
 
-1. Rotation of the camera position around this axis and point.
-2. Rotation of all three vectors defining the camera orientation around this axis.
-
+- rotation of the camera position around this axis and point,
+- rotation of all three vectors defining the camera orientation around this axis.
 
 1. We will start by defining a helper function that creates a matrix describing a rotation by an angle around an
    axis passing through the origin.
@@ -88,27 +86,27 @@ of two steps:
        auto u = glm::normalize(axis);
        auto s = std::sin(angle);
        auto c = std::cos(angle);
-   
+
        return glm::mat3(
            c + u.x * u.x * (1.0f - c),
            u.y * u.x * (1.0f - c) + u.z * s,
            u.z * u.x * (1.0f - c) - u.y * s,
-   
+
            u.x *u.y*(1.0f-c)-u.z *s,
            c + u.y*u.y *(1.0f-c),
            u.z*u.y*(1.0f-c)+u.x*s,
-   
+
            u.x*u.z*(1.0f -c)+ u.y*s,
            u.y*u.z*(1.0f-c)-u.x*s,
            c+u.z*u.z*(1.0f -c)
        );
-   }     
+   }
    ```
    Please add this function to the anonymous namespace in the `camera.h` file, next to `logistic` and `logit`.
 
 2. The method below rotates the camera by an
    angle around an axis passing through specified point `c`. The rotation matrix is applied to all
-   three vectors defining the camera orientation. The position however has to be rotated by an axis passing through
+   three vectors defining the camera orientation. The position however has to be rotated around an axis passing through
    the specified point `c`, not the origin. To achieve this, we translate the position by `-c`, moving point `c` to the
    origin, then we
    rotate the translated position around the origin and translate it back by `c`, moving point `c` back to its original
@@ -116,16 +114,14 @@ of two steps:
 
    ```c++
    void rotate_around_point(float angle, const glm::vec3 &axis, const glm::vec3 &c) {
- 
-    auto R = rotation(angle, axis);
-    x_ = R * x_;
-    y_ = R * y_;
-    z_ = R * z_;
-    
-    auto t = position_ - c;
-    t = R * t;
-    position_ = c + t;
-    
+       auto R = rotation(angle, axis);
+       x_ = R * x_;
+       y_ = R * y_;
+       z_ = R * z_;
+
+       auto t = position_ - c;
+       t = R * t;
+       position_ = c + t;
    }
    ```
 
@@ -149,18 +145,20 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
 
    ```c++
    #pragma once
-   #include "camera.h"   
+   #include "camera.h"
 
    class CameraController {
    public:
        CameraController():camera_(nullptr) {}
        CameraController(Camera* camera):camera_(camera) {}
        void set_camera(Camera *camera) { camera_ = camera; }
-   
+
    private:
-       Camera *camera_; 
+       Camera *camera_;
    };
    ```
+
+   Add the methods described below to the `public` part of the class and the new fields to its `private` part.
 
    Assuming that we have already obtained the mouse position change `dx` and `dy`, we rotate the camera using the
    method:
@@ -169,7 +167,7 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
    void rotate_camera(float dx, float dy) {
        camera_->rotate_around_center(-scale_ * dy, camera_->x());
        camera_->rotate_around_center(-scale_ * dx, camera_->y());
-       }
+   }
    ```
 
    `scale_` is another field of the `CameraController` class and is a converter between pixels and angle. Its value
@@ -181,9 +179,12 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
 
    We slowly approach the end. Now we will implement three methods responsible for handling mouse events. First of all,
    we want the rotation to work only when we move the mouse holding down the left mouse button (LMB). Therefore, we will
-   add another `LMB_pressed_` field of type `bool` to the class. In both class constructors, we should set its value
-   to `false` (add it to the initializer lists). Because we will be tracking changes in the mouse position, we need two additional fields `x_` and `y_` of
-   type `float` which will store the last mouse position. Having these fields, the mouse movement handling will be done
+   add another field to the class, again with a default value:
+   ```c++
+   bool LMB_pressed_ = false;
+   ```
+   Because we will be tracking changes in the mouse position, we need two additional fields `x_` and `y_` of type
+   `float` which will store the last mouse position. Having these fields, the mouse movement handling will be done
    by the method:
 
    ```c++
@@ -193,11 +194,11 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
            auto dy = y - y_;
            x_ = x;
            y_ = y;
-   
+
            rotate_camera(dx, dy);
        }
-   };
-   ```   
+   }
+   ```
 
    Two more methods will handle the mouse button press and release events:
 
@@ -206,23 +207,23 @@ replace the controller with another one, e.g. FPC (First-Person Camera).
        LMB_pressed_ = true;
        x_ = x;
        y_ = y;
-   };
-   
+   }
+
    void LMB_released(float x, float y) {
        LMB_pressed_ = false;
        auto dx = x - x_;
        auto dy = y - y_;
-   
+
        rotate_camera(dx, dy);
-   };
-   ``` 
+   }
+   ```
 
 ## Handling mouse events
 
 Finally, we need to connect the controller methods to the event handling.
 To do this:
 
-1. Add a field
+1. Include `camera_controller.h` in `app.h` and add a field
 
    ```c++
    CameraController *controller_;
@@ -269,7 +270,7 @@ To do this:
                controller_->LMB_released(x, y);
        }
    }
-   ```      
+   ```
 
    ```c++
    void SimpleShapeApplication::cursor_position_callback(double x, double y) {

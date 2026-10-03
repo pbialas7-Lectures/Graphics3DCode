@@ -14,7 +14,7 @@ they can be accessible to all further assignments without a need to copy them:
 1. So go ahead and copy the `09_CameraMovement` assignment
    to `10_Mesh`.
 
-2. Then move the files `camera.h` and `camera_controller.h`  from `src/Assignments/10_Mesh` to the
+2. Then move the files `camera.h` and `camera_controller.h` from `src/Assignments/10_Mesh` to the
    directory `src/Engine`.
 
 
@@ -28,14 +28,14 @@ they can be accessible to all further assignments without a need to copy them:
    ```
    Only the classes go into the `xe` namespace; the helper functions `logistic`, `logit` and `rotation` can stay in
    their anonymous namespace at the top of `camera.h`.
-   Modify all the references to those classes and their methods by prefixing them with `xe::`.
+   Modify all the references to those classes by prefixing their names with `xe::`, e.g. `xe::Camera`.
 
 4. Now change the `#include` directives that include those files so as to reflect the new path, e.g. `#include "Engine/camera.h"`.
    If you use `CLion` or another IDE this may have been done for you already. An IDE may also add the moved headers
    to the `add_executable` list in `CMakeLists.txt`; remove them from there, as they now belong to the `Engine`
    library.
 
-5. Finally, in the `CMakeLists.txt` file in `src/Assignments/10_Mesh` directory modify  `target_link_libraries` function to link
+5. Finally, in the `CMakeLists.txt` file in `src/Assignments/10_Mesh` directory modify `target_link_libraries` function to link
    the `Engine` library
 
     ```cmake
@@ -49,7 +49,7 @@ they can be accessible to all further assignments without a need to copy them:
 Every object of this class must contain at least one object of `Mesh::SubMesh` class.
 `SubMesh` class corresponds to a single call to `glDrawElements` function and contains the range of the indices to be
 submitted to this call. `SubMesh` also contains a pointer to the `Material` that will be used in next assignments to
-specify the kind of material used by this primitive which in turn will determine the color of the pixels. By default,
+specify the kind of material used by this submesh which in turn will determine the color of the pixels. By default,
 this pointer is initialized to `null_material` which is a pointer to `NullMaterial`
 that does nothing.
 Submeshes are added to mesh using the `add_submesh` method.
@@ -60,9 +60,9 @@ Adding the attribute to the mesh is done using the `add_attribute` method.
 This method is similar to the `glVertexAttribPointer` function, but it does not require the `stride` argument as it is
 already provided in the constructor (see description below), and uses the `AttributeType` enum instead of the attribute index.
 
-1. We will store the meshes in the vector of meshes in the `SimpleShapeApplication` class, so please add the field
+1. We will store the meshes in the vector of meshes in the `SimpleShapeApplication` class, so please include the `Engine/Mesh.h` header in `app.h` and add the field
    ```c++
-   std::vector<xe::Mesh*> meshes_; 
+   std::vector<xe::Mesh*> meshes_;
    ```
    to this class in `app.h` file and a corresponding `add_mesh` method:
 
@@ -71,8 +71,8 @@ already provided in the constructor (see description below), and uses the `Attri
        meshes_.push_back(mesh);
    }
    ```
-2. In the vertex shader change the location of the `a_vertex_color` to five (5). Change corresponding parameter in call
-   to `glVertexAttribPointer`.
+2. In the vertex shader change the location of the `a_vertex_color` to five (5). Change the corresponding parameter in
+   the calls to `glVertexAttribPointer` and `glEnableVertexAttribArray`.
 
 3. Next we have to create the mesh for our pyramid in the `init` method. So start with creating a new `Mesh`
    ```c++
@@ -80,11 +80,11 @@ already provided in the constructor (see description below), and uses the `Attri
                                 indices.size() * sizeof(GLubyte), GL_UNSIGNED_BYTE, GL_STATIC_DRAW);
    ```
    The constructor of the `Mesh` takes as arguments:
-    1. The stride in the vertex buffer, i.e., the size of the single vertex data(attributes) in bytes.
+    1. The stride in the vertex buffer, i.e., the size of the single vertex data (attributes) in bytes.
     2. The size of the vertex buffer in bytes.
     3. The usage hint of the vertex buffer.
     4. The size of the index buffer in bytes.
-    5. The type of the indexes stored in the index buffer.
+    5. The type of the indices stored in the index buffer.
     6. The usage hint of the index buffer.
 
    Those values cannot be changed after the creation of the mesh.
@@ -121,4 +121,4 @@ already provided in the constructor (see description below), and uses the `Attri
    ```
    Remove the bind and unbind `vao_` calls from this method.
 
-8. Please delete all unnecessary code from the  `init` method.    
+8. Please delete all unnecessary code from the `init` method.
