@@ -1,4 +1,4 @@
-# A 3D graphics programming project.
+# A 3D graphics programming project
 
 This repository contains the "Hello World!" equivalent for OpenGL C++ programming. This will be the starting point for
 your assignments.
@@ -65,9 +65,18 @@ Then change to the cloned repository and run:
 mkdir build
 cd build
 cmake ..
-make -j 
+cmake --build . -j 4
 ./src/Assignments/00_Triangle/Triangle
 ```
+
+The `-j 4` option builds with four parallel jobs; you can use more if your computer has enough cores and memory.
+
+### Windows
+
+On Windows install [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) and select the
+**Desktop development with C++** workload in the installer; this provides the C++ compiler and CMake. You will also
+need [Git for Windows](https://git-scm.com/downloads), because CMake uses Git to download the dependencies. Keep the
+installer option that adds Git to the `PATH`.
 
 ### VS Code
 
@@ -75,31 +84,31 @@ While you may work via command line and your preferred text editor, it is much m
 recommend [Visual Studio Code](https://code.visualstudio.com/) which is available on Linux and Windows.
 
 After installing VS Code, use it to open a folder containing the project repository.
-You should install the recommended extension. The list is in the `.vscode/extensions.json` file, but you should be
+You should install the recommended extensions. The list is in the `.vscode/extensions.json` file, but you should be
 prompted to do this after opening the
 project folder. Also on opening, you may be prompted to configure the project.
 You will have to choose the kit used for compilation, you will need a C++17 compiler. On Linux I am using
-`clang` (10 or higher) but you can also use  `g++`.
+`clang` (10 or higher) but you can also use `g++`.
 
-On Windows if you do not have some version of Visual Studio installed, you will need to install
-[Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) edition. 
-If you have VS Community installed, then a suitable kit should appear in
-the list of kits. After choosing it, the configuration and build should proceed without problems.
+On Windows, after installing Visual Studio Community with the C++ workload and Git (see [Windows](#windows) above),
+a Visual Studio kit should appear in the list of kits. After choosing it, the configuration and build should proceed
+without problems.
 
 ### CLion
 
 While recommending VS Code, I personally use [CLion](https://www.jetbrains.com/clion/).
 It is a commercial product, but you can get a free license if you are a student.
 You can get the license [here](https://www.jetbrains.com/community/education/#students).
-Setting up the CLion is similar to setting up VS Code.
+Setting up CLion is similar to setting up VS Code.
 Just open the project folder in CLion and it should configure itself.
 You will have to choose the compiler kit. On Linux I am using clang (10 or higher) but you can also use g++.
 
 ## Running
 
 Each assignment is built into a separate program in the `src/Assignments/<assignment>` folder of the build directory,
-e.g. `build/src/Assignments/00_Triangle/Triangle`. In VS Code and CLion choose the program to run from the list of
-targets.
+e.g. `build/src/Assignments/00_Triangle/Triangle`. With the Visual Studio compiler on Windows the program is in a
+subfolder named after the build configuration, e.g. `build\src\Assignments\00_Triangle\Debug\Triangle.exe`.
+In VS Code and CLion choose the program to run from the list of targets.
 
 The program opens a window with a small "Info" panel in the top left corner showing the number of frames per second.
 The following keyboard shortcuts work in every program:
