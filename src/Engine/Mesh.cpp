@@ -17,10 +17,10 @@ namespace xe {
         OGL_CALL(glGenVertexArrays(1, vao_.put()));
 
         OGL_CALL(glCreateBuffers(1, v_buffer_.put()));
-        OGL_CALL(glNamedBufferData(v_buffer_.get(), v_buffer_size, nullptr, GL_STATIC_DRAW));
+        OGL_CALL(glNamedBufferData(v_buffer_.get(), v_buffer_size, nullptr, v_buffer_hint));
 
         OGL_CALL(glCreateBuffers(1, i_buffer_.put()));
-        OGL_CALL(glNamedBufferData(i_buffer_.get(), i_buffer_size, nullptr, GL_STATIC_DRAW));
+        OGL_CALL(glNamedBufferData(i_buffer_.get(), i_buffer_size, nullptr, i_buffer_hint));
 
         OGL_CALL(glBindVertexArray(vao_.get()));
         OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_.get()));
@@ -36,6 +36,11 @@ namespace xe {
                 break;
             case GL_UNSIGNED_INT:
                 index_size_ = 4;
+                break;
+            default:
+                SPDLOG_ERROR("Unsupported index type {:#x}, use GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT or GL_UNSIGNED_INT",
+                             index_type_);
+                index_size_ = 0;
                 break;
         }
     }

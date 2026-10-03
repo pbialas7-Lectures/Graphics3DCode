@@ -3,7 +3,7 @@
 So far, we did everything on the most basic level of OpenGL calls, but this would quickly become unwieldy if we would
 like to add more models.
 In this assignment, you will refactor the code by adding some layers of abstraction.
-We will add a `Mesh` class that will encapsulate all this low-level calls concerned with vertex and index buffer
+We will add a `Mesh` class that will encapsulate all these low-level calls concerned with vertex and index buffer
 manipulations.
 This class is already provided for you in the `src/Engine/` directory.
 
@@ -26,10 +26,14 @@ they can be accessible to all further assignments without a need to copy them:
 
    }
    ```
-   Modify all the references to those classes and its methods by prefixing them with `xe::`.
+   Only the classes go into the `xe` namespace; the helper functions `logistic`, `logit` and `rotation` can stay in
+   their anonymous namespace at the top of `camera.h`.
+   Modify all the references to those classes and their methods by prefixing them with `xe::`.
 
-4. Now change the `#include` directives that include those files so to reflect the new path.
-   If you use `CLion` or another IDE this may have been done for you already.
+4. Now change the `#include` directives that include those files so as to reflect the new path, e.g. `#include "Engine/camera.h"`.
+   If you use `CLion` or another IDE this may have been done for you already. An IDE may also add the moved headers
+   to the `add_executable` list in `CMakeLists.txt`; remove them from there, as they now belong to the `Engine`
+   library.
 
 5. Finally, in the `CMakeLists.txt` file in `src/Assignments/10_Mesh` directory modify  `target_link_libraries` function to link
    the `Engine` library
@@ -86,12 +90,27 @@ already provided in the constructor (see description below), and uses the `Attri
    Those values cannot be changed after the creation of the mesh.
 
 4. Load the vertices using the `load_vertices` method and set the layouts for attributes using `add_attribute`
-   method.
+   method:
+   ```c++
+   pyramid->load_vertices(0, vertices.size() * sizeof(GLfloat), vertices.data());
+   ```
+   The arguments are the offset __in bytes__ into the vertex buffer at which to start writing, the number of bytes to
+   write, and a pointer to the data. The arguments of `add_attribute(type, size, gl_type, offset)` are the attribute
+   type (e.g. `xe::AttributeType::POSITION`), the number of its components, the type of the components (e.g.
+   `GL_FLOAT`), and the offset __in bytes__ of the attribute from the beginning of the vertex.
 
-5. Similarly, load data into the index buffer using `load_indices` method.
+5. Similarly, load data into the index buffer using `load_indices` method. It takes the same arguments as
+   `load_vertices`.
 
 6. Add a submesh to this mesh that will contain all the indices and schedule mesh for drawing using
-   the `SimpleShapeApplication::add_mesh` method.
+   the `SimpleShapeApplication::add_mesh` method. The arguments of `add_submesh(start, end)` are the positions in the
+   index buffer of the first index of the submesh and of the index __after__ the last one, so for all the indices:
+   ```c++
+   pyramid->add_submesh(0, indices.size());
+   ```
+
+   You do not have to delete the meshes yourself. `Mesh` is derived from `RegisteredObject`, so all meshes are deleted
+   automatically when the application finishes. This is why they have to be created with `new`.
 
 7. Finally, in the method frame change the call to `glDrawElements` to a loop that will call `draw` method on each mesh
    in `meshes_`
