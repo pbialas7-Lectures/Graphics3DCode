@@ -6,7 +6,9 @@
 
 #include "obj_reader.h"
 
+#include <filesystem>
 #include <limits>
+#include <vector>
 
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
@@ -18,10 +20,20 @@
 
 
 namespace {
-    // The shape is passed by reference: copying it would copy all its indices for every face.
-    xe::Triangle get_face(const tinyobj::shape_t &sh, size_t index_offset, const tinyobj::attrib_t &attrib) {
+    // A single triangle as read from the OBJ file, with the attributes of its three vertices.
+    struct Triangle {
+        glm::vec3 position[3];
+        glm::vec2 tex_coord[3];
+        glm::vec3 normal[3];
 
-        xe::Triangle triangle;
+        bool has_normals[3] = {false, false, false};
+        bool has_texcoord[3] = {false, false, false};
+    };
+
+    // The shape is passed by reference: copying it would copy all its indices for every face.
+    Triangle get_face(const tinyobj::shape_t &sh, size_t index_offset, const tinyobj::attrib_t &attrib) {
+
+        Triangle triangle;
         for (size_t v = 0; v < 3; v++) {
             // access to vertex
             tinyobj::index_t idx = sh.mesh.indices[index_offset + v];
@@ -33,9 +45,8 @@ namespace {
 
             triangle.position[v] = p;
 
-            glm::vec2 t;
-
             if (idx.texcoord_index >= 0) {
+                glm::vec2 t;
                 t.x = attrib.texcoords[2 * idx.texcoord_index + 0];
                 t.y = attrib.texcoords[2 * idx.texcoord_index + 1];
                 triangle.tex_coord[v] = t;
@@ -76,8 +87,8 @@ namespace {
             n_vertices += sh.mesh.indices.size();
         const size_t max_vertices = std::numeric_limits<uint16_t>::max() + size_t(1);
         if (n_vertices > max_vertices) {
-            spdlog::error("OBJ mesh needs {} vertices, but at most {} ({} triangles) can be indexed with 16-bit indices",
-                          n_vertices, max_vertices, max_vertices / 3);
+            SPDLOG_ERROR("OBJ mesh needs {} vertices, but at most {} ({} triangles) can be indexed with 16-bit indices",
+                         n_vertices, max_vertices, max_vertices / 3);
             return 1;
         }
 
@@ -106,7 +117,7 @@ namespace {
                 }
                 int fv = sh.mesh.num_face_vertices[f];
                 if (fv != 3) {
-                    spdlog::error("Reading a non triangular face");
+                    SPDLOG_ERROR("Reading a non triangular face");
                     return 1;
                 }
                 auto triangle = get_face(sh, index_offset, attrib);
@@ -115,7 +126,7 @@ namespace {
                     mesh.vertex_coords.push_back(triangle.position[v]);
                     if (!triangle.has_texcoord[v]) {
                         if (mesh.has_texcoords[0]) {
-                            spdlog::warn("Some vertices have texture coordinates and some do not in OBJ file.");
+                            SPDLOG_WARN("Some vertices have texture coordinates and some do not in OBJ file.");
                             mesh.has_texcoords[0] = false;
                         }
                     } else {
@@ -124,7 +135,7 @@ namespace {
 
                     if (!triangle.has_normals[v]) {
                         if (mesh.has_normals) {
-                            spdlog::warn("Some vertices have normals and some do not in OBJ file.");
+                            SPDLOG_WARN("Some vertices have normals and some do not in OBJ file.");
                             mesh.has_normals = false;
                         }
                     } else {
@@ -137,20 +148,21 @@ namespace {
                 index_offset += fv;
                 fce++;
             }
-            sub_mesh.end = fce;
-            sub_mesh = emit_submesh(mesh, sub_mesh);
         }
+        // Consecutive faces with the same material form one submesh, even if they belong to different shapes.
+        sub_mesh.end = fce;
+        emit_submesh(mesh, sub_mesh);
         return 0;
     }
 
-    tinyobj::ObjReader parse_obj(std::string name, std::string mtl_base_dir) {
-        std::string err, warn;
-
+    tinyobj::ObjReader parse_obj(const std::string &name, const std::string &mtl_base_dir) {
         tinyobj::ObjReaderConfig reader_config;
 
-        if (mtl_base_dir.empty())
-            reader_config.mtl_search_path = "./";
-        else
+        // By default look for the MTL files next to the OBJ file.
+        if (mtl_base_dir.empty()) {
+            auto obj_dir = std::filesystem::path(name).parent_path();
+            reader_config.mtl_search_path = obj_dir.empty() ? "./" : obj_dir.string();
+        } else
             reader_config.mtl_search_path = mtl_base_dir;
 
         tinyobj::ObjReader reader;
@@ -167,16 +179,13 @@ namespace {
 }
 
 namespace xe {
-    xe::sMesh load_smesh_from_obj(std::string name, std::string mtl_base_dir) {
+    xe::sMesh load_smesh_from_obj(const std::string &name, const std::string &mtl_base_dir) {
         SPDLOG_DEBUG("Loading OBJ file `{}'", name);
         xe::sMesh s_mesh;
 
-        tinyobj::attrib_t attrib_;
-        std::vector<tinyobj::shape_t> shapes_;
-
         auto reader = parse_obj(name, mtl_base_dir);
         if (!reader.Valid()) {
-            spdlog::error("Error reading OBJ file {} {}", name, mtl_base_dir);
+            SPDLOG_ERROR("Error reading OBJ file {} {}", name, mtl_base_dir);
             return s_mesh;
         }
 
@@ -185,22 +194,16 @@ namespace xe {
         s_mesh.materials = reader.GetMaterials();
 
         if (attrib.vertices.empty()) {
-            spdlog::error("No vertices in OBJ file {}", name);
+            SPDLOG_ERROR("No vertices in OBJ file {}", name);
             return s_mesh;
         }
 
         if (create_smesh(s_mesh, attrib, shapes) != 0) {
-            spdlog::error("Error reading OBJ file {}", name);
+            SPDLOG_ERROR("Error reading OBJ file {}", name);
             return xe::sMesh{};
         }
 
         return s_mesh;
-
     }
 
 }
-
-
-
-
-

@@ -4,15 +4,14 @@
 
 
 #pragma once
-#include <iostream>
-#include <vector>
+
 #include <array>
+#include <cstdint>
+#include <vector>
 
 #include "glm/glm.hpp"
 
-#include "Geometry/bounding_box.h"
 #include "3rdParty/tinyobjloader/tiny_obj_loader.h"
-
 
 
 namespace xe {
@@ -43,15 +42,14 @@ namespace xe {
         std::vector <glm::vec3> vertex_coords;
         std::vector <glm::vec2> vertex_texcoords[MAX_TEXCOORDS];
         std::vector <glm::vec3> vertex_normals;
+        // The OBJ reader does not fill the tangents and colors yet, so has_tangents and has_colors are always false.
+        // The tangents are meant to be computed with MikkTSpace; load_mesh_from_obj already uploads them if present.
         std::vector <glm::vec4> vertex_tangents;
         std::vector <glm::vec4> vertex_colors;
         std::vector <Face> faces;
 
         std::vector <mtl_material_t> materials;
         std::vector <SubMesh> submeshes;
-        std::vector<unsigned int> smoothing_group_ids;
-
-        xe::BoundingBox<3> bb;
 
         bool has_texcoords[MAX_TEXCOORDS];
         bool has_normals;
@@ -60,11 +58,4 @@ namespace xe {
 
     };
 
-    sMesh* generate_normals(const sMesh& s_mesh) ;
-
-
 }
-
-
-
-
