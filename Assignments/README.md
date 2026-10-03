@@ -42,6 +42,7 @@ code is described in [DEBUGGING.md](DEBUGGING.md).
 | `10_Mesh`            | [Mesh](10_Mesh/README.md)                               |
 | `11_KdMaterial`      | [KdMaterial](11_KdMaterial/README.md)                   |
 | `12_Textures`        | [Textures](12_Textures/README.md)                       |
+| `12_z_ComputeShader` | [Compute shader](12_z_ComputeShader/README.md)          |
 | `13_OBJReader`       | [Reading Wavefront OBJ files](13_OBJReader/README.md)   |
 | `14_Diffuse`         | [Diffuse lighting](14_Diffuse/README.md)                |
 | `15_Specular`        | [Specular](15_Specular/README.md)                       |
