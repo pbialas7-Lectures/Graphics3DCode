@@ -88,5 +88,7 @@ mapping when they are not present in the model.
 > RenderDoc is a free MIT licensed stand-alone graphics debugger that allows quick and easy single-frame capture and
 > detailed introspection of any application using Vulkan, D3D11, OpenGL & OpenGL ES or D3D12.
 
-Only the in-application API header `renderdoc_app.h` is included. When an application is started under RenderDoc
-on Linux, pressing Ctrl-F captures the next frame.
+Only the in-application API header `renderdoc_app.h` is included. Normally a frame is captured with RenderDoc's
+capture key, F12 by default. On some machines, e.g. on Linux with recent NVIDIA drivers, this key does nothing; as a
+workaround, pressing Ctrl-F in a program started from RenderDoc captures the next frame through this API (Linux only).
+See [DEBUGGING.md](Assignments/DEBUGGING.md#renderdoc).

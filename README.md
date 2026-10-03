@@ -133,7 +133,7 @@ The following keyboard shortcuts work in every program:
 |----------|-----------------------------------------------------------------------------------------------------------|
 | Ctrl-Q   | Close the window and end the program.                                                                     |
 | Ctrl-S   | Save the next frame to `screenshot_<n>.png` in the current working directory, without the "Info" panel.   |
-| Ctrl-F   | Capture the next frame in [RenderDoc](https://renderdoc.org/). Works only on Linux, when the program was started from RenderDoc. |
+| Ctrl-F   | Capture the next frame in [RenderDoc](https://renderdoc.org/), when RenderDoc's own capture key (F12) does not work. Linux only, see [DEBUGGING.md](./Assignments/DEBUGGING.md#renderdoc). |
 
 Messages, including OpenGL errors, are printed on the console. How to use them to find errors in your code is
 described in [DEBUGGING.md](./Assignments/DEBUGGING.md).

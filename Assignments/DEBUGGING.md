@@ -181,5 +181,9 @@ textures, the values of the uniform blocks, and the vertices before and after th
 fastest way to find out why nothing, or not what you expected, is drawn.
 
 To use it, start your program from RenderDoc (*Launch Application*, setting the executable and the working directory),
-then capture a frame. On Linux press Ctrl-F in the window of your program; on other systems use RenderDoc's own
-capture key (F12 or Print Screen by default). The captured frame appears in RenderDoc, where you can open it.
+then capture a frame by pressing RenderDoc's capture key, F12 by default, in the window of your program. The captured
+frame appears in RenderDoc, where you can open it.
+
+On some machines, e.g. on Linux with recent NVIDIA drivers, RenderDoc does not recognize the window of the program and
+the capture key does nothing. As a workaround, the programs in this project capture the next frame through RenderDoc's
+programming interface when you press Ctrl-F. This works on Linux only.
