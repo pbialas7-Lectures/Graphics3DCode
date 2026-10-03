@@ -20,10 +20,11 @@ namespace xe {
         PointLight(const glm::vec3 &pos, const glm::vec3 &color, float intensity, float radius)
                 : position(pos), color(color), intensity(intensity), radius(radius) {}
 
-        alignas(16) glm::vec3 position;
-        float radius;
-        alignas(16) glm::vec3 color;
-        float intensity;
+        // A default constructed light is black, so it does not contribute anything.
+        alignas(16) glm::vec3 position{0.0f};
+        float radius = 0.0f;
+        alignas(16) glm::vec3 color{0.0f};
+        float intensity = 0.0f;
 
         void normalize() {
             color /= (color.r+color.g+color.b);
