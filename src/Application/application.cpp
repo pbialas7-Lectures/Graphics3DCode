@@ -1,7 +1,7 @@
 /**
  * @file application.cpp
  * @author Piotr Białas (piotr.bialas@uj.edu.pl)
- * @brief 
+ * @brief Implementation of xe::Application: window and context creation, the main loop and input dispatching.
  * @version 0.1
  * @date 2021-10-01
  * 
@@ -37,10 +37,11 @@
 /**
  * @brief Predefined debugging callbacks.
  * 
- * If generated with debug option GLAD  permits to register callbacks that will be called before and after each OpenGL function call. 
- * This is switched off by default by me, as not to interfere with my error reporting code.  GLAD debuging can be enabled in the CMakeLists.txt file.
- * 
- * This unnamed namespace contains two predefined post-call callbacks making them local to this file.
+ * If generated with the debug option, GLAD permits registering callbacks that are called before and after each OpenGL
+ * function call. This is switched off by default, so as not to interfere with the OGL_CALL error reporting.
+ * GLAD debugging can be enabled with the GLAD_DEBUG option in the top CMakeLists.txt file.
+ *
+ * This unnamed namespace contains the predefined callbacks, making them local to this file.
  * 
  */
 namespace {
@@ -62,19 +63,22 @@ namespace {
 
 
 /**
- * @brief Construct a new xe::Application::Application object
- * 
- * @param width  Width of the window    
- * @param height Height of the window
- * @param title Title of the created application window. 
- * @param debug specify if an OpenGL debug context should be created and debug output reported.
- *              Additionally, if compiled with debug version of glad, enables error checking after each OpenGL function call.
+ * @brief Creates the window, the OpenGL context and the ImGui context. Exits the program on failure.
+ *
+ * @param width  Width of the window.
+ * @param height Height of the window.
+ * @param title Title of the created application window.
+ * @param debug Specifies if an OpenGL debug context should be created and debug output reported.
+ *              Additionally, if compiled with the debug version of glad, enables error checking after each OpenGL
+ *              function call.
+ * @param swap_interval Number of screen refreshes to wait for before swapping the buffers (1 = v-sync, 0 = none).
  */
 xe::Application::Application(int width, int height, std::string title, bool debug, int swap_interval)
         : screenshot_n_(0) {
     SPDLOG_INFO("Application::Application(window size = {}x{}, {}, debug = {}, swap interval = {})", width, height,
                 title, debug, swap_interval);
 
+    // glfwGetVersion is one of the few GLFW functions that can be called before glfwInit.
     int glfw_major, glfw_minor, glfw_revision;
     glfwGetVersion(&glfw_major, &glfw_minor, &glfw_revision);
 
@@ -84,6 +88,7 @@ xe::Application::Application(int width, int height, std::string title, bool debu
         SPDLOG_INFO("GLFW version {}.{}.{} platform = {}", glfw_major, glfw_minor, glfw_revision,
                     xe::utils::glfw::platform_name(glfwGetPlatform()));
 
+        // Request a core profile context of the OpenGL version set by MAJOR and MINOR in the top CMakeLists.txt.
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MAJOR);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MINOR);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -100,6 +105,7 @@ xe::Application::Application(int width, int height, std::string title, bool debu
             exit(-1);
         }
         glfwMakeContextCurrent(window_);
+        // The static GLFW callbacks below use this pointer to find the application object.
         glfwSetWindowUserPointer(window_, this);
 
         glfwSetFramebufferSizeCallback(window_, Application::glfw_framebuffer_size_callback);
@@ -111,8 +117,8 @@ xe::Application::Application(int width, int height, std::string title, bool debu
 
 #ifdef GLAD_OPTION_GL_DEBUG
         SPDLOG_INFO("GLAD_OPTION_GL_DEBUG is ON");
-        // Additionally if GLAD debugging is on, the we can still switch it off via debug variable.
-        // This works by registering an empty predefined above callback.
+        // Additionally, if GLAD debugging is on, we can still switch it off via the debug variable.
+        // This works by registering the empty callback defined above.
         if (debug) {
             SPDLOG_INFO("DEBUG is ON, setting callbacks");
             gladSetGLPreCallback(_pre_call_callback);
@@ -124,6 +130,7 @@ xe::Application::Application(int width, int height, std::string title, bool debu
         }
 #endif
 
+        // Load the addresses of the OpenGL functions; no OpenGL function can be called before this.
         if (!gladLoadGL(glfwGetProcAddress)) {
             SPDLOG_CRITICAL("Failed to initialize OpenGL {}.{} context", MAJOR, MINOR);
             exit(-1);
@@ -136,6 +143,7 @@ xe::Application::Application(int width, int height, std::string title, bool debu
 
         glfwSwapInterval(swap_interval);
 
+        // ImGui installs its own GLFW callbacks, which call the ones set above.
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
@@ -150,9 +158,9 @@ xe::Application::Application(int width, int height, std::string title, bool debu
 }
 
 /**
- * @brief This starts the main event loop. 
- * 
- * @param verbose if greater than zero, OpenGL vendor, renderer and version information is printed.
+ * @brief Runs the application: init(), the main loop and cleanup().
+ *
+ * @param verbose If greater than zero, OpenGL vendor, renderer and version information is printed.
  */
 void xe::Application::run(int verbose) {
     startup(verbose);
@@ -186,6 +194,9 @@ void xe::Application::startup(int verbose) {
     }
 }
 
+/**
+ * @brief Shuts down ImGui and calls cleanup(). Runs only once, either at the end of run() or in the destructor.
+ */
 void xe::Application::shutdown() {
     if (shut_down_)
         return;
@@ -204,6 +215,10 @@ xe::Application::~Application() {
     glfwTerminate();
 }
 
+/**
+ * @brief Parses the command line, then runs the application like run(). The program name and the arguments not
+ * recognized here are passed to init_cli().
+ */
 void xe::Application::run_cli(int argc, char **argv) {
     int verbose = 0;
     cxxopts::Options options("xe::Application", "Simple OpenGL Application");
@@ -215,6 +230,7 @@ void xe::Application::run_cli(int argc, char **argv) {
     auto unmatched = result.unmatched();
     std::vector<char *> vc;
     vc.push_back(argv[0]);
+    // The strings in unmatched live until the end of this function, so pointing into them is safe.
     for (auto &arg: unmatched) {
         vc.push_back(arg.data());
     }
@@ -229,6 +245,9 @@ void xe::Application::run_cli(int argc, char **argv) {
     shutdown();
 }
 
+/**
+ * @brief The main loop: renders frames and processes input events until the window is closed.
+ */
 void xe::Application::loop() {
     while (!glfwWindowShouldClose(window_)) {
         // If a capture was requested (Ctrl-F), start it now, before any GL commands
@@ -246,7 +265,7 @@ void xe::Application::loop() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        //This method should be overridden by you and will contain the rendering code.
+        // This method should be overridden by you and will contain the rendering code.
         frame();
 
         // Screenshot requested with Ctrl-S: save the frame before the ImGui overlay is drawn.
@@ -255,6 +274,8 @@ void xe::Application::loop() {
             save_frame_buffer();
         }
 
+        // The "Info" overlay in the top left corner: a small semi-transparent window without decorations showing
+        // the frame rate and whatever imgui_info() adds.
         ImGuiIO &io = ImGui::GetIO();
         ImGuiWindowFlags window_flags =
                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
@@ -273,12 +294,13 @@ void xe::Application::loop() {
 
         imgui();
 
+        // Draw all the ImGui windows on top of the frame.
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         /* Swap front and back buffers
            The rendering is done into the BACK buffer, swapping it with front buffer displays it on the screen.
-           This is done after n screen updates where n is the number set by the glfwSwapInterwal.
+           This is done after n screen updates where n is the number set by the glfwSwapInterval.
            Setting it to one as I did set the swap rate to v-sync rate.
            Setting it to zero disables v-sync.
         */
@@ -289,10 +311,13 @@ void xe::Application::loop() {
             renderdoc_end_capture();
         }
 
-        /* Poll for and process events */
+        /* Poll for and process events, this calls the callbacks below. */
         glfwPollEvents();
     }
 }
+
+// The static callbacks registered with GLFW. Each one finds the application through the window user pointer
+// and calls the corresponding virtual method.
 
 void xe::Application::glfw_framebuffer_size_callback(GLFWwindow *window_ptr, int w, int h) {
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window_ptr));
@@ -369,6 +394,9 @@ void xe::Application::glfw_window_refresh_callback(GLFWwindow *window) {
     }
 }
 
+/**
+ * @brief Saves the back buffer of the window to screenshot_<n>.png.
+ */
 void xe::Application::save_frame_buffer() {
     // Save the state changed below, so the application's own settings are not affected.
     GLint read_framebuffer, read_buffer, pack_buffer, pack_alignment;
@@ -391,6 +419,7 @@ void xe::Application::save_frame_buffer() {
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pack_buffer);
     glPixelStorei(GL_PACK_ALIGNMENT, pack_alignment);
 
+    // OpenGL stores the rows bottom to top, image files top to bottom.
     stbi_flip_vertically_on_write(1);
     std::stringstream ss;
     ss << "screenshot_" << screenshot_n_ << ".png";
@@ -430,6 +459,9 @@ void xe::Application::init_renderdoc() {
 #endif
 }
 
+/**
+ * @brief Starts a RenderDoc frame capture, or warns if the application is not running under RenderDoc.
+ */
 void xe::Application::renderdoc_start_capture() {
 #if defined(XE_RENDERDOC_SUPPORTED)
     if (renderdoc_api_) {
@@ -444,6 +476,9 @@ void xe::Application::renderdoc_start_capture() {
 #endif
 }
 
+/**
+ * @brief Ends the RenderDoc frame capture started by renderdoc_start_capture().
+ */
 void xe::Application::renderdoc_end_capture() {
 #if defined(XE_RENDERDOC_SUPPORTED)
     if (renderdoc_api_) {
