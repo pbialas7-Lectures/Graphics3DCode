@@ -156,7 +156,7 @@ void xe::Application::run(int verbose) {
     auto major = utils::get_gl_version_major();
     auto minor = utils::get_gl_version_minor();
 
-    if (major < 4 || minor < 5) {
+    if (major < 4 || (major == 4 && minor < 5)) {
         SPDLOG_WARN("OpenGL version {}.{} is not supported. Minimum required version is 4.5", major, minor);
     }
 
@@ -221,10 +221,6 @@ void xe::Application::run_cli(int argc, char **argv) {
 }
 
 void xe::Application::loop() {
-#ifdef __APPLE__
-    auto macMoved = false;
-#endif
-
     while (!glfwWindowShouldClose(window_)) {
         // Clears the framebuffer by filling it with color set using the glClearColor function.
         // Also clears the depth buffer.
@@ -266,18 +262,6 @@ void xe::Application::loop() {
 
         /* Poll for and process events */
         glfwPollEvents();
-#ifdef __APPLE__
-        // A hack to fix bug in apple implementation.
-        // maybe not needed now. Didn't check :(
-        if (!macMoved)
-        {
-            int x, y;
-            glfwGetWindowPos(window_, &x, &y);
-            glfwSetWindowPos(window_, ++x, y);
-            glfwSetWindowPos(window_, --x, y);
-            macMoved = true;
-        }
-#endif
     }
 }
 

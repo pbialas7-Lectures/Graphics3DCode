@@ -75,6 +75,10 @@ namespace xe {
 
         char *source_t::replace_version(const std::string &version) {
             auto version_line = find_version_line();
+            if (version_line == src.end()) {
+                spdlog::warn("No #version line found in shader source, cannot replace version");
+                return nullptr;
+            }
             auto new_version = ::replace_version(*version_line, version);
             delete[] *version_line;
             *version_line = new_version;

@@ -26,11 +26,6 @@ set(MAJOR 4)
 set(MINOR 6)
 set(GLAD_DEBUG OFF CACHE BOOL "" FORCE)
 
-if (APPLE) #Apple has deprecated OpenGL :( 
-    set(MAJOR 4)
-    set(MINOR 1)
-endif ()
-
 add_compile_definitions(MAJOR=${MAJOR})
 add_compile_definitions(MINOR=${MINOR})
 set(GLAD_DIR ${3rdParty_DIR}/glad/glad_${MAJOR}_${MINOR})

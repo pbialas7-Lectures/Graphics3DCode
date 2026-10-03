@@ -56,21 +56,14 @@ namespace xe {
                     return "Vertex";
                 case GL_FRAGMENT_SHADER:
                     return "Fragment";
-#if (MAJOR >= 3) && (MINOR >= 2)
                 case GL_GEOMETRY_SHADER:
                     return "Geometry";
-#endif
-#if (MAJOR >= 4) && (MINOR >= 3)
                 case GL_COMPUTE_SHADER:
                     return "Compute";
-#endif
-#if (MAJOR >= 4) && (MINOR >= 3)
                 case GL_TESS_CONTROL_SHADER:
                     return "Tesselation Control";
                 case GL_TESS_EVALUATION_SHADER:
                     return "Tesselation Evaluation";
-
-#endif
             }
             return "Unknown";
         }
@@ -83,12 +76,10 @@ namespace xe {
                     return "INVALID VALUE";
                 case GL_INVALID_OPERATION:
                     return "INVALID OPERATION";
-#if MINOR > 2
                 case GL_STACK_OVERFLOW:
                     return "STACK OVERFLOW";
                 case GL_STACK_UNDERFLOW:
                     return "STACK UNDERFLOW";
-#endif
                 case GL_OUT_OF_MEMORY:
                     return "OUT OF MEMORY";
                 case GL_INVALID_FRAMEBUFFER_OPERATION:
@@ -195,11 +186,6 @@ namespace xe {
         }
 
         GLuint create_shader_from_source(GLenum type, source_t &shader_source) {
-
-#ifdef __APPLE__
-            shader_source.replace_version("410");
-#endif
-
             auto shader = glCreateShader(type);
             if (shader == 0) {
                 spdlog::error("Error creating {} shader", utils::shader_type(type));
@@ -243,9 +229,6 @@ namespace xe {
 
             if (shader_source.size() == 0)
                 return 0;
-#ifdef __APPLE__
-            shader_source.replace_version("410");
-#endif
 
             return create_shader_from_source(type, shader_source);
         }
