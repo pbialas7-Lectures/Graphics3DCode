@@ -75,6 +75,24 @@ Setting up the CLion is similar to setting up VS Code.
 Just open the project folder in CLion and it should configure itself.
 You will have to choose the compiler kit. On Linux I am using clang (10 or higher) but you can also use g++.
 
+## Running
+
+Each assignment is built into a separate program in the `src/Assignments/<assignment>` folder of the build directory,
+e.g. `build/src/Assignments/00_Triangle/Triangle`. In VS Code and CLion choose the program to run from the list of
+targets.
+
+The program opens a window with a small "Info" panel in the top left corner showing the number of frames per second.
+The following keyboard shortcuts work in every program:
+
+| Shortcut | Action                                                                                                    |
+|----------|-----------------------------------------------------------------------------------------------------------|
+| Ctrl-Q   | Close the window and end the program.                                                                     |
+| Ctrl-S   | Save the next frame to `screenshot_<n>.png` in the current working directory, without the "Info" panel.   |
+| Ctrl-F   | Capture the next frame in [RenderDoc](https://renderdoc.org/). Works only on Linux, when the program was started from RenderDoc. |
+
+Messages, including OpenGL errors, are printed on the console. How to use them to find errors in your code is
+described in [DEBUGGING.md](./Assignments/DEBUGGING.md).
+
 ## Assignments
 
 The procedure for starting a new assignment is described in [README.md](./Assignments/README.md) file in
