@@ -239,6 +239,12 @@ void xe::Application::loop() {
         //This method should be overridden by you and will contain the rendering code.
         frame();
 
+        // Screenshot requested with Ctrl-S: save the frame before the ImGui overlay is drawn.
+        if (screenshot_requested_) {
+            screenshot_requested_ = false;
+            save_frame_buffer();
+        }
+
         ImGuiIO &io = ImGui::GetIO();
         ImGuiWindowFlags window_flags =
                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
@@ -285,7 +291,14 @@ void xe::Application::glfw_framebuffer_size_callback(GLFWwindow *window_ptr, int
     }
 }
 
+// Mouse and keyboard events are not passed to the application while ImGui uses them, e.g. when dragging a slider
+// or typing into a text field. Releases are always passed, so the application does not miss the end of a drag
+// or a key press that started outside ImGui.
+
 void xe::Application::glfw_scroll_callback(GLFWwindow *window_ptr, double xoffset, double yoffset) {
+    if (ImGui::GetIO().WantCaptureMouse) {
+        return;
+    }
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window_ptr));
     if (app_ptr) {
         app_ptr->scroll_callback(xoffset, yoffset);
@@ -293,6 +306,9 @@ void xe::Application::glfw_scroll_callback(GLFWwindow *window_ptr, double xoffse
 }
 
 void xe::Application::glfw_cursor_position_callback(GLFWwindow *window, double x, double y) {
+    if (ImGui::GetIO().WantCaptureMouse) {
+        return;
+    }
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
     if (app_ptr) {
         app_ptr->cursor_position_callback(x, y);
@@ -300,6 +316,9 @@ void xe::Application::glfw_cursor_position_callback(GLFWwindow *window, double x
 }
 
 void xe::Application::glfw_mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+    if (action != GLFW_RELEASE && ImGui::GetIO().WantCaptureMouse) {
+        return;
+    }
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
     if (app_ptr) {
         app_ptr->mouse_button_callback(button, action, mods);
@@ -307,22 +326,30 @@ void xe::Application::glfw_mouse_button_callback(GLFWwindow *window, int button,
 }
 
 void xe::Application::glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    if ((mods & GLFW_MOD_CONTROL) != 0 && key == GLFW_KEY_Q && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, 1);
-    }
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
-    if (app_ptr) {
-        if ((mods & GLFW_MOD_CONTROL) != 0 && key == GLFW_KEY_F && action == GLFW_PRESS) {
-            app_ptr->renderdoc_capture_requested_ = true;
-        }
-        app_ptr->key_callback(key, scancode, action, mods);
+    if (!app_ptr) {
+        return;
     }
-}
 
-void xe::Application::key_callback(int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-        save_frame_buffer();
+    // Built-in shortcuts: Ctrl-Q quits, Ctrl-S saves a screenshot, Ctrl-F triggers a RenderDoc capture.
+    if ((mods & GLFW_MOD_CONTROL) != 0 && action == GLFW_PRESS) {
+        switch (key) {
+            case GLFW_KEY_Q:
+                glfwSetWindowShouldClose(window, 1);
+                return;
+            case GLFW_KEY_S:
+                app_ptr->screenshot_requested_ = true;
+                return;
+            case GLFW_KEY_F:
+                app_ptr->renderdoc_capture_requested_ = true;
+                return;
+        }
     }
+
+    if (action != GLFW_RELEASE && ImGui::GetIO().WantCaptureKeyboard) {
+        return;
+    }
+    app_ptr->key_callback(key, scancode, action, mods);
 }
 
 void xe::Application::glfw_window_refresh_callback(GLFWwindow *window) {
@@ -333,14 +360,26 @@ void xe::Application::glfw_window_refresh_callback(GLFWwindow *window) {
 }
 
 void xe::Application::save_frame_buffer() {
+    // Save the state changed below, so the application's own settings are not affected.
+    GLint read_framebuffer, read_buffer, pack_buffer, pack_alignment;
+    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &read_framebuffer);
+    glGetIntegerv(GL_READ_BUFFER, &read_buffer);
+    glGetIntegerv(GL_PIXEL_PACK_BUFFER_BINDING, &pack_buffer);
+    glGetIntegerv(GL_PACK_ALIGNMENT, &pack_alignment);
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glReadBuffer(GL_BACK);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadBuffer(GL_FRONT);
-    if (glGetError() == GL_INVALID_OPERATION)
-        SPDLOG_WARN("Saving Frame buffer error: Front buffer does not exist.");
 
     auto [w, h] = frame_buffer_size();
     std::vector<GLubyte> data(w * h * 3);
     OGL_CALL(glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, data.data()));
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, read_framebuffer);
+    glReadBuffer(read_buffer);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, pack_buffer);
+    glPixelStorei(GL_PACK_ALIGNMENT, pack_alignment);
 
     stbi_flip_vertically_on_write(1);
     std::stringstream ss;

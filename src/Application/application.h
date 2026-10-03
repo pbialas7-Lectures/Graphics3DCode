@@ -30,6 +30,8 @@ namespace xe {
             return std::make_pair(w, h);
         }
 
+        // Saves the content of the back buffer to screenshot_<n>.png. Call it after rendering the frame
+        // and before the buffers are swapped; pressing Ctrl-S does this at the end of the next frame.
         void save_frame_buffer();
 
         virtual void init() {};
@@ -54,7 +56,7 @@ namespace xe {
 
         virtual void mouse_button_callback(int button, int action, int mods) {}
 
-        virtual void key_callback(int key, int scancode, int action, int mods);
+        virtual void key_callback(int key, int scancode, int action, int mods) {}
 
         virtual void window_refresh_callback() {};
 
@@ -71,6 +73,7 @@ namespace xe {
         void loop(); // main loop
 
         unsigned int screenshot_n_;
+        bool screenshot_requested_ = false;
 
         // RenderDoc in-application capture support (see application.cpp).
         // The API pointer is stored as void* here so that renderdoc_app.h does not

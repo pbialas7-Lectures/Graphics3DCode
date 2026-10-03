@@ -184,7 +184,7 @@ namespace xe {
             return program;
         }
 
-        GLuint create_shader_from_source(GLenum type, source_t &shader_source) {
+        GLuint create_shader_from_source(GLenum type, source_t &shader_source, const std::string &name = "") {
             if (shader_source.size() == 0) return 0;
 
             auto shader = glCreateShader(type);
@@ -208,7 +208,11 @@ namespace xe {
                 glDeleteShader(shader);
 
 
-                spdlog::error("Error compiling {} shader", shader_type(type));
+                if (name.empty()) {
+                    spdlog::error("Error compiling {} shader", shader_type(type));
+                } else {
+                    spdlog::error("Error compiling {} shader `{}'", shader_type(type), name);
+                }
                 std::istringstream iss(error_log.substr(0, length));
                 std::string line;
                 while (std::getline(iss, line)) {
@@ -228,7 +232,7 @@ namespace xe {
             if (shader_source.size() == 0)
                 return 0;
 
-            return create_shader_from_source(type, shader_source);
+            return create_shader_from_source(type, shader_source, path);
         }
     }
 
