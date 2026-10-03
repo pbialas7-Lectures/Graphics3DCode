@@ -14,9 +14,13 @@ namespace xe
         public:
             source_t() = default;
 
-            source_t(source_t &other) { std::swap(src, other.src); };
+            // source_t owns the strings it holds, so it can be moved but not copied.
+            source_t(const source_t &) = delete;
+            source_t &operator=(const source_t &) = delete;
 
-            source_t &operator=(source_t &rhs)
+            source_t(source_t &&other) noexcept { std::swap(src, other.src); };
+
+            source_t &operator=(source_t &&rhs) noexcept
             {
                 std::swap(this->src, rhs.src);
                 rhs.clear();
@@ -52,10 +56,6 @@ namespace xe
 
             void push_back_string(const std::string &str);
             void load(const std::string &path, bool single_string = false);
-
-            std::vector<char *>::iterator find_version_line();
-
-            char *replace_version(const std::string &version);
 
         private:
             std::vector<char *> src;

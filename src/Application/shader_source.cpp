@@ -1,5 +1,4 @@
 #include "Application/shader_source.h"
-#include <regex>
 #include <cstring>
 
 #include "spdlog/spdlog.h"
@@ -11,13 +10,6 @@ namespace {
         std::memcpy(line + str.size(), suffix.c_str(), suffix.size());
         line[str.size() + suffix.size()] = '\0';
         return line;
-    }
-
-    char *replace_version(const char *version_line, const std::string &version) {
-        std::regex version_regex("#version\\s+(\\d+)");
-        auto replaced = std::regex_replace(version_line, version_regex, std::string("#version ") + version);
-        auto replaced_p = copy_string_to_char(replaced);
-        return replaced_p;
     }
 }
 
@@ -58,32 +50,6 @@ namespace xe {
                     stream << line;
                 }
             }
-        }
-
-        std::vector<char *>::iterator source_t::find_version_line() {
-            std::regex version_regex("#version\\s+(\\d+)");
-            auto line_number = 0;
-            for (auto line = src.begin(); line != src.end(); line++) {
-                std::cmatch version_match;
-                if (std::regex_search(*line, version_match, version_regex)) {
-                    return line;
-                }
-                line_number++;
-            }
-            return src.end();
-        }
-
-        char *source_t::replace_version(const std::string &version) {
-            auto version_line = find_version_line();
-            if (version_line == src.end()) {
-                spdlog::warn("No #version line found in shader source, cannot replace version");
-                return nullptr;
-            }
-            auto new_version = ::replace_version(*version_line, version);
-            delete[] *version_line;
-            *version_line = new_version;
-
-            return new_version;
         }
 
     }
