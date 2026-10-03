@@ -13,6 +13,8 @@
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
 
+#include "3rdParty/MIKKTSpace/mikktspace.h"
+
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one*  source file
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 
@@ -155,6 +157,54 @@ namespace {
         return 0;
     }
 
+    // Computes the tangents of the mesh with MikkTSpace, the convention used by the tools that create normal maps.
+    // Requires normals and texture coordinates. The vertices of the mesh are not shared between faces (vertex
+    // v of face f has index 3 * f + v), which is exactly what MikkTSpace expects.
+    bool generate_tangents(xe::sMesh &mesh) {
+        SMikkTSpaceInterface iface{};
+        iface.m_getNumFaces = [](const SMikkTSpaceContext *context) -> int {
+            return static_cast<int>(static_cast<xe::sMesh *>(context->m_pUserData)->faces.size());
+        };
+        iface.m_getNumVerticesOfFace = [](const SMikkTSpaceContext *, const int) -> int { return 3; };
+        iface.m_getPosition = [](const SMikkTSpaceContext *context, float out[], const int face, const int vert) {
+            auto mesh = static_cast<xe::sMesh *>(context->m_pUserData);
+            auto p = mesh->vertex_coords[mesh->faces[face].v[vert]];
+            out[0] = p.x;
+            out[1] = p.y;
+            out[2] = p.z;
+        };
+        iface.m_getNormal = [](const SMikkTSpaceContext *context, float out[], const int face, const int vert) {
+            auto mesh = static_cast<xe::sMesh *>(context->m_pUserData);
+            auto n = mesh->vertex_normals[mesh->faces[face].v[vert]];
+            out[0] = n.x;
+            out[1] = n.y;
+            out[2] = n.z;
+        };
+        iface.m_getTexCoord = [](const SMikkTSpaceContext *context, float out[], const int face, const int vert) {
+            auto mesh = static_cast<xe::sMesh *>(context->m_pUserData);
+            auto t = mesh->vertex_texcoords[0][mesh->faces[face].v[vert]];
+            out[0] = t.x;
+            out[1] = t.y;
+        };
+        // The sign gives the orientation of the bitangent: bitangent = sign * cross(normal, tangent).
+        iface.m_setTSpaceBasic = [](const SMikkTSpaceContext *context, const float tangent[], const float sign,
+                                    const int face, const int vert) {
+            auto mesh = static_cast<xe::sMesh *>(context->m_pUserData);
+            mesh->vertex_tangents[mesh->faces[face].v[vert]] = glm::vec4(tangent[0], tangent[1], tangent[2], sign);
+        };
+
+        SMikkTSpaceContext context{};
+        context.m_pInterface = &iface;
+        context.m_pUserData = &mesh;
+
+        mesh.vertex_tangents.assign(mesh.vertex_coords.size(), glm::vec4(0.0f));
+        if (!genTangSpaceDefault(&context)) {
+            mesh.vertex_tangents.clear();
+            return false;
+        }
+        return true;
+    }
+
     tinyobj::ObjReader parse_obj(const std::string &name, const std::string &mtl_base_dir) {
         tinyobj::ObjReaderConfig reader_config;
 
@@ -201,6 +251,13 @@ namespace xe {
         if (create_smesh(s_mesh, attrib, shapes) != 0) {
             SPDLOG_ERROR("Error reading OBJ file {}", name);
             return xe::sMesh{};
+        }
+
+        // Tangents are needed for normal mapping, which uses both the normals and the texture coordinates.
+        if (s_mesh.has_normals && s_mesh.has_texcoords[0]) {
+            s_mesh.has_tangents = generate_tangents(s_mesh);
+            if (!s_mesh.has_tangents)
+                SPDLOG_WARN("Could not generate tangents for OBJ file {}", name);
         }
 
         return s_mesh;

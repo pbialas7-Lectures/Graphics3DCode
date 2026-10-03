@@ -42,9 +42,10 @@ namespace xe {
         std::vector <glm::vec3> vertex_coords;
         std::vector <glm::vec2> vertex_texcoords[MAX_TEXCOORDS];
         std::vector <glm::vec3> vertex_normals;
-        // The OBJ reader does not fill the tangents and colors yet, so has_tangents and has_colors are always false.
-        // The tangents are meant to be computed with MikkTSpace; load_mesh_from_obj already uploads them if present.
+        // Tangents (xyz) with the orientation of the bitangent (w = +-1), computed with MikkTSpace when the mesh has
+        // normals and texture coordinates.
         std::vector <glm::vec4> vertex_tangents;
+        // The OBJ reader does not fill the colors yet, so has_colors is always false.
         std::vector <glm::vec4> vertex_colors;
         std::vector <Face> faces;
 
