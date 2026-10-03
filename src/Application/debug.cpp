@@ -3,15 +3,30 @@
 //
 
 #include <string>
-
-#include "spdlog/spdlog.h"
+#include <string_view>
 
 #define GLFW_INCLUDE_NONE
 
 #include <GLFW/glfw3.h>
 #include <glad/gl.h>
+#include <spdlog/spdlog.h>
 
 namespace {
+    spdlog::level::level_enum get_spdlog_level(GLenum severity) {
+        switch (severity) {
+            case GL_DEBUG_SEVERITY_HIGH:
+                return spdlog::level::err;
+            case GL_DEBUG_SEVERITY_MEDIUM:
+                return spdlog::level::warn;
+            case GL_DEBUG_SEVERITY_LOW:
+                return spdlog::level::info;
+            case GL_DEBUG_SEVERITY_NOTIFICATION:
+                return spdlog::level::debug;
+            default:
+                return spdlog::level::warn;
+        }
+    }
+
     std::string get_debug_message_source(GLenum source) {
 
         switch (source) {
@@ -72,6 +87,22 @@ namespace {
         }
     }
 
+    void log_lines(spdlog::level::level_enum level, std::string_view text) {
+        while (true) {
+            const auto newline = text.find('\n');
+            auto line = text.substr(0, newline);
+            if (!line.empty() && line.back() == '\r') {
+                line.remove_suffix(1);
+            }
+            spdlog::log(level, "  {}", line);
+
+            if (newline == std::string_view::npos) {
+                break;
+            }
+            text.remove_prefix(newline + 1);
+        }
+    }
+
     void APIENTRY gl_debug_output_callback(GLenum source,
                                            GLenum type,
                                            unsigned int id,
@@ -82,19 +113,14 @@ namespace {
 // ignore non-significant error/warning codes
         if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
-        auto message = std::string(pmessage, length);
-        auto level = spdlog::level::info;
-        switch (severity) {
-            case GL_DEBUG_SEVERITY_HIGH:
-                level = spdlog::level::err;
-                break;
-            case GL_DEBUG_SEVERITY_MEDIUM:
-                level = spdlog::level::warn;
-                break;
-        }
-        spdlog::log(level, "GL debug message ({}): {} [source: {}, type: {}, severity: {}]", id, message,
-                    get_debug_message_source(source), get_debug_message_type(type),
-                    get_debug_message_severity(severity));
+        const auto level = get_spdlog_level(severity);
+        const auto message = std::string(pmessage, length);
+        spdlog::log(level, "---------------");
+        spdlog::log(level, "Debug message ({}):", id);
+        log_lines(level, message);
+        spdlog::log(level, "  Source: {}", get_debug_message_source(source));
+        spdlog::log(level, "  Type: {}", get_debug_message_type(type));
+        spdlog::log(level, "  Severity: {}", get_debug_message_severity(severity));
     }
 }
 

@@ -36,8 +36,11 @@ namespace xe {
 
         virtual void init_cli(int argc, char **argv) {}
 
-        virtual void frame() {
-        }
+        virtual void frame() {}
+
+        virtual void imgui() {}
+
+        virtual void imgui_info() {}
 
         virtual void cleanup() {
             RegisteredObject::cleanup();
@@ -68,6 +71,20 @@ namespace xe {
         void loop(); // main loop
 
         unsigned int screenshot_n_;
+
+        // RenderDoc in-application capture support (see application.cpp).
+        // The API pointer is stored as void* here so that renderdoc_app.h does not
+        // have to be included in this widely-used header; it is cast back to the
+        // proper RENDERDOC_API_1_x_x* type in application.cpp.
+        void init_renderdoc();
+
+        void renderdoc_start_capture();
+
+        void renderdoc_end_capture();
+
+        void *renderdoc_api_ = nullptr;
+        bool renderdoc_capture_requested_ = false;
+        bool renderdoc_capturing_ = false;
 
         static void glfw_framebuffer_size_callback(GLFWwindow *window_ptr, int w, int h);
 

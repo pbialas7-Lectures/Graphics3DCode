@@ -5,11 +5,11 @@ The OpenGL API is a very low level, and it is easy to make mistakes.
 The errors are for most of the part not reported by the API, and you have to check for them manually.
 
 This document will provide you with an example of how to handle errors in OpenGL code.
-The code of this example is provided in the `src/Assignments/Debug` directory.
+The code of this example is provided in the `src/Assignments/Debugging` directory.
 I have rigged the example to generate an error, so you can see how the error is reported.
 
 The error is introduced in the third line of the following code taken from
-`src/Assignments/Debug/app.cpp`:
+`src/Assignments/Debugging/app.cpp`:
 
 ```c++
 GLuint v_buffer_handle;
@@ -121,12 +121,13 @@ I have configured the OpenGL context
 as to provide the debug messages and registered a callback function that will log the error messages.
 As you can see from the output below
 
-```c++
----------------
-Debug message (1282): GL_INVALID_OPERATION error generated. <buffer> does not refer to an existing buffer object.
-Source: API
-Type: Error
-Severity: high
+```
+[error] ---------------
+[error] Debug message (1282):
+[error]   GL_INVALID_OPERATION error generated. <buffer> does not refer to an existing buffer object.
+[error]   Source: API
+[error]   Type: Error
+[error]   Severity: High
 ```
 
 this function provides more information than the `glGetError` function,

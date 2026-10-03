@@ -28,6 +28,12 @@
 
 #include "stb/stb_image_write.h"
 
+#if defined(__linux__)
+#define XE_RENDERDOC_SUPPORTED 1
+#include <dlfcn.h>
+#include "RenderDoc/renderdoc_app.h"
+#endif
+
 /**
  * @brief Predefined debugging callbacks.
  * 
@@ -123,6 +129,8 @@ xe::Application::Application(int width, int height, std::string title, bool debu
             exit(-1);
         }
 
+        init_renderdoc();
+
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -213,6 +221,13 @@ void xe::Application::run_cli(int argc, char **argv) {
 
 void xe::Application::loop() {
     while (!glfwWindowShouldClose(window_)) {
+        // If a capture was requested (Ctrl-F), start it now, before any GL commands
+        // for this frame are issued, so that the whole frame is captured.
+        if (renderdoc_capture_requested_) {
+            renderdoc_capture_requested_ = false;
+            renderdoc_start_capture();
+        }
+
         // Clears the framebuffer by filling it with color set using the glClearColor function.
         // Also clears the depth buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -232,12 +247,15 @@ void xe::Application::loop() {
         ImGui::SetNextWindowBgAlpha(0.35f);
         ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_Always, ImVec2(0.0, 0.0));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::Begin("data", nullptr,
-                     window_flags);                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("Info", nullptr,
+                     window_flags);
 
         ImGui::Text("FPS: %.1f", io.Framerate);
+        imgui_info();
         ImGui::End();
         ImGui::PopStyleVar();
+
+        imgui();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -249,6 +267,11 @@ void xe::Application::loop() {
            Setting it to zero disables v-sync.
         */
         glfwSwapBuffers(window_);
+
+        // End the capture right after presenting, so it covers exactly one full frame.
+        if (renderdoc_capturing_) {
+            renderdoc_end_capture();
+        }
 
         /* Poll for and process events */
         glfwPollEvents();
@@ -284,11 +307,14 @@ void xe::Application::glfw_mouse_button_callback(GLFWwindow *window, int button,
 }
 
 void xe::Application::glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+    if ((mods & GLFW_MOD_CONTROL) != 0 && key == GLFW_KEY_Q && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, 1);
     }
     auto app_ptr = reinterpret_cast<Application *>(glfwGetWindowUserPointer(window));
     if (app_ptr) {
+        if ((mods & GLFW_MOD_CONTROL) != 0 && key == GLFW_KEY_F && action == GLFW_PRESS) {
+            app_ptr->renderdoc_capture_requested_ = true;
+        }
         app_ptr->key_callback(key, scancode, action, mods);
     }
 }
@@ -322,4 +348,60 @@ void xe::Application::save_frame_buffer() {
     spdlog::info("Saving screenshot to {}", ss.str());
     stbi_write_png(ss.str().c_str(), w, h, 3, data.data(), w * 3);
     ++screenshot_n_;
+}
+
+/**
+ * @brief Looks up RenderDoc's in-application API, if the application is running under RenderDoc.
+ *
+ * RenderDoc injects itself via LD_PRELOAD (librenderdoc.so) before main() runs, so the module is
+ * already loaded in the process; we just need to find it and fetch the API entry point. Using
+ * this API to explicitly start/end a capture (Ctrl-F, see glfw_key_callback and loop()) works
+ * even when RenderDoc's automatic window/swapchain association fails (a known issue with some
+ * combinations of GLX and the proprietary NVIDIA driver, where the hotkey/UI "trigger capture"
+ * silently does nothing): the GL driver's StartFrameCapture/EndFrameCapture only need a valid
+ * device pointer to work, regardless of the window handle. Passing nullptr/nullptr for device and
+ * window uses RenderDoc's "current device and window" default, which resolves correctly.
+ */
+void xe::Application::init_renderdoc() {
+#if defined(XE_RENDERDOC_SUPPORTED)
+    void *renderdoc_module = dlopen("librenderdoc.so", RTLD_NOW | RTLD_NOLOAD);
+    if (renderdoc_module) {
+        auto RENDERDOC_GetAPI =
+                (pRENDERDOC_GetAPI) dlsym(renderdoc_module, "RENDERDOC_GetAPI");
+        if (RENDERDOC_GetAPI) {
+            int ok = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, &renderdoc_api_);
+            if (ok) {
+                SPDLOG_INFO("RenderDoc detected: Ctrl-F will trigger a frame capture");
+            } else {
+                SPDLOG_WARN("RenderDoc detected but RENDERDOC_GetAPI failed");
+                renderdoc_api_ = nullptr;
+            }
+        }
+    }
+#endif
+}
+
+void xe::Application::renderdoc_start_capture() {
+#if defined(XE_RENDERDOC_SUPPORTED)
+    if (renderdoc_api_) {
+        auto api = reinterpret_cast<RENDERDOC_API_1_6_0 *>(renderdoc_api_);
+        api->StartFrameCapture(nullptr, nullptr);
+        renderdoc_capturing_ = true;
+        SPDLOG_INFO("RenderDoc: capturing frame");
+    } else {
+        SPDLOG_WARN("RenderDoc capture requested (Ctrl-F) but RenderDoc API is not available "
+                    "(run the application under RenderDoc to enable this)");
+    }
+#endif
+}
+
+void xe::Application::renderdoc_end_capture() {
+#if defined(XE_RENDERDOC_SUPPORTED)
+    if (renderdoc_api_) {
+        auto api = reinterpret_cast<RENDERDOC_API_1_6_0 *>(renderdoc_api_);
+        api->EndFrameCapture(nullptr, nullptr);
+        SPDLOG_INFO("RenderDoc: frame capture finished");
+    }
+    renderdoc_capturing_ = false;
+#endif
 }
