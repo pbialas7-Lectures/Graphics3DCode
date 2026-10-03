@@ -14,16 +14,16 @@ namespace xe {
     Mesh::Mesh(GLsizei stride, GLsizei v_buffer_size, GLenum v_buffer_hint,
                GLsizei i_buffer_size, GLenum index_type, GLenum i_buffer_hint) :
             stride_(stride), index_type_(index_type) {
-        glGenVertexArrays(1, &vao_);
+        OGL_CALL(glGenVertexArrays(1, vao_.put()));
 
-        OGL_CALL(glCreateBuffers(1, &v_buffer_));
-        OGL_CALL(glNamedBufferData(v_buffer_, v_buffer_size, nullptr, GL_STATIC_DRAW));
+        OGL_CALL(glCreateBuffers(1, v_buffer_.put()));
+        OGL_CALL(glNamedBufferData(v_buffer_.get(), v_buffer_size, nullptr, GL_STATIC_DRAW));
 
-        OGL_CALL(glCreateBuffers(1, &i_buffer_));
-        OGL_CALL(glNamedBufferData(i_buffer_, i_buffer_size, nullptr, GL_STATIC_DRAW));
+        OGL_CALL(glCreateBuffers(1, i_buffer_.put()));
+        OGL_CALL(glNamedBufferData(i_buffer_.get(), i_buffer_size, nullptr, GL_STATIC_DRAW));
 
-        OGL_CALL(glBindVertexArray(vao_));
-        OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_));
+        OGL_CALL(glBindVertexArray(vao_.get()));
+        OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_.get()));
         OGL_CALL(glBindVertexArray(0u));
         OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u));
 
@@ -42,18 +42,18 @@ namespace xe {
 
 
     void Mesh::load_indices(size_t offset, size_t size, void *data) {
-        OGL_CALL(glNamedBufferSubData(i_buffer_, offset, size, data));
+        OGL_CALL(glNamedBufferSubData(i_buffer_.get(), offset, size, data));
     }
 
     void Mesh::load_vertices(size_t offset, size_t size, void *data) {
-        OGL_CALL(glNamedBufferSubData(v_buffer_, offset, size, data));
+        OGL_CALL(glNamedBufferSubData(v_buffer_.get(), offset, size, data));
     }
 
 
     void Mesh::add_attribute(xe::AttributeType attr_type, GLuint size, GLenum type, GLsizei offset) const {
         auto index = static_cast<int>(attr_type);
-        OGL_CALL(glBindVertexArray(vao_));
-        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_));
+        OGL_CALL(glBindVertexArray(vao_.get()));
+        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_.get()));
         OGL_CALL(glEnableVertexAttribArray(index));
         OGL_CALL(glVertexAttribPointer(index, size, type, GL_FALSE, stride_, reinterpret_cast<void *>(offset)));
         OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0u));
@@ -61,7 +61,7 @@ namespace xe {
     }
 
     void Mesh::draw() const {
-        OGL_CALL(glBindVertexArray(vao_));
+        OGL_CALL(glBindVertexArray(vao_.get()));
         for (auto i = 0; i < submeshes_.size(); i++) {
             submeshes_[i].material->bind();
             auto indices = reinterpret_cast<void *>(index_size_ * submeshes_[i].start);
@@ -73,14 +73,14 @@ namespace xe {
 
 
     void *Mesh::map_vertex_buffer() {
-        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_));
+        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_.get()));
         void *ptr;
         OGL_CALL(ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
         return ptr;
     }
 
     void Mesh::unmap_vertex_buffer() {
-        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_));
+        OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_.get()));
         auto unmap_status = glUnmapBuffer(GL_ARRAY_BUFFER);
         xe::utils::get_and_report_error("glUnmapBuffer", "src/Engine/Mesh.cpp", __LINE__ - 1, true);
         if (!unmap_status) {
@@ -90,14 +90,14 @@ namespace xe {
     }
 
     void *Mesh::map_index_buffer() {
-        OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_));
+        OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_.get()));
         void *ptr;
         OGL_CALL(ptr = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
         return ptr;
     }
 
     void Mesh::unmap_index_buffer() {
-        OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_));
+        OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_.get()));
         auto unmap_status = glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
         xe::utils::get_and_report_error("glUnmapBuffer", "src/Engine/Mesh.cpp", __LINE__ - 1, true);
         if (!unmap_status) {

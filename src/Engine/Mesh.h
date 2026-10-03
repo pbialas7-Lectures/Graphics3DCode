@@ -8,6 +8,7 @@
 #include "glad/gl.h"
 
 #include "Application/RegisteredObject.h"
+#include "Application/gl_handle.h"
 #include "Material.h"
 
 namespace xe {
@@ -78,9 +79,10 @@ namespace xe {
 
     private:
         GLuint index_size_;
-        GLuint vao_;
-        GLuint v_buffer_;
-        GLuint i_buffer_;
+        // The mesh owns its vertex array and buffers, they are deleted together with it.
+        gl::VertexArray vao_;
+        gl::Buffer v_buffer_;
+        gl::Buffer i_buffer_;
         const GLenum index_type_;
         const GLsizei stride_;
 
