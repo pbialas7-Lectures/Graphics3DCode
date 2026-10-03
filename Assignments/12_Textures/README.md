@@ -26,7 +26,8 @@ different vertices in the pyramid.
    corresponding `add_attribute` call. Use `AttributeType::TEXCOORD_0` attribute. Make sure that everything works.
 
 3. In vertex shader, add the corresponding input vertex attribute with location defined by
-   the `AttributeType::TEXCOORD_0`, that is `layout(location = 3)`. Define the corresponding output variable and assign the vertex attribute to it.
+   the `AttributeType::TEXCOORD_0`, that is `layout(location = 3)`. Define the corresponding output variable and
+   assign the vertex attribute to it.
 
 4. In fragment shader, add the corresponding input variable. Use this variable to set the RG colors of the fragment.
    This will enable you to check if the texture coordinates are sent correctly to the fragment shader. If everything is OK
@@ -34,7 +35,7 @@ different vertices in the pyramid.
 
 ## Texture
 
-We will use the texture from the file `multicolor.png` which can be found in the `Models` directory. 
+We will use the texture from the file `multicolor.png` which can be found in the `Models` directory.
 
 <p align="center"><img alt="multicolor texture" src="multicolor.png" width="30%"></p>
 
@@ -52,33 +53,40 @@ To use it please include the `stb/stb_image.h` header file. The image can then b
    auto texture_file = std::string(ROOT_DIR) + "/Models/multicolor.png";
    auto img = stbi_load(texture_file.c_str(), &width, &height, &channels, 0);
    if (!img) {
-    std::cerr<<"Could not read image from file `"<<texture_file<<"'\n";
+       SPDLOG_ERROR("Could not read image from file `{}'", texture_file);
    } else {
-    std::cout<<"Loaded a "<<width<<"x"<<height<<" texture with "<<channels<<" channels\n";
+       SPDLOG_INFO("Loaded a {}x{} texture with {} channels", width, height, channels);
    }
    ```
    If everything is correct, you should see the info message. If loading fails, there is no point in continuing, so
    you may exit the program in the error branch.
 
 2. Create the texture using the `glGenTextures` function, storing its handle in a `GLuint tex_handle` variable, then
-   bind it using `glBindTexture`  and load the image using `glTexImage2D` function. Set the
-   interpolation (filtering) methods that do not use mipmapping using the `glTexParameteri` function.
+   bind it using `glBindTexture` and load the image using `glTexImage2D` function. Set the
+   interpolation (filtering) methods that do not use mipmapping using the `glTexParameteri` function, e.g. set both
+   `GL_TEXTURE_MIN_FILTER` and `GL_TEXTURE_MAG_FILTER` to `GL_LINEAR`. This is necessary: the default value of
+   `GL_TEXTURE_MIN_FILTER` uses mipmaps, and as we do not create them, the texture would be incomplete and the sampler
+   would return black.
 
    The format of the image data passed to `glTexImage2D` must match the number of channels reported by `stbi_load`:
    `GL_RGB` for three channels and `GL_RGBA` for four. The `multicolor.png` image has three channels, but other images
    may have four. After the call to `glTexImage2D`, OpenGL has its own copy of the image, so free the memory allocated by
    `stbi_load` using `stbi_image_free(img)`.
 
+   By default OpenGL expects each row of the image data to start at an address that is a multiple of four bytes. This
+   holds for `multicolor.png` (1024 pixels × 3 bytes), but if you use an image with three channels whose width is not
+   a multiple of four, call `glPixelStorei(GL_UNPACK_ALIGNMENT, 1)` before `glTexImage2D`, otherwise the texture will
+   be skewed.
+
 Now we have to modify the fragment shader to enable it to read the color from the texture. That requires a _sampler_ which
 is defined as a uniform variable
 
 ```glsl
-uniform sampler2D map_Kd; 
+uniform sampler2D map_Kd;
 ```
 
-1. Please add this line to the fragment shader. This is a uniform variable, not interface block. To assign a value to
-   it,
-   we must first get its location using the `glGetUniformLocation` function. Add a static field `map_Kd_location_` of
+1. Please add this line to the fragment shader. This is a uniform variable, not an interface block. To assign a value
+   to it, we must first get its location using the `glGetUniformLocation` function. Add a static field `map_Kd_location_` of
    type `GLint` to the `KdMaterial` class
    ```c++
    inline static GLint map_Kd_location_ = -1;
@@ -94,7 +102,7 @@ uniform sampler2D map_Kd;
 2. Similarly, as with vertex colors, we have to somehow transmit to the fragment shader the information that the texture
    will be bound to the sampler, and we want to use it. We will do it using the material uniform buffer. Please add the
    ```glsl
-   bool use_map_Kd; 
+   bool use_map_Kd;
    ```
    field to the `KdMaterial` interface block in fragment shader, after `use_vertex_colors`. Then in the `bind` method of
    the `KdMaterial` class load zero into this field. The bool variable in an interface block takes as much space as int
@@ -102,10 +110,10 @@ uniform sampler2D map_Kd;
    buffer of `2*sizeof(glm::vec4)` bytes created in the previous assignment is still large enough. You can check the
    offsets using `uniform_info(program(), "KdMaterial")` as described in the `Uniforms` assignment.
 
-3. In the fragment shader add code that depending on the value of the `use_map_Kd` variable multiply the color
+3. In the fragment shader add code that, depending on the value of the `use_map_Kd` variable, multiplies the color
    calculated so far using `Kd`, and vertex colors if present, by the value obtained from the sampler:
    ```glsl
-   vec4 texture_color = texture(map_Kd, vertex_texcoord_0); 
+   vec4 texture_color = texture(map_Kd, vertex_texcoord_0);
    ```
    In this example `vertex_texcoord_0` are the vertex texture coordinates.
    Because the value of the `use_map_Kd` variable is set to zero (`false`), you should not see any difference.
@@ -114,7 +122,8 @@ uniform sampler2D map_Kd;
    of type GLuint. The `texture_` field will contain the handle to the texture that we have
    just created.
 
-5. In the existing constructor set this field to zero. Then add a new three parameter constructor that sets this field:
+5. Give this field the default value zero, `GLuint texture_ = 0;`, so the existing constructors do not have to set it.
+   Then add a new three parameter constructor that sets this field:
    ```c++
    KdMaterial(const glm::vec4 &Kd, bool use_vertex_colors, GLuint texture) :
            Kd_(Kd), use_vertex_colors_(use_vertex_colors), texture_(texture) {}
@@ -127,10 +136,10 @@ uniform sampler2D map_Kd;
    ```
    (`glUniform1i` sets the uniform in the currently used program, so this has to come after the `glUseProgram` call),
    set the active texture unit to zero using
-   the `glActiveTexture` function and bind  `texture_` using the `glBindTexture` function.
+   the `glActiveTexture` function and bind `texture_` using the `glBindTexture` function.
    Samplers are initialized to texture unit zero, so it would work without the `glUniform1i` call, but it is better to
    be explicit, as we will use more texture units later.
-   
+
    If `texture_` is equal to zero then just load zero into `use_map_Kd` field of the material uniform buffer.
 
    In the `unbind` method check if
@@ -147,7 +156,7 @@ uniform sampler2D map_Kd;
 
 The texture that we have loaded is (probably) in the sRGB color space. This means that the color values are not linear.
 At this moment, this is not a problem because we are not doing any calculations on the color. We are just sending it to
-the screen where they are expected to be in sRGB color space.
+the screen where it is expected to be in sRGB color space.
 
 1. But if we want to do any calculations on the color, we have to convert it to the linear color space. This can be done
    automatically by OpenGL, by changing the internal format in the `glTexImage2D` call to `GL_SRGB8` (or
@@ -168,8 +177,6 @@ the screen where they are expected to be in sRGB color space.
    ```glsl
    vFragColor.a = color.a;
    vFragColor.rgb = srgb_gamma_correction(color.rgb);
-   ```   
+   ```
    with `color` being the final color calculated in the shader. The colors should change back to the original ones.
    <p align="center"><img alt="sRGB" src="sRGB.png" width="50%"></p>
-
-
