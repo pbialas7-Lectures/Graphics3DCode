@@ -16,8 +16,7 @@ number of points. The scale is not yet set as it may depend slightly upon your p
 Assignments will have a due date, after which they will no longer be accepted.
 You can submit subsequent assignments, but all prior assignments must be included in them.
 As you have to do all the assignments up to `Diffuse` anyway, you may as well try to submit them on time. The
-due date is given in the Teams
-spreadsheet [zadania](https://ujchmura.sharepoint.com/:x:/r/teams/Section_576780_1/Shared%20Documents/General/zadania.xlsx?d=w9cf9f3aa0a774913b6bf8f0454f89ae3&csf=1&web=1&e=bppEaG).
+due date is given in the Teams spreadsheet `zadania` in the course team.
 
 In the assignment descriptions, I will omit the arguments of various OpenGL functions. Your task will be to complete
 them based on the documentation. Usually, just search for the name of the function to get a link
@@ -93,7 +92,7 @@ git pull origin.lecture main
 
 After creating your repository, please give me permission to read and write to it: in the repository on GitHub go to
 *Settings → Collaborators → Add people* and add the user `pbialas7`. Please add the URL to the repository to the Teams
-sheet [repozytoria](https://ujchmura.sharepoint.com/:x:/r/teams/Section_576780_1/Shared%20Documents/General/repozytoria.xlsx?d=w07aa0e890b1c47158051ef78caa32cc0&csf=1&web=1&e=yKvHrk).
+sheet [repozytoria](https://ujchmura.sharepoint.com/:x:/r/teams/Section_628677_1/Shared%20Documents/General/repozytoria.xlsx?d=w8d21fb3ed4354a8985d2e116ea752cb8&csf=1&web=1&e=GDwpxX).
 
 The assignments can and are even recommended to be done in pairs. You just need to report it to me in advance and keep
 the code in one repository. There is space in the sheet to enter two people for one repository.
