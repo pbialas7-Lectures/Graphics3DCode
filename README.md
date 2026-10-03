@@ -138,6 +138,6 @@ described in [DEBUGGING.md](./Assignments/DEBUGGING.md).
 
 ## Assignments
 
-The procedure for starting a new assignment is described in [README.md](./Assignments/README.md) file in
+The procedure for starting a new assignment is described in the [README.md](./Assignments/README.md) file in
 the `Assignments` folder.
 
