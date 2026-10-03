@@ -6,6 +6,8 @@
 
 #include "obj_reader.h"
 
+#include <limits>
+
 #include "spdlog/spdlog.h"
 #include "glm/glm.hpp"
 
@@ -16,19 +18,20 @@
 
 
 namespace {
-    xe::Triangle get_face(tinyobj::shape_t sh, size_t index_offset, const tinyobj::attrib_t &attrib) {
+    // The shape is passed by reference: copying it would copy all its indices for every face.
+    xe::Triangle get_face(const tinyobj::shape_t &sh, size_t index_offset, const tinyobj::attrib_t &attrib) {
 
         xe::Triangle triangle;
-        std::vector<glm::vec3> p(3);
         for (size_t v = 0; v < 3; v++) {
             // access to vertex
             tinyobj::index_t idx = sh.mesh.indices[index_offset + v];
 
-            p[v].x = attrib.vertices[3 * idx.vertex_index + 0];
-            p[v].y = attrib.vertices[3 * idx.vertex_index + 1];
-            p[v].z = attrib.vertices[3 * idx.vertex_index + 2];
+            glm::vec3 p;
+            p.x = attrib.vertices[3 * idx.vertex_index + 0];
+            p.y = attrib.vertices[3 * idx.vertex_index + 1];
+            p.z = attrib.vertices[3 * idx.vertex_index + 2];
 
-            triangle.position[v] = p[v];
+            triangle.position[v] = p;
 
             glm::vec2 t;
 
@@ -66,6 +69,18 @@ namespace {
 
     int create_smesh(xe::sMesh &mesh, const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes) {
 
+        // Vertices are not shared between faces, so each face adds three vertices, and they are indexed with 16-bit
+        // indices (sMesh::Face). Larger meshes would silently get wrong indices.
+        size_t n_vertices = 0;
+        for (const auto &sh: shapes)
+            n_vertices += sh.mesh.indices.size();
+        const size_t max_vertices = std::numeric_limits<uint16_t>::max() + size_t(1);
+        if (n_vertices > max_vertices) {
+            spdlog::error("OBJ mesh needs {} vertices, but at most {} ({} triangles) can be indexed with 16-bit indices",
+                          n_vertices, max_vertices, max_vertices / 3);
+            return 1;
+        }
+
         mesh.has_normals = !attrib.normals.empty();
         mesh.has_texcoords[0] = !attrib.texcoords.empty();
 
@@ -76,7 +91,7 @@ namespace {
         xe::sMesh::SubMesh sub_mesh;
         sub_mesh.start = fce;
         sub_mesh.mat_idx = mat_idx;
-        for (auto sh: shapes) {
+        for (const auto &sh: shapes) {
             SPDLOG_DEBUG("Processing shape `{}'", sh.name);
             size_t index_offset = 0;
 
@@ -174,7 +189,10 @@ namespace xe {
             return s_mesh;
         }
 
-        create_smesh(s_mesh, attrib, shapes);
+        if (create_smesh(s_mesh, attrib, shapes) != 0) {
+            spdlog::error("Error reading OBJ file {}", name);
+            return xe::sMesh{};
+        }
 
         return s_mesh;
 

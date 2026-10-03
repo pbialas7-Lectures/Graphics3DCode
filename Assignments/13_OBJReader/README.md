@@ -99,5 +99,6 @@ associated [Wavefront Material Template Library (MTL)](https://paulbourke.net/da
 4. Finally, load the `Models/blue_marble.obj` model instead of the pyramid.
    You should see the Earth model with the texture.
 
-   The loader stores the indices as 16-bit numbers, so it can only load models with at most 65536 vertices. This is
-   enough for the models used in this course.
+   The loader does not share vertices between triangles, so each triangle adds three vertices, and it stores the
+   indices as 16-bit numbers. So it can only load models with at most 65536 vertices, i.e. 21845 triangles, and reports
+   an error for larger ones. This is enough for the models used in this course.
