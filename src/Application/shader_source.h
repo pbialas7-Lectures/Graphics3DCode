@@ -14,7 +14,7 @@ namespace xe
         public:
             source_t() = default;
 
-            source_t(source_t &other) : src(other.src) { other.clear(); };
+            source_t(source_t &other) { std::swap(src, other.src); };
 
             source_t &operator=(source_t &rhs)
             {

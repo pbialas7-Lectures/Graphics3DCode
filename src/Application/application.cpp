@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "spdlog/spdlog.h"
 #include "glad/gl.h"
@@ -181,12 +182,6 @@ void xe::Application::run(int verbose) {
     glfwTerminate();
 }
 
-char *convert(const std::string &s) {
-    char *pc = new char[s.size() + 1];
-    std::strcpy(pc, s.c_str());
-    return pc;
-}
-
 void xe::Application::run_cli(int argc, char **argv) {
     int verbose = 0;
     cxxopts::Options options("xe::Application", "Simple OpenGL Application");
@@ -198,7 +193,9 @@ void xe::Application::run_cli(int argc, char **argv) {
     auto unmatched = result.unmatched();
     std::vector<char *> vc;
     vc.push_back(argv[0]);
-    std::transform(unmatched.begin(), unmatched.end(), std::back_inserter(vc), convert);
+    for (auto &arg: unmatched) {
+        vc.push_back(arg.data());
+    }
 
 
     verbose = result["verbose"].as<int>();
@@ -323,13 +320,13 @@ void xe::Application::save_frame_buffer() {
         SPDLOG_WARN("Saving Frame buffer error: Front buffer does not exist.");
 
     auto [w, h] = frame_buffer_size();
-    auto data = (GLubyte *) malloc(w * h * 3);
-    OGL_CALL(glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, data));
+    std::vector<GLubyte> data(w * h * 3);
+    OGL_CALL(glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, data.data()));
 
     stbi_flip_vertically_on_write(1);
     std::stringstream ss;
     ss << "screenshot_" << screenshot_n_ << ".png";
     spdlog::info("Saving screenshot to {}", ss.str());
-    stbi_write_png(ss.str().c_str(), w, h, 3, data, w * 3);
+    stbi_write_png(ss.str().c_str(), w, h, 3, data.data(), w * 3);
     ++screenshot_n_;
 }

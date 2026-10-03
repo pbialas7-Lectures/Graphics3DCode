@@ -74,7 +74,8 @@ namespace xe {
 
     void *Mesh::map_vertex_buffer() {
         OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_));
-        OGL_CALL(auto ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+        void *ptr;
+        OGL_CALL(ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
         return ptr;
     }
 
@@ -90,7 +91,8 @@ namespace xe {
 
     void *Mesh::map_index_buffer() {
         OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i_buffer_));
-        OGL_CALL(auto ptr = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
+        void *ptr;
+        OGL_CALL(ptr = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
         return ptr;
     }
 

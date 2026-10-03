@@ -10,8 +10,16 @@ void RegisteredObject::add(RegisteredObject *p) {
     registry_.push_back(p);
 }
 
+void RegisteredObject::remove(RegisteredObject *p) {
+    registry_.remove(p);
+}
+
 void RegisteredObject::cleanup() {
-    for (auto p: registry_) {
+    // Move the registry out first, so destructors calling remove() do not modify the list we iterate over
+    // and a second call to cleanup() does not delete the objects again.
+    std::list<RegisteredObject *> objects;
+    objects.swap(registry_);
+    for (auto p: objects) {
         delete p;
     }
 }

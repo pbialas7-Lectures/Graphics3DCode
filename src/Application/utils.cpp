@@ -124,9 +124,10 @@ namespace xe {
                 spdlog::error("Error linking program\n");
                 GLint max_log_length = 0;
                 glGetProgramiv(program, GL_INFO_LOG_LENGTH, &max_log_length);
-                GLchar *info_log = new GLchar[max_log_length];
-                glGetProgramInfoLog(program, max_log_length, &max_log_length, info_log);
-                std::istringstream iss(info_log);
+                std::string info_log;
+                info_log.resize(max_log_length);
+                glGetProgramInfoLog(program, max_log_length, &max_log_length, info_log.data());
+                std::istringstream iss(info_log.substr(0, max_log_length));
                 std::string line;
                 while (std::getline(iss, line)) {
                     spdlog::error(line);
@@ -178,6 +179,8 @@ namespace xe {
                 delete_shaders(shaders);
                 return 0;
             }
+            // Shaders are only flagged for deletion here, they are freed when the program is deleted.
+            delete_shaders(shaders);
             return program;
         }
 
@@ -186,14 +189,13 @@ namespace xe {
         }
 
         GLuint create_shader_from_source(GLenum type, source_t &shader_source) {
+            if (shader_source.size() == 0) return 0;
+
             auto shader = glCreateShader(type);
             if (shader == 0) {
                 spdlog::error("Error creating {} shader", utils::shader_type(type));
                 return 0;
             }
-
-            if (shader_source.size() == 0) return 0;
-
 
             glShaderSource(shader, shader_source.size(), shader_source.data(), nullptr);
 

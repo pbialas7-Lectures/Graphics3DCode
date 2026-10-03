@@ -5,11 +5,15 @@
 
 #include <list>
 
+// Objects derived from this class are deleted by RegisteredObject::cleanup(),
+// so they must be allocated with new.
 class RegisteredObject {
 
 
 public:
     static void add(RegisteredObject *p);
+
+    static void remove(RegisteredObject *p);
 
     static void cleanup();
 
@@ -17,7 +21,9 @@ public:
         RegisteredObject::add(this);
     }
 
-    virtual ~RegisteredObject() = default;
+    virtual ~RegisteredObject() {
+        RegisteredObject::remove(this);
+    }
 
 
 private:

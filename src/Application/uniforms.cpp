@@ -3,6 +3,8 @@
 //
 #include "uniforms.h"
 
+#include <vector>
+
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/fmt.h"
 
@@ -31,9 +33,9 @@ void uniform_info(GLuint program, const char *name) {
     OGL_CALL(glGetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS,
                                        &num_uniforms));
     fmt::print("Uniform block {} num uniforms = {}\n", name, num_uniforms);
-    GLint *uniform_indices = new GLint[num_uniforms];
+    std::vector<GLint> uniform_indices(num_uniforms);
     OGL_CALL(glGetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES,
-                                       uniform_indices));
+                                       uniform_indices.data()));
     for (int i = 0; i < num_uniforms; i++) {
         GLsizei length;
         GLenum type;
