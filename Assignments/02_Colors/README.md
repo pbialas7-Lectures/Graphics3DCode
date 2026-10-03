@@ -19,6 +19,8 @@
 
 4. If the house appears again on the screen, we can start connecting the colors from the vertex buffer.
    To this end please add an input variable (attribute) for colors in the vertex shader code with `location=1`.
+   You can declare it as `vec4` even though the buffer holds only three color components: OpenGL fills in the missing
+   fourth component (alpha) with 1, just as it does for the `w` coordinate of `a_vertex_position`.
    This should not change anything on the screen.
 
 5. In the `app.cpp` file add appropriate `glVertexAttribPointer` and `glEnableVertexAttribArray` that will enable

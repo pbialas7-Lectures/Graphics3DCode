@@ -1,11 +1,3 @@
-<style>
-.center {
-  display: block;
-  margin: 1em auto;
-  width: 50%;
-}
-</style>
-
 # Projection - View - Model
 
 #### 5 points
@@ -91,4 +83,4 @@ This should change nothing in the display. Please remove the old code.
    the `glm::translate` function to create this matrix.
 
    The final result should look like this:
-   <img alt="House" src="house.png" class="center">
+   <p align="center"><img alt="House" src="house.png" width="50%"></p>

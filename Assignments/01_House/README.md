@@ -1,11 +1,3 @@
-<style>
-.center {
-  display: block;
-  margin: 1em auto;
-  width: 50%;
-}
-</style>
-
 # House
 
 #### 2 points
@@ -59,4 +51,4 @@
    by adding beneath the original triangle a rectangle of width 1.0 and height 0.5 made out of two triangles. This
    should be your final version that you should submit to repository. It should look like this:
 
-<img alt="House" src="house.png" class="center">
+<p align="center"><img alt="House" src="house.png" width="50%"></p>

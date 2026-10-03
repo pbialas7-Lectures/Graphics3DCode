@@ -53,7 +53,7 @@ void SimpleShapeApplication::init() {
 
     // This sets up a Vertex Array Object (VAO) that encapsulates
     // the state of all vertex buffers needed for rendering.
-    // The vao_ variable is a member of the SimpleShapeApplication class and is defined in src/Application/app.h.
+    // The vao_ variable is a member of the SimpleShapeApplication class and is defined in app.h.
     OGL_CALL(glGenVertexArrays(1, &vao_));
     OGL_CALL(glBindVertexArray(vao_));
     OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_handle));

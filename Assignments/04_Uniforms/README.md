@@ -1,11 +1,3 @@
-<style>
-.center {
-  display: block;
-  margin: 1em auto;
-  width: 50%;
-}
-</style>
-
 # Uniforms
 
 #### 8 points
@@ -72,7 +64,7 @@ passed via uniform interface block.
    as `vFragColor.rgb` and similarly for all other color variables in fragment shader.
 
    The result should look like this:
-   <img alt="House" src="house1.png" class="center">
+   <p align="center"><img alt="House" src="house1.png" width="50%"></p>
 
 ### Moving houses :)
 
@@ -93,6 +85,14 @@ The parameters of this transformation will be passed to vertex shader via unifor
    variables are aligned to 8 bytes (two floats) boundaries (rule 2). The 2x2 matrix `mat2` is treated as an array
    of two `vec2` variables  (rule 5). Each element of this array is aligned to a 16-byte boundary (rule 4). How
    many bytes do you have to allocate?
+
+   You can check your answer with the `uniform_info` helper function. Include `Application/uniforms.h` and call
+   ```c++
+   uniform_info(program, "Transformations");
+   ```
+   after creating the program. It prints the binding, the total size of the block and the offset of each member as
+   computed by the OpenGL driver. You can use it for the `Mixer` block as well.
+
 3. Create variables that will hold values to be loaded into the buffer:
    ```c++
    float theta = 1.0*glm::pi<float>()/6.0f;//30 degrees
@@ -130,6 +130,6 @@ The parameters of this transformation will be passed to vertex shader via unifor
    It is best to add the transformations one by one. Start with translation, then scale and finally rotation.
 
    The final result should look like this:
-   <img alt="House" src="house2.png" class="center">
+   <p align="center"><img alt="House" src="house2.png" width="50%"></p>
 
 

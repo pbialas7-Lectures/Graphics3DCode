@@ -17,7 +17,8 @@ so if they differ in color, they are considered different even if they have the 
 
 1. First, we will not remove the vertices, we will only add an index buffer. To do this, you need to declare a new
    vector `vector<GLubyte>` which will contain the indexes. Since we are not changing anything in the vertex
-   buffer for now, we fill it with integers from `0` to `number of vertices-1`.
+   buffer for now, we fill it with integers from `0` to `number of vertices-1`. A `GLubyte` index can only address
+   256 vertices, which is plenty here; larger meshes use `GLushort` or `GLuint` indices.
 
 1. Then, using the `glCreateBuffers` command, create a new index buffer in the same way as you have created the vertex
    buffer.
@@ -26,9 +27,14 @@ so if they differ in color, they are considered different even if they have the 
 1. Now bind this buffer
    using the `glBindBuffer` command  with target argument set to `GL_ELEMENT_ARRAY_BUFFER`  between calls to `glBindVertexArray(vao_)` and `glBindVertexArray(0)`.
    This way it will be remembered in the Vertex Array Object (VAO) `vao_`.
+   Do __not__ unbind the index buffer (`glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)`) while the VAO is still bound: the VAO
+   would remember that instead, and nothing would be drawn. Unlike `GL_ARRAY_BUFFER`, the `GL_ELEMENT_ARRAY_BUFFER`
+   binding is part of the VAO state.
 
 1. Now in the `frame` function we replace the drawing function `glDrawArrays` with `glDrawElements`, of course
-   changing the arguments accordingly.
+   changing the arguments accordingly. The `count` argument is the number of indices to draw, `type` must match the type
+   of the indices in the buffer (`GL_UNSIGNED_BYTE` for `GLubyte`), and the last argument is the offset __in bytes__
+   into the index buffer at which to start, here `nullptr` (zero).
 
 1. If our house is displayed, please remove the repeated vertices from the vertex buffer and modify the index buffer
    accordingly so that the __same__ house still appears on the screen. You should end up with seven vertices in the vertex

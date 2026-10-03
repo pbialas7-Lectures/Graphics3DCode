@@ -11,7 +11,7 @@ You will also learn how to use the depth buffer and how to cull faces.
 2. Next set the model transformation to unity and place the camera at (0,0,2) looking at (0,0,0) with up vector
    in the `y` direction. The result should look like this:
 
-   <img alt="House" src="house1.png" style="display: block;margin: 1em auto; width: 50%">
+   <p align="center"><img alt="House" src="house1.png" width="50%"></p>
 
 ## Orientation and back-face culling
 
@@ -59,8 +59,10 @@ You will also learn how to use the depth buffer and how to cull faces.
    To do this issue the following command before drawing the object:
 
    ```c++
-   glEnable(GL_DEPTH_TEST);
+   OGL_CALL(glEnable(GL_DEPTH_TEST));
    ```
+   The window already has a depth buffer and the `Application` class clears it at the start of every frame, so this
+   is the only call you need.
 
    Actually, you will probably not see any difference. That's because of the enabled face culling. The back faces are
    not
@@ -72,7 +74,7 @@ You will also learn how to use the depth buffer and how to cull faces.
    Switch back to the original camera position as described at the beginning of this file.
    The correct result should look like this:
 
-   <img alt="Pyramid" src="pyramid.png" style="display: block;margin: 1em auto; width: 50%">
+   <p align="center"><img alt="Pyramid" src="pyramid.png" width="50%"></p>
 
 3. Before submitting, check if the base has proper orientation.
    You can do it by changing the z coordinate of the camera
