@@ -22,7 +22,7 @@ passed via uniform interface block.
    mixing with one being the maximum and resulting in the mixing color, and zero in original color.
 
    The `binding=0` qualifier specifies the binding point of the interface block. This is a feature of OpenGL 4.2 and
-   higher (sorry Apple ...), so accordingly you have to change first line of fragment shader to `#version 420`.
+   higher, so accordingly you have to change first line of fragment shader to `#version 420`.
    The `std140` qualifier indicates how the block members will be lay out in the memory (more about that later and
    in [STD140](STD140.md) ).
    After running the program, nothing should change.

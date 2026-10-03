@@ -18,16 +18,14 @@ The minimum version required is 4.5.
 You will need a graphics card/driver that supports this version.
 You can check
 the version of OpenGL supported by your graphics card/driver using
-the [OpenGL Extensions Viewer](https://www.realtech-vr.com/glview/). If for some reason you cannot use OpenGL 4.6 (see
-Apple below) you can change the version in the `CMakeLists.txt` file by setting the different value for `MINOR`
+the [OpenGL Extensions Viewer](https://www.realtech-vr.com/glview/). If for some reason you cannot use OpenGL 4.6
+you can change the version in the `CMakeLists.txt` file by setting the different value for `MINOR`
 variable. Using version 4.5 should be fine.
 
-### Apple
+### Apple computers are not supported
 
-Unfortunately, Apple does not support OpenGL 4.6.
-The highest version supported by Apple is 4.1.
-So I am sorry to say it will be impossible to use Apple computers with macOS for
-this course :(
+This project does not work on Apple computers with macOS. Apple supports OpenGL only up to version 4.1, below the
+required minimum of 4.5, and it cannot be changed by setting `MINOR`. Please use a computer with Linux or Windows.
 
 ## Building
 
@@ -54,13 +52,13 @@ make -j
 ### VS Code
 
 While you may work via command line and your preferred text editor, it is much more comfortable to use an IDE. I
-recommend [Visual Studio Code](https://code.visualstudio.com/) which is available on Linux, macOS and Windows.
+recommend [Visual Studio Code](https://code.visualstudio.com/) which is available on Linux and Windows.
 
 After installing VS Code, use it to open a folder containing the project repository.
 You should install the recommended extension. The list is in the `.vscode/extensions.json` file, but you should be
 prompted to do this after opening the
 project folder. Also on opening, you may be prompted to configure the project.
-You will have to choose the kit used for compilation, you will need a C++17 compiler. On Linux and macOS I am using
+You will have to choose the kit used for compilation, you will need a C++17 compiler. On Linux I am using
 `clang` (10 or higher) but you can also use  `g++`.
 
 On Windows if you do not have some version of Visual Studio installed, you will need to install
@@ -93,7 +91,7 @@ It is a commercial product, but you can get a free license if you are a student.
 You can get the license [here](https://www.jetbrains.com/community/education/#students).
 Setting up the CLion is similar to setting up VS Code.
 Just open the project folder in CLion and it should configure itself.
-You will have to choose the compiler kit. On Linux and macOS I am using clang (10 or higher) but you can also use g++.
+You will have to choose the compiler kit. On Linux I am using clang (10 or higher) but you can also use g++.
 
 ## Assignments
 
